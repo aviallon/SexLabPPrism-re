@@ -91,6 +91,9 @@ target(PROJECT_NAME)
         -- CMake sets CMAKE_INTERPROCEDURAL_OPTIMIZATION for Release, and its 59
         -- byte-identical function pools can only come from /Gy + /OPT:ICF.
         add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob2", "cl::/GL")
-        add_ldflags("cl::/LTCG", "cl::/OPT:REF", "cl::/OPT:ICF")
+        -- NB: no `cl::` prefix here. `cl::` marks a flag as compiler-only and
+        -- silently kept /LTCG off the link line, so the link failed with
+        -- "module compiled with /GL found; restarting link with /LTCG".
+        add_ldflags("/LTCG", "/OPT:REF", "/OPT:ICF")
     end
 target_end()
