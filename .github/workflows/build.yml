@@ -77,7 +77,7 @@ jobs:
         shell: pwsh
         run: |
           xmake f -p windows -a x64 -m release -y
-          xmake build SexLabPPrism -v
+          xmake build SexLabPPrism
           Get-ChildItem -Recurse -Filter SexLabPPrism.dll | Select-Object FullName, Length
 
       - name: Package the mod zip
