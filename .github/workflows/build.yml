@@ -176,6 +176,16 @@ jobs:
           git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$COMMONLIB_PARITY_REV"
           git -C lib/CommonLibSSE-NG checkout --detach FETCH_HEAD
           echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
+          # Drop the git metadata BEFORE configuring. The pinned commit happens to
+          # be the v4.38.0 release tag, and CLNG's xmake.lua auto-downloads that
+          # release's prebuilt static library in CI - a bundle built by the
+          # maintainers' newer toolset. Linking it with the 14.44 linker fails on
+          # an MSVC STL-internal symbol (LNK2001: __std_regex_transform_primary_char)
+          # even though every one of our own translation units is built by 14.44.
+          # With no .git directory, CLNG's `git describe --tags --exact-match` fails
+          # and it compiles from source with our toolset - which is what the
+          # original did - instead of silently mixing in a foreign prebuilt.
+          rm -rf lib/CommonLibSSE-NG/.git
 
       - name: Assert the checkout is the pre-format-5 era
         shell: bash
