@@ -182,9 +182,13 @@ jobs:
       - name: Build with the original toolset (MSVC 14.44)
         shell: cmd
         run: |
-          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSPATH=%%i"
-          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.44 || exit /b 1
-          cl /Bv 2>&1 | findstr /C:"Version"
+          rem windows-2022 ships VS 2022, whose default toolset IS 14.44 - the
+          rem toolset the original was linked with. Letting xmake detect that
+          rem consistently for every target matters: forcing vcvarsall for 14.44
+          rem while xmake detected the VS 2026 image elsewhere produced CLNG
+          rem objects built from newer STL headers, which then failed to resolve
+          rem internal STL symbols at LTCG time. The check_linker gate below
+          rem proves which toolset actually produced the binary.
           xmake f -p windows -a x64 -m release -y
           xmake build -v SexLabPPrism || exit /b 1
       - name: Assert the toolset actually matched, and stage the DLL
