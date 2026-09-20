@@ -14,7 +14,31 @@ on:
   workflow_dispatch:
     inputs:
       commonlib_ref:
-        description: "Optional CommonLibVR commit/ref to pin (default: latest ng HEAD)"
+        description: "Build job: optional CommonLibVR commit/ref to pin (default: latest ng HEAD)"
+        required: false
+        default: ""
+      parity_commonlib_ref:
+        description: "Parity job: override the pinned-era CLNG ref (default: 1cc6b3999). Prints a warning; the era gate still runs."
+        required: false
+        default: ""
+      spdlog_version:
+        description: "Parity sweep: spdlog version, e.g. v1.15.2 (default/empty = CLNG's v1.16.0)"
+        required: false
+        default: ""
+      directxmath_version:
+        description: "Parity sweep: DirectXMath version, e.g. 2024.02 (default/empty = CLNG's 2024.02)"
+        required: false
+        default: ""
+      directxtk_version:
+        description: "Parity sweep: DirectXTK version, e.g. 24.2.0 (default/empty = CLNG's 24.2.0)"
+        required: false
+        default: ""
+      rapidcsv_version:
+        description: "Parity sweep: rapidcsv version, e.g. v8.92 (default/empty = CLNG's v8.92)"
+        required: false
+        default: ""
+      xmake_repo_ref:
+        description: "Parity sweep: xmake-repo commit to check out before configuring (default/empty = image's repo)"
         required: false
         default: ""
 
@@ -163,11 +187,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          ref="${{ github.event.inputs.parity_commonlib_ref || '' }}"
+          if [ -z "$ref" ]; then
+            ref="$COMMONLIB_PARITY_REV"
+          else
+            echo "::warning::parity CommonLib ref OVERRIDDEN to $ref; the pinned era is $COMMONLIB_PARITY_REV"
+          fi
+          echo "parity CommonLib ref: $ref"
           rm -rf lib/CommonLibSSE-NG
           mkdir -p lib
           git init lib/CommonLibSSE-NG
           git -C lib/CommonLibSSE-NG remote add origin "$COMMONLIB_REPO"
-          git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$COMMONLIB_PARITY_REV"
+          git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$ref"
           git -C lib/CommonLibSSE-NG checkout --detach FETCH_HEAD
           echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
           # CLNG's headers include <openvr.h>, which the prebuilt bundle used to
@@ -193,6 +224,32 @@ jobs:
       - uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: latest
+
+      - name: Resolve dependency-pin overrides (parity sweep)
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "PRISM_SPDLOG_VERSION=${{ github.event.inputs.spdlog_version || '' }}"
+            echo "PRISM_DIRECTXMATH_VERSION=${{ github.event.inputs.directxmath_version || '' }}"
+            echo "PRISM_DIRECTXTK_VERSION=${{ github.event.inputs.directxtk_version || '' }}"
+            echo "PRISM_RAPIDCSV_VERSION=${{ github.event.inputs.rapidcsv_version || '' }}"
+          } >> "$GITHUB_ENV"
+          for v in PRISM_SPDLOG_VERSION PRISM_DIRECTXMATH_VERSION PRISM_DIRECTXTK_VERSION PRISM_RAPIDCSV_VERSION; do
+            eval "val=\${$v}"
+            if [ -n "$val" ]; then echo "$v override -> $val"; else echo "$v unset (CLNG pin)"; fi
+          done
+
+      - name: Pin the xmake-repo package recipes
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.xmake_repo_ref != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$HOME/.xmake/repositories/xmake-repo"
+          [ -d "$repo/.git" ] || xmake repo -u
+          git -C "$repo" fetch --filter=blob:none origin master
+          git -C "$repo" checkout --detach "${{ github.event.inputs.xmake_repo_ref }}"
+          git -C "$repo" rev-parse HEAD
 
       - name: Build with the original toolset (MSVC 14.44)
         shell: cmd

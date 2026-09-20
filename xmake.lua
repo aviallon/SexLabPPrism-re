@@ -12,6 +12,50 @@ set_xmakever("3.0.0")
 PROJECT_NAME = "SexLabPPrism"
 PROJECT_VERSION = "0.6.1"
 
+-- ---------------------------------------------------------------------------
+-- Dependency pins for parity sweeps.
+--
+-- The CLNG revision this project builds against (v4.38.0,
+-- 1cc6b3999eb92b4d86be08be28011ba679980081) hardcodes its own package versions
+-- inside lib/CommonLibSSE-NG/xmake.lua:
+--
+--   add_requires("directxmath 2024.02", "directxtk 24.2.0")
+--   add_requires("spdlog v1.16.0",
+--                { configs = { header_only = false, wchar = true,
+--                              std_format = true } })
+--   add_requires("rapidcsv v8.92")
+--
+-- Those are recovered (not guessed) versions: the sibling upstream build
+-- SexLabpp/xmake-requires.lock resolves exactly directxmath 2024.02,
+-- directxtk 24.2.0, rapidcsv v8.92 and spdlog v1.16.0 against xmake-repo
+-- commit 33a3d2592b35c2e02b01b0824a9f017a787ddec1, and the original DLL
+-- contains no fmt symbols at all, which is only true with spdlog's
+-- std_format=true configuration.  A transitive add_requires cannot be
+-- re-pointed from the command line, so each PRISM_<DEP>_VERSION environment
+-- variable (set by the workflow_dispatch inputs) becomes an add_requireconfs()
+-- override.  An empty variable keeps CLNG's own pin, so the normal parity job
+-- is unchanged and the pinned-era gate still runs.
+--
+-- add_requireconfs() must run BEFORE includes() pulls in CLNG's script, since
+-- that script is where add_requires() for these packages is executed.
+-- ---------------------------------------------------------------------------
+local function prism_pin(dep, version, conf)
+    if version and version ~= "" then
+        conf = conf or {}
+        conf.override = true
+        conf.version = version
+        add_requireconfs(dep, conf)
+        print(string.format("[prism] dependency override: %s = %s", dep, version))
+    end
+end
+
+prism_pin("spdlog", os.getenv("PRISM_SPDLOG_VERSION"), {
+    configs = { header_only = false, wchar = true, std_format = true },
+})
+prism_pin("directxmath", os.getenv("PRISM_DIRECTXMATH_VERSION"))
+prism_pin("directxtk", os.getenv("PRISM_DIRECTXTK_VERSION"))
+prism_pin("rapidcsv", os.getenv("PRISM_RAPIDCSV_VERSION"))
+
 -- CommonLibSSE-NG (alandtse/CommonLibVR `ng`). Must exist before this script is
 -- parsed; the workflow checks it out first, and tools/check_commonlib.py proves
 -- it is a format-5-capable revision.
