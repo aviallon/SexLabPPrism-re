@@ -5,6 +5,7 @@
 #include "UiBridge.h"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 
 namespace Catalog
@@ -15,7 +16,7 @@ namespace Catalog
 		std::vector<Record>                   g_records;
 		std::unordered_map<std::string, std::size_t, Fnv1aHash> g_index;
 		std::int32_t                          g_expectedTotal = 0;
-		bool                                  g_ready         = false;
+		std::atomic<bool>                     g_ready         = false;
 		bool                                  g_building      = false;
 		std::uint64_t                         g_buildStart    = 0;
 
@@ -106,7 +107,9 @@ namespace Catalog
 		g_buildStart    = NowTicks();
 		g_ready         = false;
 		g_building      = true;
+#line 480
 		logger::info("Catalog build started: {} registered scenes expected", a_total);
+#line 112
 		UiBridge::InvokeJs("slppCatalogReset", std::to_string(a_total));
 	}
 
@@ -155,7 +158,9 @@ namespace Catalog
 				++mapped;
 			}
 		}
+#line 533
 		logger::info("Catalog package '{}' mapped to {}/{} scenes", a_package, mapped, a_ids.size());
+#line 161
 	}
 
 	void Finish()
@@ -174,8 +179,10 @@ namespace Catalog
 
 	bool IsReady()
 	{
-		std::lock_guard lock{ g_mutex };
-		return g_ready;
+		// 0x18002a8a0 `IsCatalogReady` is a lock-free byte read (`movzx eax,[ready]`):
+		// the original's flag is a standalone byte written with `xchg` by CatalogFinish,
+		// not a field protected by the catalogue mutex.
+		return g_ready.load();
 	}
 
 	std::int32_t Count()

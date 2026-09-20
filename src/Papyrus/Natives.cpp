@@ -25,10 +25,13 @@ namespace Papyrus::Natives
 		}
 	}  // namespace
 
-	// 0x18002a8e0 — spdlog only, '[Papyrus] {}'.
+	// 0x18002a8e0 — spdlog only, '[Papyrus] {}'. The original compiled this in
+	// `src\main.cpp` at line 365 (0x16d), which spdlog embeds as the source_loc line.
 	void Log(RE::StaticFunctionTag*, std::string a_message)
 	{
+#line 365
 		logger::info("[Papyrus] {}", a_message);
+#line 33
 	}
 
 	// 0x180029630 — mutex + monotonic session counter.
