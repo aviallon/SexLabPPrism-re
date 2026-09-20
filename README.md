@@ -46,33 +46,35 @@ IsCatalogReady  GetCatalogCount  CatalogPublish  SetSearchQuery
 
 ## What is stubbed
 
-Behaviour is only partly recovered so far. A decompilation pass recovered
-pseudocode for all 13 natives — 11 of them need nothing beyond fmt/STL/mutex
-plus the SKSE `TaskInterface`, and only `IsFreeCameraActive` and the two event
-sinks touch real engine types (`RE::PlayerCamera`, `BSTEventSink<RE::InputEvent*>`) —
-but reimplementing them is the *next* step, not this one. Every native except
-`Log` therefore logs
+The 13 natives are implemented (see the table below), reconstructed from the
+decompilation and the PEX contract. What is still scaffolding is the **UI
+layer**: the PrismaUI interface layout could not be recovered from the binary,
+so `UiBridge` loads `PrismaUI.dll` dynamically and keeps every call behind one
+indirection point, logged rather than executed. The plugin therefore loads and
+logs, but it does not yet replace SexLab's scene menu. `OnMessage`, the input
+and menu-visibility sinks, and the JS callback registration
+(`slppReady`/`slppAction`/`slppSearchRequest`/`slppCollapsed`/`slppLog`/
+`slppCatalogRetry`) are not reconstructed either.
 
-```
-<name>: not implemented yet
-```
-
-and returns a safe default:
-
-| native | stub return |
+| native | implementation |
 |---|---|
-| `BeginSceneSession` | `0` (no session) |
-| `IsFreeCameraActive` | `false` |
-| `IsCatalogReady` | `false` |
-| `GetCatalogCount` | `0` |
-| all `void` natives | no-op + warning |
+| `Log` | forwards to the plugin log (spdlog `[Papyrus] {}`) |
+| `BeginSceneSession` | mutex-guarded session counter, returns the new id |
+| `PublishSceneState` | JSON scene state, stale-update rejection, focus-recovery cancel, TaskInterface push |
+| `IsFreeCameraActive` | `RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode()` |
+| `PublishCompatible` | JSON id array to the UI |
+| catalogue natives | 128-byte records, FNV-1a id index, package mapping, ready flag, publish |
+| `SetSearchQuery` | clears the modal flag, forwards the query |
 
-`Log(String)` is implemented (it forwards the message to the plugin log); it is
-the one native whose behaviour is fully determined by the contract.
+### Build parity configuration
 
-The PrismaUI web-view, the JSON scene/catalogue protocol, the event sinks
-(`InputSink`, `MenuVisibilitySink`), `FocusRecovery` and the freecam/HUD logic
-of the original are **not** reconstructed in this step.
+`.github/workflows/build.yml` has a second, deliberately non-shipping `parity`
+job. It pins the CommonLibSSE-NG era the original was built against
+(pre-Address-Library-format-5, `1cc6b3999`) and selects the original's MSVC
+14.44 toolset, because per-function disassembly comparison against the original
+is only meaningful under the same compiler and library revision. Binaries from
+that job cannot read `versionlib-1-7-104-0.bin` and must never be installed;
+the `build` job ships and always uses the LATEST CommonLibSSE-NG.
 
 ## Build
 

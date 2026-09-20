@@ -36,7 +36,10 @@ if is_mode("debug") then
     set_optimize("none")
 elseif is_mode("release") then
     add_defines("NDEBUG")
-    set_optimize("fastest")
+    -- /O2, not /Ox: the original was built by CommonLibSSE-NG's CMake Release
+    -- configuration, which leaves CMAKE_CXX_FLAGS_RELEASE at the MSVC default
+    -- (/O2 /Ob2). xmake's "fastest" maps to /Ox, which schedules differently.
+    set_optimize("faster")
     set_symbols("debug")
 end
 
@@ -52,6 +55,10 @@ target(PROJECT_NAME)
 
     set_pcxxheader("src/PCH.h")
     add_files("src/**.cpp")
+    -- The original carries a VERSIONINFO resource (.rsrc, 752 bytes, no
+    -- OriginalFilename/CompanyName). src/Version.rc reproduces it byte-for-byte
+    -- as far as the resource contents go.
+    add_files("src/Version.rc")
     add_headerfiles("src/**.h")
     add_includedirs("src")
 
@@ -63,6 +70,8 @@ target(PROJECT_NAME)
         "cl::/fp:contract",
         "cl::/fp:except-",
         "cl::/guard:cf-",
+        "cl::/permissive-",
+        "cl::/Gy",
         "cl::/Zc:enumTypes",
         "cl::/Zc:preprocessor",
         "cl::/Zc:templateScope",
@@ -77,6 +86,11 @@ target(PROJECT_NAME)
     if is_mode("debug") then
         add_cxxflags("cl::/bigobj")
     elseif is_mode("release") then
-        add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob3")
+        -- /Ob2 (not /Ob3) and /Gy plus whole-program optimisation: the original
+        -- shows the Utc1920_LTCG_CPP/_C marker in its Rich header and its CLNG
+        -- CMake sets CMAKE_INTERPROCEDURAL_OPTIMIZATION for Release, and its 59
+        -- byte-identical function pools can only come from /Gy + /OPT:ICF.
+        add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob2", "cl::/GL")
+        add_ldflags("cl::/LTCG", "cl::/OPT:REF", "cl::/OPT:ICF")
     end
 target_end()

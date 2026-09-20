@@ -110,11 +110,15 @@ jobs:
           unofficial and is not a byte-for-byte reproduction.
 
           Status: the plugin compiles, loads, creates SexLabPPrism.log and
-          registers the natives. The Prism state/catalogue natives are STUBS -
-          they log "not implemented yet" and return safe defaults. Only the
-          native `Log` is implemented (it writes to the plugin log). Installed
-          over the matching Prism scripts, the native surface resolves, but
-          Prism's UI behaviour is NOT reproduced yet.
+          registers the natives. The 13 natives are IMPLEMENTED from the
+          reconstructed contract: scene-session tracking, the JSON scene-state
+          protocol with stale-update rejection, free-camera detection, and the
+          animation catalogue (128-byte records, FNV-1a id index, package
+          mapping, publishing) plus search-query forwarding. The PrismaUI web
+          view bridge is scaffolding only - the interface layout is unconfirmed,
+          so UI calls are logged rather than executed and the scene UI is NOT
+          reproduced yet. Expect the plugin to load and log, not to replace
+          SexLab's scene menu.
 
           Install: Amethyst: Mods -> Install mod from file..., then let this mod
           overwrite the original Prism mod (only SKSE/Plugins/SexLabPPrism.dll
@@ -134,3 +138,73 @@ jobs:
         with:
           name: SexLabPPrism-0.6.1-1.7.104
           path: SexLabPPrism-0.6.1-1.7.104.zip
+
+  # ---------------------------------------------------------------------------
+  # Parity build: a MEASUREMENT INSTRUMENT, not a shipping artifact.
+  #
+  # It exists so tools/parity.py can compare our machine code with the original
+  # DLL function by function, so it deliberately reproduces the original's build
+  # environment: the same CommonLibSSE-NG era (pre-Address-Library-format-5) and
+  # the same MSVC 14.44 toolset, plus /O2, /Gy, LTCG and the VERSIONINFO
+  # resource. That combination is precisely what CANNOT read
+  # versionlib-1-7-104-0.bin, so a binary from this job must never be installed;
+  # the `build` job above is the one that ships and it always uses the LATEST
+  # CommonLibSSE-NG.
+  # ---------------------------------------------------------------------------
+  parity:
+    runs-on: windows-2022
+    env:
+      # `ng` HEAD at the original binary's own timestamp (2026-07-19).
+      COMMONLIB_PARITY_REV: 1cc6b3999eb92b4d86fe08be28011ba679980081
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the original-era CommonLibSSE-NG
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf lib/CommonLibSSE-NG
+          mkdir -p lib
+          git init lib/CommonLibSSE-NG
+          git -C lib/CommonLibSSE-NG remote add origin "$COMMONLIB_REPO"
+          git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$COMMONLIB_PARITY_REV"
+          git -C lib/CommonLibSSE-NG checkout --detach FETCH_HEAD
+          echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Assert the checkout is the pre-format-5 era
+        shell: bash
+        run: python tools/check_commonlib_parity.py lib/CommonLibSSE-NG
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Build with the original toolset (MSVC 14.44)
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath`) do set "VSPATH=%%i"
+          call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.44 || exit /b 1
+          cl /Bv 2>&1 | findstr /C:"Version"
+          xmake f -p windows -a x64 -m release -y
+          xmake build SexLabPPrism || exit /b 1
+
+      - name: Assert the toolset actually matched, and stage the DLL
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll=$(find build -name SexLabPPrism.dll -type f | head -1)
+          [ -n "$dll" ] || { echo "::error::SexLabPPrism.dll not found"; exit 1; }
+          python tools/check_linker.py "$dll" 14.44
+          mkdir -p parity-out
+          cp "$dll" parity-out/SexLabPPrism-parity.dll
+
+      - name: Report hashes
+        shell: bash
+        run: |
+          sha256sum parity-out/SexLabPPrism-parity.dll | sed 's/^/  dll  /'
+          echo "  commonlib  $COMMONLIB_REV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SexLabPPrism-0.6.1-parity
+          path: parity-out/SexLabPPrism-parity.dll
