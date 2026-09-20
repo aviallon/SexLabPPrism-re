@@ -15,48 +15,37 @@ namespace MenuVisibilitySink
 		public:
 			RE::BSEventNotifyControl ProcessEvent(
 				const RE::MenuOpenCloseEvent* a_event,
-				RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
-		};
+				RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override
+			{
+				// 0x18001f3c0: `test rdx,rdx / cmpb $0,0x8(%rdx)` — a null event or a
+				// CLOSING event returns kContinue immediately, so the whole body is
+				// an open-only path.
+				if (!a_event || !a_event->opening) {
+					return RE::BSEventNotifyControl::kContinue;
+				}
 
-		// The real body, kept separate so the structure mirrors the original's
-		// thin ProcessEvent thunk + helper calls.
-		RE::BSEventNotifyControl Handle(const RE::MenuOpenCloseEvent* a_event)
-		{
-			if (!a_event) {
-				return RE::BSEventNotifyControl::kContinue;
-			}
+				const bool sceneActive = SceneState::IsSceneActive();
 
-			const std::string_view menuName{ a_event->menuName };
-			const bool             sceneActive = SceneState::IsSceneActive();
-
-			if (menuName == RE::HUDMenu::MENU_NAME) {
-				if (a_event->opening) {
+				// HUD first: `movups "HUD Menu" / call 0x180023df0` then
+				// `call 0x180026790` (ApplyVanillaHUDVisibility).
+				if (a_event->menuName == RE::HUDMenu::MENU_NAME) {
 					Presentation::ApplyVanillaHUDVisibility(sceneActive);
-				} else {
-					Presentation::ApplyPresentation();
+					return RE::BSEventNotifyControl::kContinue;
+				}
+
+				if (a_event->menuName == RE::Console::MENU_NAME) {
+					Presentation::ApplyConsoleVisibility(sceneActive);
+					if (sceneActive) {
+						// The original additionally resolves Console::Hide() and a
+						// method on the menu through the address library here
+						// (recon/NATIVES-RECOVERED.md §4.3); ApplyConsoleVisibility
+						// is the CLNG-visible equivalent.
+						logger::info("Developer Console closed during active scene");
+					}
 				}
 				return RE::BSEventNotifyControl::kContinue;
 			}
-
-			if (menuName == RE::Console::MENU_NAME) {
-				Presentation::ApplyConsoleVisibility(sceneActive);
-				if (sceneActive && !a_event->opening) {
-					// The original additionally resolves Console::Hide() through
-					// the address library here (recon/NATIVES-RECOVERED.md §4.3);
-					// ApplyConsoleVisibility(true) is the CLNG-visible equivalent.
-					Presentation::ApplyConsoleVisibility(true);
-					logger::info("Developer Console closed during active scene");
-				}
-			}
-			return RE::BSEventNotifyControl::kContinue;
-		}
-
-		RE::BSEventNotifyControl Sink::ProcessEvent(
-			const RE::MenuOpenCloseEvent* a_event,
-			RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
-		{
-			return Handle(a_event);
-		}
+		};
 	}  // namespace
 
 	void Register()

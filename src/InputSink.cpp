@@ -52,10 +52,14 @@ namespace InputSink
 						if (!SceneState::IsSceneActive()) {
 							continue;
 						}
+						// 0x18001f285: the label is chosen from the PRE-toggle value
+						// (the `xchg` stores the new bit and returns the old one, and
+						// `cmove` selects on `%bl`), so "camera mode" is logged on
+						// the camera->UI transition, not the new UI state.
 						const bool wasUiMode = SceneState::IsUiMode();
 						const bool uiMode    = !wasUiMode;
 						SceneState::SetUiMode(uiMode);
-						logger::info("F4: {}", uiMode ? "UI mode (Prisma focused)" : "camera mode (Prisma released)");
+						logger::info("F4: {}", wasUiMode ? "UI mode (Prisma focused)" : "camera mode (Prisma released)");
 						Presentation::QueuePresentation();
 						if (!wasUiMode) {
 							FocusRecovery::Begin();
