@@ -42,4 +42,11 @@ namespace Catalog
 	bool         IsReady();
 	std::int32_t Count();
 	void         Publish();
+
+	// slppCatalogRetry: the UI received fewer rows than expected, so republish
+	// with a smaller per-invoke slice. Logs "Catalog incomplete on UI side,
+	// republishing with smaller slices (attempt {})" and, after the retry
+	// budget is exhausted, "Catalog still incomplete after {} retries"
+	// (recon/strings.txt §5).
+	void         RetryPublish(std::int32_t a_attempt);
 }  // namespace Catalog

@@ -41,28 +41,26 @@ elseif is_mode("release") then
     -- (/O2 /Ob2). xmake's "fastest" maps to /Ox, which schedules differently.
     set_optimize("faster")
     set_symbols("debug")
-    -- Whole-program optimisation. The original's Rich header carries the
-    -- Utc1920_LTCG_CPP/_C marker and its CLNG builds with IPO for Release, so
-    -- LTCG is part of the configuration being reproduced. Use xmake's policy
-    -- rather than raw flags: it emits /GL at compile AND /LTCG at link, which
-    -- hand-written flags got wrong (a bare /LTCG in add_ldflags never reached
-    -- link.exe, and the link then failed on the /GL objects).
-    --
-    -- PRISM_NO_LTO=1 disables it. The parity build sets that: the policy is
-    -- project-wide, so it also compiles the CommonLibSSE-NG dependency with
-    -- /GL, and linking those objects with the 14.44 code generator fails on an
-    -- MSVC STL-internal symbol (LNK2001: __std_regex_transform_primary_char in
-    -- CLNG's own objects). The 14.51 shipping build links the same configuration
-    -- fine, so this is an old-STL LTCG defect, not our code.
-    if os.getenv("PRISM_NO_LTO") ~= "1" then
-        set_policy("build.optimization.lto", true)
-    end
 end
 
 target(PROJECT_NAME)
     set_kind("shared")
     set_basename(PROJECT_NAME)
 
+    -- Whole-program optimisation, scoped to THIS target. The original's Rich
+    -- header carries the Utc1920_LTCG_CPP/_C marker and its CLNG builds with IPO
+    -- for Release, so LTCG is part of the configuration being reproduced. The
+    -- policy is set here rather than at project scope on purpose: at project
+    -- scope it also compiled the CommonLibSSE-NG dependency with /GL, and
+    -- linking those objects with the 14.44 link-time code generator fails on an
+    -- MSVC STL-internal symbol (LNK2001: __std_regex_transform_primary_char),
+    -- even with every translation unit built by 14.44 and LTO disabled - which
+    -- is what ruled the flags out as the cause. Keeping CLNG's objects out of the
+    -- LTCG merge reproduces the original's whole-program build without that
+    -- defect. PRISM_NO_LTO=1 disables it.
+    if is_mode("release") and os.getenv("PRISM_NO_LTO") ~= "1" then
+        set_policy("build.optimization.lto", true)
+    end
     -- CommonLibSSE-NG. We deliberately do NOT use the `commonlibsse-ng.plugin`
     -- rule: it injects a generated SKSEPlugin_Version/SKSEPlugin_Query from
     -- PluginDeclaration, and this reconstruction must emit the original's own

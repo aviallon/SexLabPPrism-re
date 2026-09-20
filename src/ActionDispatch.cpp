@@ -1,0 +1,109 @@
+#include "ActionDispatch.h"
+
+#include "Catalog.h"
+#include "PCH.h"
+#include "PrismaUI.h"
+#include "SceneState.h"
+#include "UiBridge.h"
+
+#include <cstdlib>
+#include <string>
+#include <string_view>
+
+namespace ActionDispatch
+{
+	namespace
+	{
+		std::string_view ActionOf(std::string_view a_payload)
+		{
+			const auto bar = a_payload.find('|');
+			return bar == std::string_view::npos ? a_payload : a_payload.substr(0, bar);
+		}
+
+		std::string_view ArgOf(std::string_view a_payload)
+		{
+			const auto bar = a_payload.find('|');
+			return bar == std::string_view::npos ? std::string_view{} : a_payload.substr(bar + 1);
+		}
+	}  // namespace
+
+	void SendModEvent(const char* a_eventName, const char* a_strArg, float a_numArg)
+	{
+		auto* const source = SKSE::GetModCallbackEventSource();
+		if (!source) {
+			logger::warn("Mod callback event source unavailable; '{}' not dispatched", a_eventName);
+			return;
+		}
+		SKSE::ModCallbackEvent event{};
+		event.eventName = a_eventName;
+		event.strArg    = a_strArg ? a_strArg : "";
+		event.numArg    = a_numArg;
+		event.sender    = nullptr;
+		source->SendEvent(&event);
+	}
+
+	void HandleAction(const char* a_payload)
+	{
+		if (!a_payload) {
+			return;
+		}
+		const std::string_view payload{ a_payload };
+		const std::string_view action = ActionOf(payload);
+
+		// The controller script is the authority for every scene action; forward
+		// the raw payload verbatim so `OnPrismAction` parses action|arg exactly as
+		// the PEX expects (recon/PAPYRUS-CONTRACT.md §2).
+		logger::info("UI action received: {}", payload);
+		logger::info("UI action dispatched to Papyrus: {}", action);
+		SendModEvent("SLPPPrism_Action", a_payload, 0.0F);
+	}
+
+	void HandleSearchRequest(const char* a_currentText)
+	{
+		// The click on the read-only search box asks the controller to open the
+		// text-entry menu. The controller later calls the SetSearchQuery native
+		// with the typed result (recon/PAPYRUS-CONTRACT.md §2). `a_currentText`
+		// (the current filter) is only informational for the log.
+		logger::info("Prisma search requested (current '{}')", a_currentText ? a_currentText : "");
+		SendModEvent("SLPPPrism_SearchRequest", a_currentText ? a_currentText : "", 0.0F);
+	}
+
+	void SetCollapsed(bool a_collapsed, const char* a_source)
+	{
+		logger::info("Collapse state -> {} (via {})", a_collapsed, a_source ? a_source : "");
+		// The native side owns collapse state (controller-0.6.1.html comment) and
+		// reflects it back through window.slppSetCollapsed.
+		PrismaUI::InvokeJs("slppSetCollapsed", a_collapsed ? "1" : "0");
+	}
+
+	void HandleReady(const char* a_arg)
+	{
+		logger::info("Controller view JS handshake received");
+		if (a_arg && a_arg[0] != '\0') {
+			logger::debug("slppReady arg: {}", a_arg);
+		}
+		// Re-send the current scene state so a view that finished loading after
+		// the last PublishSceneState still renders correctly.
+		const auto json = SceneState::CurrentStateJson();
+		if (!json.empty()) {
+			UiBridge::PushState(json);
+		}
+	}
+
+	void HandleLog(const char* a_message)
+	{
+		logger::info("[UI] {}", a_message ? a_message : "");
+	}
+
+	void HandleCatalogRetry(const char* a_arg)
+	{
+		int attempt = 0;
+		if (a_arg && a_arg[0] != '\0') {
+			attempt = std::atoi(a_arg);
+			if (attempt < 0) {
+				attempt = 0;
+			}
+		}
+		Catalog::RetryPublish(attempt);
+	}
+}  // namespace ActionDispatch

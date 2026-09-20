@@ -1,6 +1,7 @@
 #include "SceneState.h"
 
 #include "PCH.h"
+#include "FocusRecovery.h"
 #include "Json.h"
 #include "UiBridge.h"
 
@@ -29,13 +30,9 @@ namespace SceneState
 		std::string g_stateJson;       // DAT_18009c190
 		std::string g_compatibleJson;  // DAT_180095180
 
-		// FocusRecovery (FUN_180013290, separate TU) has not been reconstructed
-		// yet. The natives only ever call its Cancel() entry point, so a no-op
-		// stub preserves the call graph; see recon/BINARY-RECON.md §5.
-		void CancelFocusRecovery()
-		{
-			logger::debug("FocusRecovery::Cancel() (stub; module not reconstructed)");
-		}
+		// FocusRecovery (0x180013290) is the free-camera reassertion state machine
+		// recovered in recon/BINARY-RECON.md §1.4. The natives only ever call its
+		// Cancel() entry point.
 	}  // namespace
 
 	std::int32_t BeginSceneSession()
@@ -141,14 +138,14 @@ namespace SceneState
 		if (!a_active || a_status != 3) {
 			g_sceneActive = false;
 			if (wasActive) {
-				CancelFocusRecovery();
+				FocusRecovery::Cancel();
 				g_modalSearchOpen.store(false);
 				logger::info("Scene state: became INACTIVE (thread {}, status {})", a_threadID, a_status);
 			}
 		} else {
 			g_sceneActive = true;
 			if (!wasActive) {
-				CancelFocusRecovery();
+				FocusRecovery::Cancel();
 				g_uiMode          = true;
 				g_interfaceHidden = false;
 				logger::info("Scene state: became ACTIVE (thread {}, scene '{}')", a_threadID, a_sceneID);
@@ -196,5 +193,46 @@ namespace SceneState
 	{
 		std::lock_guard lock{ g_sessionMutex };
 		return g_sceneActive;
+	}
+
+	bool IsUiMode()
+	{
+		std::lock_guard lock{ g_sessionMutex };
+		return g_uiMode;
+	}
+
+	void SetUiMode(bool a_uiMode)
+	{
+		std::lock_guard lock{ g_sessionMutex };
+		g_uiMode = a_uiMode;
+	}
+
+	bool IsInterfaceHidden()
+	{
+		std::lock_guard lock{ g_sessionMutex };
+		return g_interfaceHidden;
+	}
+
+	bool ToggleInterfaceHidden()
+	{
+		std::lock_guard lock{ g_sessionMutex };
+		g_interfaceHidden = !g_interfaceHidden;
+		return g_interfaceHidden;
+	}
+
+	bool IsModalSearchOpen()
+	{
+		return g_modalSearchOpen.load();
+	}
+
+	void SetModalSearchOpen(bool a_open)
+	{
+		g_modalSearchOpen.store(a_open);
+	}
+
+	std::string CurrentStateJson()
+	{
+		std::lock_guard lock{ g_jsonMutex };
+		return g_stateJson;
 	}
 }  // namespace SceneState

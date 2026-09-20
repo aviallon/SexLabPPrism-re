@@ -115,6 +115,8 @@ namespace Catalog
 		const std::vector<std::string>&        a_tags)
 	{
 		std::lock_guard lock{ g_mutex };
+		std::vector<Record> added;
+		added.reserve(a_ids.size());
 		for (std::size_t i = 0; i < a_ids.size(); ++i) {
 			const auto& id = a_ids[i];
 			if (id.empty()) {
@@ -130,8 +132,16 @@ namespace Catalog
 			const auto index = g_records.size();
 			g_records.push_back(std::move(record));
 			g_index[g_records.back().id] = index;
+			added.push_back(g_records.back());
 		}
 		logger::info("Catalog append: {} scenes", g_records.size());
+		// The original queues a TaskInterface lambda here that incrementally
+		// forwards the newly appended records and the progress to the view
+		// (recon/NATIVES-RECOVERED.md §3.7).
+		if (!added.empty()) {
+			UiBridge::PushCatalogChunk(RowsJson(added),
+				static_cast<std::int32_t>(g_records.size()), g_expectedTotal);
+		}
 	}
 
 	void Package(const std::string& a_package, const std::vector<std::string>& a_ids)
@@ -183,5 +193,41 @@ namespace Catalog
 		}
 		logger::info("Catalog session cache reused: {} scenes already in UI", snapshot.size());
 		UiBridge::PushCatalog(RowsJson(snapshot), static_cast<std::int32_t>(snapshot.size()));
+	}
+
+	void RetryPublish(std::int32_t a_attempt)
+	{
+		std::vector<Record> snapshot;
+		{
+			std::lock_guard lock{ g_mutex };
+			snapshot = g_records;
+		}
+
+		// Retry budget: 5 smaller-slice attempts, then give up loudly.
+		constexpr std::int32_t kMaxRetries = 5;
+		if (a_attempt >= kMaxRetries) {
+			logger::warn("Catalog still incomplete after {} retries", a_attempt);
+			return;
+		}
+
+		// Halve the slice every attempt; GUESS: the original's exact byte budget
+		// was not recovered beyond the fact it shrank per attempt.
+		// (`(std::min)` is parenthesised because Windows' minwindef.h defines a
+		// `min` macro that the MSVC/CLNG headers pull in.)
+		const std::size_t chunkSize = (static_cast<std::size_t>(64) >> a_attempt) > 1
+			? (static_cast<std::size_t>(64) >> a_attempt)
+			: 1;
+		logger::info("Catalog incomplete on UI side, republishing with smaller slices (attempt {})", a_attempt);
+
+		const auto total = static_cast<std::int32_t>(snapshot.size());
+		UiBridge::InvokeJs("slppCatalogReset", std::to_string(total));
+		for (std::size_t i = 0; i < snapshot.size(); i += chunkSize) {
+			const std::size_t remaining = snapshot.size() - i;
+			const std::size_t end       = i + (chunkSize < remaining ? chunkSize : remaining);
+			std::vector<Record> chunk(snapshot.begin() + static_cast<std::ptrdiff_t>(i),
+			snapshot.begin() + static_cast<std::ptrdiff_t>(end));
+			UiBridge::InvokeJs("slppCatalogChunk", RowsJson(chunk));
+		}
+		UiBridge::InvokeJs("slppCatalogDone", std::to_string(total));
 	}
 }  // namespace Catalog

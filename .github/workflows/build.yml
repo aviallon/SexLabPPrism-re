@@ -156,12 +156,6 @@ jobs:
     env:
       # `ng` HEAD at the original binary's own timestamp (2026-07-19).
       COMMONLIB_PARITY_REV: 1cc6b3999eb92b4d86fe08be28011ba679980081
-      # LTCG is disabled here on purpose: the LTO policy also compiles the CLNG
-      # dependency with /GL, and the 14.44 link-time code generator cannot
-      # resolve an MSVC STL-internal symbol in those objects (LNK2001:
-      # __std_regex_transform_primary_char). The shipping job (14.51) links the
-      # same configuration fine. Recorded as a known parity residual.
-      PRISM_NO_LTO: "1"
     steps:
       - uses: actions/checkout@v4
 

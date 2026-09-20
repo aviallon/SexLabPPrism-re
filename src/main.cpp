@@ -1,4 +1,5 @@
 #include "Papyrus/Natives.h"
+#include "Lifecycle.h"
 
 // SexLabPPrism 0.6.1 — SKSE plugin entry points.
 //
@@ -59,6 +60,10 @@ SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 		logger::critical("Failed to register the SexLabPrismNative natives");
 		return false;
 	}
+
+	// The original registers the SKSE messaging listener that builds the
+	// PrismaUI bridge on the data-loaded message (recon/BINARY-RECON.md §4.3).
+	Lifecycle::Register();
 
 	logger::info("SexLab P+ Prism 0.6.1 initialisation complete");
 	return true;

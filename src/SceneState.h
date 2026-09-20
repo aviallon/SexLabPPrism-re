@@ -42,6 +42,20 @@ namespace SceneState
 
 	void SetSearchQuery(std::string a_query);
 
-	// Used by the (not yet reconstructed) InputSink/MenuVisibilitySink.
+	// --- presentation state shared with the event sinks -----------------------
+	// These mirror the original globals DAT_18009c1c9 (sceneActive),
+	// DAT_180095120 (uiMode, F4), DAT_18009c1ca (interfaceHidden, F3) and
+	// DAT_18009c1cb (modalSearchOpen) that InputSink/MenuVisibilitySink and
+	// FocusRecovery read (recon/NATIVES-RECOVERED.md §0/§4.2).
 	[[nodiscard]] bool IsSceneActive();
+	[[nodiscard]] bool IsUiMode();
+	void               SetUiMode(bool a_uiMode);
+	[[nodiscard]] bool IsInterfaceHidden();
+	[[nodiscard]] bool ToggleInterfaceHidden();
+	[[nodiscard]] bool IsModalSearchOpen();
+	void               SetModalSearchOpen(bool a_open);
+
+	// The published scene-state JSON (DAT_18009c190), re-sent on the slppReady
+	// handshake so a late-loading view still receives the current state.
+	[[nodiscard]] std::string CurrentStateJson();
 }  // namespace SceneState
