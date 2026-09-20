@@ -176,6 +176,11 @@ jobs:
           git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$COMMONLIB_PARITY_REV"
           git -C lib/CommonLibSSE-NG checkout --detach FETCH_HEAD
           echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
+          # CLNG's headers include <openvr.h>, which the prebuilt bundle used to
+          # supply. Building from source needs the submodule on disk.
+          git -C lib/CommonLibSSE-NG submodule update --init extern/openvr
+          test -f lib/CommonLibSSE-NG/extern/openvr/headers/openvr.h || {
+            echo "::error::openvr headers are missing; the source build needs them"; exit 1; }
           # Drop the git metadata BEFORE configuring. The pinned commit happens to
           # be the v4.38.0 release tag, and CLNG's xmake.lua auto-downloads that
           # release's prebuilt static library in CI - a bundle built by the
