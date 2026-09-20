@@ -1,0 +1,136 @@
+name: build
+
+# Reconstructs SexLabPPrism.dll 0.6.1 for Skyrim AE
+# and packages it as an Amethyst-installable mod.
+#
+# The original plugin is closed source and ships against an Address Library it
+# refuses to read on 1.7.104. This build uses the LATEST alandtse/CommonLibVR
+# `ng` HEAD and refuses to compile unless that revision contains
+# include/REL/IDDB.h with the `Format::SSEv5` enumerator (Address Library
+# format 5), which is what versionlib-1-7-104-0.bin is.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      commonlib_ref:
+        description: "Optional CommonLibVR commit/ref to pin (default: latest ng HEAD)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  COMMONLIB_REPO: https://github.com/alandtse/CommonLibVR.git
+  COMMONLIB_BRANCH: ng
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve and check out the LATEST CommonLibSSE-NG `ng` HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf lib/CommonLibSSE-NG
+          mkdir -p lib
+          if [ -n "${{ github.event.inputs.commonlib_ref || '' }}" ]; then
+            ref="${{ github.event.inputs.commonlib_ref }}"
+            echo "Pinned CommonLibVR ref requested: $ref"
+            # Works for a branch, tag or raw commit SHA (--branch rejects SHAs).
+            git init lib/CommonLibSSE-NG
+            git -C lib/CommonLibSSE-NG remote add origin "$COMMONLIB_REPO"
+            git -C lib/CommonLibSSE-NG fetch --depth 1 origin "$ref"
+            git -C lib/CommonLibSSE-NG checkout --detach FETCH_HEAD
+          else
+            # Latest ng HEAD, resolved dynamically. The user's standing rule is
+            # to build against the newest CommonLibSSE-NG, never an older pin.
+            remote_head=$(git ls-remote "$COMMONLIB_REPO" "refs/heads/$COMMONLIB_BRANCH" | awk '{print $1}')
+            [ -n "$remote_head" ] || { echo "::error::could not resolve $COMMONLIB_BRANCH HEAD"; exit 1; }
+            echo "Latest $COMMONLIB_BRANCH HEAD on the remote: $remote_head"
+            git clone --depth 1 --branch "$COMMONLIB_BRANCH" "$COMMONLIB_REPO" lib/CommonLibSSE-NG
+            local_head=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)
+            [ "$local_head" = "$remote_head" ] || {
+              echo "::error::checked out $local_head but remote HEAD is $remote_head"; exit 1; }
+          fi
+          echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Assert format-5 (SSEv5) address library support
+        shell: bash
+        run: python tools/check_commonlib.py lib/CommonLibSSE-NG
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Cache xmake packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.xmake
+          key: xmake-pkgs-${{ runner.os }}-${{ hashFiles('xmake.lua') }}
+          restore-keys: xmake-pkgs-${{ runner.os }}-
+
+      - name: Build SexLabPPrism.dll
+        shell: pwsh
+        run: |
+          xmake f -p windows -a x64 -m release -y
+          xmake build SexLabPPrism -v
+          Get-ChildItem -Recurse -Filter SexLabPPrism.dll | Select-Object FullName, Length
+
+      - name: Package the mod zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          # SKSE/Plugins/SexLabPPrism.dll at the archive ROOT (no wrapper folder),
+          # so Amethyst's "Mods -> Install mod from file..." needs no manual placement.
+          mkdir -p out/SKSE/Plugins
+          dll=$(find build -name SexLabPPrism.dll -type f | head -1)
+          [ -n "$dll" ] || { echo "::error::SexLabPPrism.dll not found"; exit 1; }
+          cp "$dll" out/SKSE/Plugins/
+          cat > out/README-PORT.txt <<EOF
+          SexLab P+ Prism 0.6.1 - from-binary reconstruction for Skyrim AE 1.7.104
+          =====================================================================
+
+          Contains one file: SKSE/Plugins/SexLabPPrism.dll
+
+          What this is: the original SexLab Prism ships compiled only, with no
+          public source. This is a clean-room reconstruction of its SKSE plugin
+          surface (the three SKSE exports and the 13 Papyrus natives of the
+          SexLabPrismNative script), built against the LATEST CommonLibSSE-NG
+          so that it can read Address Library format 5
+          (Data/SKSE/Plugins/versionlib-1-7-104-0.bin), which the original
+          rejects with "Unsupported address library format".
+
+          CommonLibSSE-NG revision: ${COMMONLIB_REV}
+          Build source license: reconstruction; upstream CommonLibSSE-NG is
+          Apache-2.0. The original SexLab Prism is closed source, so this mod is
+          unofficial and is not a byte-for-byte reproduction.
+
+          Status: the plugin compiles, loads, creates SexLabPPrism.log and
+          registers the natives. The Prism state/catalogue natives are STUBS -
+          they log "not implemented yet" and return safe defaults. Only the
+          native `Log` is implemented (it writes to the plugin log). Installed
+          over the matching Prism scripts, the native surface resolves, but
+          Prism's UI behaviour is NOT reproduced yet.
+
+          Install: Amethyst: Mods -> Install mod from file..., then let this mod
+          overwrite the original Prism mod (only SKSE/Plugins/SexLabPPrism.dll
+          conflicts). Vortex/MO2: install and let it overwrite.
+          EOF
+          (cd out && 7z a "../SexLabPPrism-0.6.1-1.7.104.zip" SKSE README-PORT.txt)
+          ls -l SexLabPPrism-0.6.1-1.7.104.zip
+
+      - name: Report hashes
+        shell: bash
+        run: |
+          sha256sum out/SKSE/Plugins/SexLabPPrism.dll | sed 's/^/  dll  /'
+          sha256sum SexLabPPrism-0.6.1-1.7.104.zip | sed 's/^/  zip  /'
+          echo "  commonlib  $COMMONLIB_REV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SexLabPPrism-0.6.1-1.7.104
+          path: SexLabPPrism-0.6.1-1.7.104.zip

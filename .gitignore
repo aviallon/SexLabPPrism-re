@@ -1,0 +1,11 @@
+# xmake build output
+/build/
+/.xmake/
+xmake-requires.lock
+
+# CommonLibSSE-NG is a submodule, pulled by the CI workflow at the latest ng HEAD
+/lib/CommonLibSSE-NG/
+
+# packaged output
+/out/
+*.zip
