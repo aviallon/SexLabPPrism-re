@@ -41,6 +41,13 @@ elseif is_mode("release") then
     -- (/O2 /Ob2). xmake's "fastest" maps to /Ox, which schedules differently.
     set_optimize("faster")
     set_symbols("debug")
+    -- Whole-program optimisation. The original's Rich header carries the
+    -- Utc1920_LTCG_CPP/_C marker and its CLNG builds with IPO for Release, so
+    -- LTCG is part of the configuration being reproduced. Use xmake's policy
+    -- rather than raw flags: it emits /GL at compile AND /LTCG at link, which
+    -- hand-written flags got wrong (a bare /LTCG in add_ldflags never reached
+    -- link.exe, and the link then failed on the /GL objects).
+    set_policy("build.optimization.lto", true)
 end
 
 target(PROJECT_NAME)
@@ -90,10 +97,8 @@ target(PROJECT_NAME)
         -- shows the Utc1920_LTCG_CPP/_C marker in its Rich header and its CLNG
         -- CMake sets CMAKE_INTERPROCEDURAL_OPTIMIZATION for Release, and its 59
         -- byte-identical function pools can only come from /Gy + /OPT:ICF.
-        add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob2", "cl::/GL")
-        -- NB: no `cl::` prefix here. `cl::` marks a flag as compiler-only and
-        -- silently kept /LTCG off the link line, so the link failed with
-        -- "module compiled with /GL found; restarting link with /LTCG".
-        add_ldflags("/LTCG", "/OPT:REF", "/OPT:ICF")
+        add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob2")
+        -- /GL comes from the build.optimization.lto policy above.
+        add_ldflags("/OPT:REF", "/OPT:ICF")
     end
 target_end()

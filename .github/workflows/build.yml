@@ -186,8 +186,7 @@ jobs:
           call "%VSPATH%\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.44 || exit /b 1
           cl /Bv 2>&1 | findstr /C:"Version"
           xmake f -p windows -a x64 -m release -y
-          xmake build SexLabPPrism || exit /b 1
-
+          xmake build -v SexLabPPrism || exit /b 1
       - name: Assert the toolset actually matched, and stage the DLL
         shell: bash
         run: |
