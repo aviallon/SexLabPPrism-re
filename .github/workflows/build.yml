@@ -85,6 +85,16 @@ jobs:
               echo "::error::checked out $local_head but remote HEAD is $remote_head"; exit 1; }
           fi
           echo "COMMONLIB_REV=$(git -C lib/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_ENV"
+          # CLNG's headers include <openvr.h>. When the checkout is a clean release
+          # tag its xmake.lua downloads a prebuilt bundle carrying those headers;
+          # when the branch tip is NOT a tagged commit it builds from source and
+          # needs the submodule on disk. The `ng` tip is not always a tag, so
+          # always initialise it and fail loudly if it is missing - otherwise the
+          # job dies mid-compile with "Cannot open include file: 'openvr.h'"
+          # from RE/B/BSVRInterface.h.
+          git -C lib/CommonLibSSE-NG submodule update --init extern/openvr
+          test -f lib/CommonLibSSE-NG/extern/openvr/headers/openvr.h || {
+            echo "::error::openvr headers are missing; the source build needs them"; exit 1; }
 
       - name: Assert format-5 (SSEv5) address library support
         shell: bash
