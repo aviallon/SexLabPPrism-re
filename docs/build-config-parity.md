@@ -249,3 +249,97 @@ Even with toolset 14.44 and the exact CLNG pin, per-function parity will not hol
 What *is* removable: the CLNG revision (pin), the toolset (14.44), `/O2` vs `/Ox`,
 `/permissive-`, `/Gy`, LTCG, and the `.rsrc` (§4). What is not: compiler build
 numbers, ICF/pgo tie-breaks, block ordering and the resulting RVA shifts.
+
+---
+
+## 6. LTCG scope and the retained `msvc_sink` (2026-09-21)
+
+The config in §3 assumed one LTCG setting for the whole build. Two measurements refine
+that, both taken on the CLNG `1cc6b3999` pin.
+
+### 6.1 The original does not run CLNG's `log::init()`; we do
+
+CLNG `1cc6b3999`:
+- `src/SKSE/API.cpp:97` — `if (a_log) { log::init(); log::info("{} v{}", ...); }`,
+  inside `#ifdef ENABLE_SKYRIM_AE`, from `SKSE::Init(const LoadInterface*,
+  const bool a_log = true)` (`include/SKSE/API.h:15`).
+- `src/SKSE/Logger.cpp:129-140` — `log::init()` creates a logger named `"global"` with
+  `basic_file_sink_mt` + `msvc_sink_mt` and pattern `[%T.%e] [%=5t] [%L] %v`.
+
+Raw byte search in `artifacts/SexLabPPrism.dll`:
+
+| symbol | original | our `-lto` build |
+|---|---|---|
+| `msvc_sink` | absent | present (`0x0b5266`) |
+| `LogEventHandler` (CLNG `Impl`) | absent | present |
+| `add_papyrus_sink` | absent | present |
+| `[%T.%e]` (CLNG pattern) | absent | present |
+| `[%Y-%m-%d %H:%M:%S.%e]` (author pattern) | present | absent |
+| `basic_file_sink` | present | present |
+| `wincolor` (`stdout_color_sink`) | present | present |
+
+So the author's `SetupLog` (`0x180027d20`, `recon/BINARY-RECON.md` §4.3 step 1) uses
+`basic_file_sink` + `stdout_color_sink` and the pattern `[%Y-%m-%d %H:%M:%S.%e] [%l] %v`,
+and `SKSEPlugin_Load` (`0x18002e250`) calls `SKSE::Init` at `0x18002e265` without
+materialising `a_log`. Since CLNG's `log::init()` and everything only it references
+(`msvc_sink`, `LogEventHandler`, `add_papyrus_sink`) are absent from the original, LTCG
+proved `log::init()` unreachable there — either `a_log=false` or CLNG built without
+`ENABLE_SKYRIM_AE`. We call `SKSE::Init(a_skse)` (`src/main.cpp:50`) and keep all of it.
+This is a **source-level** divergence; the fix belongs in `src/main.cpp` (see
+`coordination/ltcg.md`).
+
+### 6.2 Measured effect of the LTCG we already have
+
+`tools/match.py` on `artifacts/rebuild/SexLabPPrism-parity-lto2.dll`, scored with
+`tools/real-functions-score.py` (the `.pdata` denominator): library tier
+**704/1,149 BYTE-MATCH**, exactly the same as `parity-lto.dll` and as the pre-LTCG
+baseline. Target-scoped LTCG is therefore byte-neutral on the real library tier; the raw
+matcher's larger library count (1,169/1,750) is inflated by gap-scan pseudo-functions.
+
+### 6.3 `PRISM_LTO_SCOPE` — the CLNG-side LTCG experiment
+
+`xmake.lua` now selects LTCG scope with `PRISM_LTO_SCOPE` (`target` default, `clng`,
+`project`, `off`; `PRISM_NO_LTO=1` aliases `off`), and `.github/workflows/build.yml`
+exposes it as the `lto_scope` `workflow_dispatch` input.
+
+- `target` — `/GL` on our TUs only; CLNG compiled without `/GL` (current, measured).
+- `clng` — project-scope policy set *before* `includes()` so CLNG is compiled with
+  `/GL`, then turned back off on our target. This is the reading that fits both
+  observations: the Rich header's `Utc1920_LTCG_CPP` and CLNG's
+  `CMAKE_INTERPROCEDURAL_OPTIMIZATION=ON` (§3) say CLNG itself was LTCG-merged, while
+  the original's `InputSink::ProcessEvent` still makes a real `call` to a standalone
+  `FocusRecovery` function instead of inlining it the way our target-scoped `/GL` does
+  (`sub-32` measurement).
+- `project` — project-wide policy set *before* `includes()`: CLNG and this target both
+  `/GL`; the strongest whole-program reading of the Rich header.
+- `off` — no LTO.
+
+The `LNK2001 __std_regex_transform_primary_char` that first blocked project-scope LTCG
+came from the auto-downloaded **prebuilt** CLNG release library (a foreign toolset). The
+parity job now drops CLNG's `.git` so no prebuilt can be fetched and CLNG compiles from
+source with 14.44; if the symbol still fails to resolve from source-built `/GL` objects,
+the remaining candidate is MSVC STL `std::regex` internals in `Logger.cpp`, which we also
+remove once §6.1 is applied (the author's binary has no `std::regex` `LogEventHandler`),
+so the two fixes are complementary.
+
+### 6.4 Flag-sweep priority after the measurements
+
+Target-scoped LTCG measured byte-neutral (§6.2), so the remaining build-mode flags are
+low-yield compared with reconstructing the original's source shape. Ranked:
+
+1. **`PRISM_LTO_SCOPE=clng`** (§6.3) — the only flag with a positive *mechanism*: it
+   makes CLNG's spdlog/std/regex instantiations LTCG-merged as the original's Rich
+   header implies, without letting `/GL` inline our plugin TUs against the original's
+   per-function call graph.
+2. **`PRISM_LTO_SCOPE=project`** — same, with our TUs `/GL` too; run it mainly to see
+   whether the historical `LNK2001 __std_regex_transform_primary_char` reappears from
+   source-built 14.44 objects. If it links, compare against `clng`.
+3. **`/Gw`** — the only flag in the requested list not already fixed by `/O2` + the
+   existing `/Gy`/`/Zc:inline`; MSVC `/O2` does not enable it and neither does CMake
+   Release, so it is currently *off* on both sides and expected to be neutral. Test
+   only if 1–2 leave a block of data-heavy functions unmatched.
+4. **Not worth a build**: `/Ob3` (CLNG CMake Release is `/Ob2`; ours is `/Ob2`),
+   `/Oi` and `/Ot` (already in `/O2`), `/Oy-` (no-op on x64), `/Zc:inline` and `/Gy-`
+   (both already on / already matched), `/OPT:NOICF` (the original demonstrably folded
+   59 identical pools, so NOICF can only move away from it; use it as a diagnostic to
+   *count* ICF-induced mergers, never as a candidate config).

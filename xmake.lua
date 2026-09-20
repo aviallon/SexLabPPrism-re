@@ -59,6 +59,40 @@ prism_pin("rapidcsv", os.getenv("PRISM_RAPIDCSV_VERSION"))
 -- CommonLibSSE-NG (alandtse/CommonLibVR `ng`). Must exist before this script is
 -- parsed; the workflow checks it out first, and tools/check_commonlib.py proves
 -- it is a format-5-capable revision.
+--
+-- LTCG scope knob (matching experiment, 2026-09-21). The original's Rich header
+-- carries Utc1920_LTCG_CPP/_C and CLNG's CMake sets CMAKE_INTERPROCEDURAL_
+-- OPTIMIZATION=ON for Release, so SOMETHING in the original was built with /GL and
+-- linked /LTCG. What is NOT yet established is whether the author's own plugin
+-- translation units (main.cpp, the sinks, ...) were /GL too: original
+-- InputSink::ProcessEvent (0x18001f0b0) still makes a real `call` to
+-- FocusRecovery::Begin/Cancel, while our target-scoped /GL inlines
+-- FocusRecovery::Begin into InputSink (sub-32). Both are consistent with "CLNG
+-- internals were LTCG-merged, the plugin TUs were not". PRISM_LTO_SCOPE selects
+-- which experiment CI runs:
+--   target  (default) - /GL on this target only, CLNG built without /GL
+--                       (the current, measured configuration)
+--   clng              - CLNG (the static library dependency) built with /GL,
+--                       this target WITHOUT /GL: matches the observation that
+--                       the original's CLNG internals are LTCG-merged while the
+--                       author's InputSink still calls a standalone
+--                       FocusRecovery function (no cross-TU inlining)
+--   project           - project-wide policy: CLNG and this target both /GL
+--   off               - no LTO at all
+-- PRISM_NO_LTO=1 is kept as an alias for off. The policy MUST be set before
+-- includes() so it reaches CLNG's target; setting it earlier is also what
+-- exposes the LNK2001 __std_regex_transform_primary_char question (see
+-- build.yml: the earlier failure was the auto-downloaded prebuilt release lib,
+-- which is now disabled by dropping CLNG's .git, so a source-built /GL CLNG may
+-- link cleanly - that is exactly the measurement this knob exists to take).
+local lto_scope = os.getenv("PRISM_LTO_SCOPE") or "target"
+if os.getenv("PRISM_NO_LTO") == "1" then
+    lto_scope = "off"
+end
+if is_mode("release") and (lto_scope == "clng" or lto_scope == "project") then
+    set_policy("build.optimization.lto", true)
+end
+
 includes("lib/CommonLibSSE-NG/xmake.lua")
 
 -- Project
@@ -91,19 +125,24 @@ target(PROJECT_NAME)
     set_kind("shared")
     set_basename(PROJECT_NAME)
 
-    -- Whole-program optimisation, scoped to THIS target. The original's Rich
-    -- header carries the Utc1920_LTCG_CPP/_C marker and its CLNG builds with IPO
-    -- for Release, so LTCG is part of the configuration being reproduced. The
-    -- policy is set here rather than at project scope on purpose: at project
-    -- scope it also compiled the CommonLibSSE-NG dependency with /GL, and
-    -- linking those objects with the 14.44 link-time code generator fails on an
-    -- MSVC STL-internal symbol (LNK2001: __std_regex_transform_primary_char),
-    -- even with every translation unit built by 14.44 and LTO disabled - which
-    -- is what ruled the flags out as the cause. Keeping CLNG's objects out of the
-    -- LTCG merge reproduces the original's whole-program build without that
-    -- defect. PRISM_NO_LTO=1 disables it.
-    if is_mode("release") and os.getenv("PRISM_NO_LTO") ~= "1" then
+    -- Whole-program optimisation. LTCG is part of the configuration being
+    -- reproduced (Rich header Utc1920_LTCG_CPP/_C; CLNG builds with IPO on
+    -- Release), but its SCOPE is the open question - see the PRISM_LTO_SCOPE
+    -- block before includes(). `target` (default) compiles this target /GL and
+    -- keeps CLNG plain: that was the only configuration CI could link, because
+    -- the project-scope policy used to pull the auto-downloaded PREBUILT CLNG
+    -- release library (a foreign toolset) into the merge and the 14.44 link-time
+    -- code generator then failed on LNK2001 __std_regex_transform_primary_char.
+    -- The parity job now drops CLNG's .git so it always compiles from source, and
+    -- `clng`/`project` exist to measure whether a source-built /GL CLNG links and
+    -- matches; `off` (also PRISM_NO_LTO=1) disables LTO entirely.
+    if is_mode("release") and lto_scope == "target" then
         set_policy("build.optimization.lto", true)
+    elseif is_mode("release") and lto_scope == "clng" then
+        -- The project-scope policy set before includes() also reaches this
+        -- target; turn it back off here so only CLNG is merged. The link still
+        -- gets /LTCG because CLNG's objects carry /GL.
+        set_policy("build.optimization.lto", false)
     end
     -- CommonLibSSE-NG. We deliberately do NOT use the `commonlibsse-ng.plugin`
     -- rule: it injects a generated SKSEPlugin_Version/SKSEPlugin_Query from

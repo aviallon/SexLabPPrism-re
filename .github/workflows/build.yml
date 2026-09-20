@@ -37,6 +37,10 @@ on:
         description: "Parity sweep: rapidcsv version, e.g. v8.92 (default/empty = CLNG's v8.92)"
         required: false
         default: ""
+      lto_scope:
+        description: "Parity sweep: LTCG scope - target (default: our TUs), clng (CLNG only), project (both), off"
+        required: false
+        default: ""
       xmake_repo_ref:
         description: "Parity sweep: xmake-repo commit to check out before configuring (default/empty = image's repo)"
         required: false
@@ -180,6 +184,8 @@ jobs:
     env:
       # `ng` HEAD at the original binary's own timestamp (2026-07-19).
       COMMONLIB_PARITY_REV: 1cc6b3999eb92b4d86fe08be28011ba679980081
+      # target (default) | clng | project | off. See build/xmake.lua.
+      PRISM_LTO_SCOPE: ${{ github.event.inputs.lto_scope || '' }}
     steps:
       - uses: actions/checkout@v4
 
