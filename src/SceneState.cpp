@@ -39,7 +39,9 @@ namespace SceneState
 	{
 		std::lock_guard lock{ g_sessionMutex };
 		const auto      id = ++g_sessionCounter;
+#line 372
 		logger::info("Scene session {} allocated", id);
+#line 44
 		return id;
 	}
 
@@ -185,7 +187,9 @@ namespace SceneState
 	void SetSearchQuery(std::string a_query)
 	{
 		g_modalSearchOpen.store(false);
+#line 586
 		logger::info("Modal search completed: {} characters", a_query.size());
+#line 190
 		UiBridge::SetSearchQuery(a_query);
 	}
 
