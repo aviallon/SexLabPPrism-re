@@ -236,7 +236,7 @@ jobs:
             echo "PRISM_RAPIDCSV_VERSION=${{ github.event.inputs.rapidcsv_version || '' }}"
           } >> "$GITHUB_ENV"
           for v in PRISM_SPDLOG_VERSION PRISM_DIRECTXMATH_VERSION PRISM_DIRECTXTK_VERSION PRISM_RAPIDCSV_VERSION; do
-            eval "val=\${$v}"
+            val="${!v:-}"
             if [ -n "$val" ]; then echo "$v override -> $val"; else echo "$v unset (CLNG pin)"; fi
           done
 
