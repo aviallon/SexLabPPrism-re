@@ -51,20 +51,26 @@ SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 
 	logger::info("SexLab P+ Prism 0.6.1 loading (strict lifecycle + confirmed freecam + selective UI)");
 
-	const auto papyrus = SKSE::GetPapyrusInterface();
-	if (!papyrus) {
-		logger::critical("Failed to get the Papyrus interface");
+	// 0x18002e2da / 0x18002e2e2: both interface singletons are fetched before
+	// either is checked; a null for EITHER returns false (0x18002e2ea/ef).
+	const auto papyrus   = SKSE::GetPapyrusInterface();
+	const auto messaging = SKSE::GetMessagingInterface();
+	if (!papyrus || !messaging) {
+		logger::critical("Failed to get the SKSE interfaces");
 		return false;
 	}
+
+	// 0x18002e2fe: Register_Impl(papyrus, 0x180026a80)
 	if (!papyrus->Register(Papyrus::Natives::Register)) {
 		logger::critical("Failed to register the SexLabPrismNative natives");
 		return false;
 	}
 
-	// The original registers the SKSE messaging listener that builds the
-	// PrismaUI bridge on the data-loaded message (recon/BINARY-RECON.md §4.3).
+	// 0x18002e314: RegisterListener("SKSE", OnMessage). The original inlines the
+	// listener registration here; Lifecycle::Register keeps the same call.
 	Lifecycle::Register();
 
-	logger::info("SexLab P+ Prism 0.6.1 initialisation complete");
+	// 0x18002e319: return true. The original logs no completion banner, so the
+	// reconstruction does not either.
 	return true;
 }
