@@ -123,34 +123,67 @@ namespace Catalog
 		const std::vector<std::string>&        a_names,
 		const std::vector<std::string>&        a_tags)
 	{
-		std::lock_guard lock{ g_mutex };
-		std::vector<Record> added;
-		added.reserve(a_ids.size());
-		for (std::size_t i = 0; i < a_ids.size(); ++i) {
-			const auto& id = a_ids[i];
-			if (id.empty()) {
-				continue;
+		// The original (FUN_180029740) walks all three vectors in one locked pass,
+		// builds the incrementally-forwarded row array inline ("[" ... "]"),
+		// inserts each id -> index into the unordered_map, pushes the record and
+		// only THEN queues the TaskInterface lambda.  Reproduce that shape: the
+		// array is opened before the loop, every record is formatted as it is
+		// inserted, and ']' is appended after the lock is released.
+		std::string json;
+		json += '[';
+		bool first = true;
+		{
+			std::lock_guard lock{ g_mutex };
+			for (std::size_t i = 0; i < a_ids.size(); ++i) {
+				const auto& id = a_ids[i];
+				if (id.empty()) {
+					continue;
+				}
+				Record record;
+				record.id   = id;
+				// The original falls back to the id when the name slot is missing/empty.
+				record.name = (i < a_names.size() && !a_names[i].empty()) ? a_names[i] : id;
+				if (i < a_tags.size()) {
+					record.tags = SplitTags(a_tags[i]);
+				}
+				const auto index = g_records.size();
+				g_records.push_back(std::move(record));
+				g_index[g_records.back().id] = index;
+
+				// Inline row formatting (the original calls its FUN_1800273a0 row
+				// helper here).  Field order matches Record::RowsJson exactly.
+				const auto& row = g_records.back();
+				if (!first) {
+					json += ',';
+				}
+				first = false;
+				json += "{\"id\":";
+				PrismJson::AppendQuoted(json, row.id);
+				json += ",\"name\":";
+				PrismJson::AppendQuoted(json, row.name);
+				json += ",\"tags\":[";
+				bool firstTag = true;
+				for (const auto& tag : row.tags) {
+					if (!firstTag) {
+						json += ',';
+					}
+					firstTag = false;
+					PrismJson::AppendQuoted(json, tag);
+				}
+				json += "],\"package\":";
+				PrismJson::AppendQuoted(json, row.package);
+				json += '}';
 			}
-			Record record;
-			record.id   = id;
-			// The original falls back to the id when the name slot is missing/empty.
-			record.name = (i < a_names.size() && !a_names[i].empty()) ? a_names[i] : id;
-			if (i < a_tags.size()) {
-				record.tags = SplitTags(a_tags[i]);
-			}
-			const auto index = g_records.size();
-			g_records.push_back(std::move(record));
-			g_index[g_records.back().id] = index;
-			added.push_back(g_records.back());
+			// The original has NO log call in Papyrus_CatalogAppend (the only log
+			// immediates used by that body live in 0x180029200 OnMessage); an extra
+			// logger::info here is a fabricated call that cannot byte-match.
 		}
-		// The original has NO log call in Papyrus_CatalogAppend (the only log
-		// immediates used by that body live in 0x180029200 OnMessage); an extra
-		// logger::info here is a fabricated call that cannot byte-match.
+		json += ']';
 		// The original queues a TaskInterface lambda here that incrementally
 		// forwards the newly appended records and the progress to the view
 		// (recon/NATIVES-RECOVERED.md §3.7).
-		if (!added.empty()) {
-			UiBridge::PushCatalogChunk(RowsJson(added),
+		if (!first) {
+			UiBridge::PushCatalogChunk(json,
 				static_cast<std::int32_t>(g_records.size()), g_expectedTotal);
 		}
 	}
