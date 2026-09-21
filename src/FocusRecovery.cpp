@@ -196,7 +196,7 @@ namespace FocusRecovery
 		}
 	}  // namespace
 
-	void Begin(void* a_iface, std::uint64_t a_view, const std::atomic<bool>* a_sceneActive, const std::atomic<bool>* a_uiMode)
+	__declspec(noinline) void Begin(void* a_iface, std::uint64_t a_view, const std::atomic<bool>* a_sceneActive, const std::atomic<bool>* a_uiMode)
 	{
 		std::lock_guard lock{ g_mutex };
 		++g_generation;

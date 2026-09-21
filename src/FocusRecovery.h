@@ -30,6 +30,13 @@ namespace FocusRecovery
 	// atomic state flags are the original's arguments; nullptr is accepted
 	// because the current SceneState helpers do not expose the underlying
 	// atomics (marked gap).
+	// The original keeps Begin as a real out-of-line function (0x1800130e0, 51
+	// insns) instead of inlining it into InputSink::ProcessEvent: LTCG only
+	// inlines a single-call-site helper, and inlining it here inflated
+	// ProcessEvent from 167 to 249 instructions and left BOTH original functions
+	// unpaired (the metric recorded 0x18001f0b0 MISSING and paired 0x180013122 to
+	// the merged blob at ratio 0.093). noinline restores the two-function shape.
+	__declspec(noinline)
 	void Begin(void* a_iface, std::uint64_t a_view, const std::atomic<bool>* a_sceneActive, const std::atomic<bool>* a_uiMode);
 
 	// Disarm the current generation. Called on F4 back into UI mode, and by the
