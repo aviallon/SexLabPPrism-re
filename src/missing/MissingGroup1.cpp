@@ -53,8 +53,6 @@
 extern "C" long _InterlockedExchangeAdd(volatile long*, long);
 #endif
 
-namespace {
-
 // ---------------------------------------------------------------------------
 // 0x1800107a0 (22 insns, 70 bytes .pdata range 0x1800107a0-0x1800107e6)
 // GUESS: ReleaseRefBlock::operator()  -- destroy a ref-counted block held by
@@ -63,7 +61,7 @@ namespace {
 //   r = *b; if (r) { if (lock xadd [r],-1 == 1) operator delete(r, 0x20); }
 //   operator delete(b, 0x10);            <- tail jump, sized delete
 // ---------------------------------------------------------------------------
-void ReleaseRefBlock_1800107a0(void** holder) {
+extern "C" void ReleaseRefBlock_1800107a0(void** holder) {
     void* block = *holder;
     if (block == nullptr) {
         return;
@@ -90,7 +88,7 @@ struct FlaggedStringSlot_180052f70 {
     std::string str;   // 0x98
 };
 
-void CleanupFlaggedString_180052f70(void* /*unused*/, FlaggedStringSlot_180052f70* slot) {
+extern "C" void CleanupFlaggedString_180052f70(void* /*unused*/, FlaggedStringSlot_180052f70* slot) {
     if (slot->flags & 2u) {
         slot->flags &= ~2u;
         slot->str.~basic_string();
@@ -112,7 +110,7 @@ struct DtorObj_180016820 {
     uint8_t tail[0x30 - 0x08 - sizeof(std::string)];
 };
 
-void DeletingDtor_180016820(DtorObj_180016820* self, char deleting) {
+extern "C" void DeletingDtor_180016820(DtorObj_180016820* self, char deleting) {
     self->str.~basic_string();
     if (deleting) {
         operator delete(self, 0x30);
@@ -125,15 +123,13 @@ void DeletingDtor_180016820(DtorObj_180016820* self, char deleting) {
 // value-fill, else fill existing range. Written as the real std::vector call so
 // MSVC emits its own _Assign_counted instantiation.
 // ---------------------------------------------------------------------------
-void VectorAssignVoidPtr_180046db0(std::vector<void*>* v, size_t n, void* value) {
+extern "C" void VectorAssignVoidPtr_180046db0(std::vector<void*>* v, size_t n, void* value) {
     v->assign(n, value);
 }
 
 // ---------------------------------------------------------------------------
 // 0x18003a630 (11 insns, 35 bytes 0x18003a630-0x18003a653) -- ALREADY BYTE-MATCH
 // (matching.csv bytematch=1, anchor=icf). std::string assign/append helper.
-
-}  // namespace
 
 // ---------------------------------------------------------------------------
 // Matching-decomp force-link table. /Gy + /OPT:REF would strip these bodies
