@@ -166,20 +166,5 @@ this validates the *layout*, not the value.
   unity token but does not add wrappers; count stays where the source shapes put
   it (r8 21) unless the missing lambdas (§2) are implemented.
 - `match.py --focus`: functions whose bytes differ only in the `?A0x` token
-  should improve from MISSING/RATIO towards MATCH; no-regression baseline is
-  the corrected inventory (round-9 fix: contiguous .pdata fragments merged):
-  **r8 535/911 real BYTE (58.7%), instruction-weighted 44.7%, MISSING 95**.
-
-## 7. Addendum after rebasing on `main` @ `40227ab`
-
-- `bridgeparams` landed: `InputSink`/`MenuVisibilitySink` are now top-level, so
-  their nested `@InputSink`/`@MenuVisibilitySink` tokens are gone from the
-  unity object. Remaining nested tokens in the unity object: `@FocusRecovery`
-  (wanted) and `@PrismaUI` (owned by `grind/anonns`). ActionDispatch/UiBridge
-  nested helpers emit no RTTI string, but still count as extra unnamed
-  namespaces and must also be flattened.
-- `src/Papyrus/CatalogNatives.cpp` (split out by `catalogbody`) cannot join the
-  farm yet: its global anonymous namespace redefines `kClassName` and
-  `QuoteJson`, which `Natives.cpp` also defines -> compile error. It stays a
-  separate TU (keeping its own `?A0x` token) until those helpers are shared
-  via a header.
+  should improve from MISSING/RATIO towards MATCH; expect no regression in the
+  r8 baseline of 988/1495 real BYTE-MATCH beyond normal pairing noise.

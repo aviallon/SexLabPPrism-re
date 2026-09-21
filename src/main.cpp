@@ -75,12 +75,6 @@ namespace
 #include "SceneState.cpp"
 #include "Catalog.cpp"
 #include "Papyrus/Natives.cpp"
-// NOTE: src/Papyrus/CatalogNatives.cpp is deliberately NOT included here yet.
-// Its global anonymous namespace redefines `kClassName` and `QuoteJson`,
-// which Natives.cpp also defines, so folding it in is a compile error until
-// the catalog owner dedups those helpers (they must be shared via a header).
-// Until then it stays a separate TU and keeps its own `?A0x` token.
-// See coordination/unitybuild.md.
 
 // Export 1: the version-independent plugin description, emitted as DATA exactly
 // like the original. The original 0.6.1 struct is
