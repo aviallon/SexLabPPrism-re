@@ -19,10 +19,32 @@ REPO = "/home/aviallon/Projects/SexLabPPrism-re"
 sys.path.insert(0, os.path.join(REPO, "tools"))
 import parity  # noqa: E402
 
-ORIG = os.path.join(REPO, "artifacts/SexLabPPrism.dll")
-NEW = os.path.join(REPO, "artifacts/rebuild/parity-r5.dll")
-RTTI_O = os.path.join(REPO, "recon/rtti.json")
-RTTI_N = "/tmp/rttinew/recon/rtti.json"
+# Paths are overridable so the tool can be pointed at the current parity build
+# instead of the round-5 DLL it was originally written against:
+#   --orig PATH --new PATH --rtti-new PATH --rtti-orig PATH
+# (previously the new side was hard-wired to parity-r5.dll + /tmp/rttinew).
+def _opt(flag, default):
+    if flag in sys.argv:
+        return sys.argv[sys.argv.index(flag) + 1]
+    return default
+
+
+def _drop(*flags):
+    out, i = [], 0
+    while i < len(sys.argv):
+        if sys.argv[i] in flags:
+            del sys.argv[i:i + 2]
+            continue
+        out.append(sys.argv[i])
+        i += 1
+    return out
+
+
+ORIG = _opt("--orig", os.path.join(REPO, "artifacts/SexLabPPrism.dll"))
+NEW = _opt("--new", os.path.join(REPO, "artifacts/rebuild/parity-r6.dll"))
+RTTI_O = _opt("--rtti-orig", "/tmp/rttio/recon/rtti.json")
+RTTI_N = _opt("--rtti-new", "/tmp/rtti6/recon/rtti.json")
+sys.argv = _drop("--orig", "--new", "--rtti-orig", "--rtti-new")
 
 
 def read_slots(pe, rtti):
@@ -57,8 +79,16 @@ def func_insns(perfunc):
 def main():
     pe_o = parity.PE(ORIG)
     pe_n = parity.PE(NEW)
-    ro = json.load(open(RTTI_O))
-    rn = json.load(open(RTTI_N))
+    def _rtti(path, dll):
+        if os.path.exists(path):
+            return json.load(open(path))
+        # fall back to recovering RTTI on the fly
+        sys.path.insert(0, os.path.join(REPO, "tools"))
+        import parity_names  # noqa: E402
+        return parity_names.recover_rtti(dll)
+
+    ro = _rtti(RTTI_O, ORIG)
+    rn = _rtti(RTTI_N, NEW)
     so = read_slots(pe_o, ro)
     sn = read_slots(pe_n, rn)
     pf = json.load(open(os.path.join(REPO, "recon/matching/per-function.json")))

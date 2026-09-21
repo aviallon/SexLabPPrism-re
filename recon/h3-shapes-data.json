@@ -1,0 +1,51 @@
+{
+ "type_descriptors_only_orig": [
+  ".?AVInputSink@?A0xbb2e73b6@@",
+  ".?AVMenuVisibilitySink@?A0xbb2e73b6@@"
+ ],
+ "type_descriptors_only_new": [
+  ".?AUCallbackFunctor@Awaitable@IVirtualMachine@BSScript@RE@@",
+  ".?AV?$BSTEventSink@ULogEvent@BSScript@RE@@@RE@@",
+  ".?AV?$_Func_base@XPEAX_K@std@@",
+  ".?AV?$_Ref_count_obj2@V?$msvc_sink@Vmutex@std@@@sinks@spdlog@@@std@@",
+  ".?AV?$msvc_sink@Vmutex@std@@@sinks@spdlog@@",
+  ".?AVIStackCallbackFunctor@BSScript@RE@@",
+  ".?AVLogEventHandler@Impl@SKSE@@",
+  ".?AVNiRefObject@RE@@",
+  ".?AVSink@?A0x1d4b42bd@InputSink@@",
+  ".?AVSink@?A0xf6965dd5@MenuVisibilitySink@@"
+ ],
+ "wrappers_only_orig": [
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1???R1?1??RequestSearchInput@?A0xbb2e73b6@@YAXPEBD@Z@QEBA@XZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Begin@FocusRecovery@@YAXPEAVIVPrismaUI1@PRISMA_UI_API@@_KPEBU?$atomic@_N@std@@2@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??CloseConsolePulse@?A0xa6da2f39@FocusRecovery@@YAX_K@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??DispatchAction@?A0xbb2e73b6@@YAXV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_CatalogAppend@?A0xbb2e73b6@@YAXPEAUStaticFunctionTag@RE@@V?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@11@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_CatalogBegin@?A0xbb2e73b6@@YAXPEAUStaticFunctionTag@RE@@H@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_CatalogFinish@?A0xbb2e73b6@@YAXPEAUStaticFunctionTag@RE@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_CatalogPublish@?A0xbb2e73b6@@YAXPEAUStaticFunctionTag@RE@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_SetSearchQuery@?A0xbb2e73b6@@YAXPEAUStaticFunctionTag@RE@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PublishCatalogToUi@?A0xbb2e73b6@@YAX_K@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushCompatible@?A0xbb2e73b6@@YAXXZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushState@?A0xbb2e73b6@@YAXXZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??QueuePresentation@?A0xbb2e73b6@@YAXXZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??RequestSearchInput@?A0xbb2e73b6@@YAXPEBD@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??SendMenuMessage@?A0xa6da2f39@FocusRecovery@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@W4UI_MESSAGE_TYPE@RE@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??StartConsolePulse@?A0xa6da2f39@FocusRecovery@@YAX_K@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?7??CheckUnfocus@?A0xa6da2f39@FocusRecovery@@YAX_KH@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?BB@??VerifyCleanup@?A0xa6da2f39@FocusRecovery@@YAX_KH_N@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_2>@?1??CheckUnfocus@?A0xa6da2f39@FocusRecovery@@YAX_KH@Z@X$$V@std@@"
+ ],
+ "wrappers_only_new": [
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushCatalog@UiBridge@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@H@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushCatalogChunk@UiBridge@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@HH@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushCompatible@UiBridge@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??PushState@UiBridge@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??QueuePresentation@Presentation@@YAXXZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??SetSearchQuery@UiBridge@@YAXV?$basic_string_view@DU?$char_traits@D@std@@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??add_papyrus_sink@log@SKSE@@YAXV?$basic_regex@DV?$regex_traits@D@std@@@std@@@Z@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??create@Trampoline@SKSE@@QEAAX_KPEAX@Z@XPEAX_K@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?1??remove_papyrus_sink@log@SKSE@@YAXXZ@X$$V@std@@",
+  ".?AV?$_Func_impl_no_alloc@V<lambda_1>@?L@??RequestSearchInput@?A0xd1b633de@@YAXPEBD@Z@X$$V@std@@"
+ ]
+}
