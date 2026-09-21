@@ -614,6 +614,23 @@ def normalise_function(func, image_base, image_end):
 
 def build_functions(pe, insns):
     pdata = pe.parse_pdata()
+    # MSVC C++ exception handling splits ONE source function into SEVERAL
+    # RUNTIME_FUNCTION entries in .pdata (a prologue fragment, the body, and
+    # cleanup fragments). Taking the first entry as the function extent made
+    # multi-fragment functions read as a 7-8 instruction prologue and score
+    # MISSING no matter how well the body matched - precisely the measurement
+    # artefact found on CatalogFinish/CatalogPublish (0x18002a270 + 0x43 ==
+    # 0x18002a29b, the next fragment's start). Contiguous fragments are one
+    # function: merge them before anything is compared.
+    merged = []
+    for b, e, uw in sorted(pdata, key=lambda t: t[0]):
+        if e <= b:
+            continue
+        if merged and merged[-1][1] == b:
+            merged[-1] = (merged[-1][0], e, merged[-1][2])
+        else:
+            merged.append((b, e, uw))
+    pdata = merged
     ranges = [(b, e) for b, e, _ in pdata if e > b]
     starts = [b for b, _ in ranges]
     tsec = pe.section(".text")
