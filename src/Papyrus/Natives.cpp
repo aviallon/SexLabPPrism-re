@@ -4,6 +4,8 @@
 #include "Catalog.h"
 #include "FocusRecovery.h"
 #include "Json.h"
+#include "Presentation.h"
+#include "PrismaUI.h"
 #include "SceneState.h"
 #include "UiBridge.h"
 
@@ -306,7 +308,10 @@ namespace
 		}
 		lock.unlock();
 
-		UiBridge::PushState(json);
+		// The original inlines its own no-arg `anonymous-namespace'::PushState()
+		// (task lambda `PushState(void)::lambda_1`, 0x1800250f0) here; the bridge
+		// exposes that shape, re-reading the state-JSON global when the task runs.
+		UiBridge::PushState();
 	}
 
 	// 0x18002a9a0 — JSON array of scene ids + UI push.
@@ -329,7 +334,9 @@ namespace
 			std::lock_guard jsonLock{ g_jsonMutex };
 			g_compatibleJson = json;
 		}
-		UiBridge::PushCompatible(json);
+		// Same shape for the compatible list: `anonymous-namespace'::
+		// PushCompatible(void)::lambda_1`, no captures, global re-read.
+		UiBridge::PushCompatible();
 	}
 
 	// 0x18002a000 — clear/reserve the 128-byte-record vector, reset the id index.
@@ -472,13 +479,34 @@ namespace
 	}
 
 	// 0x18002bd20 — clear the modal flag and forward the query to the UI.
+	//
+	// The original queues its OWN TaskInterface lambda here — the instantiated
+	// wrapper is
+	//   std::_Func_impl_no_alloc<`void __cdecl `anonymous-namespace'::
+	//       Papyrus_SetSearchQuery(RE::StaticFunctionTag*,std::string)'::`2'::
+	//       <lambda_1>,void>::vftable
+	// (recon/decompiled/0x18002bd20_Papyrus_SetSearchQuery.c:64). The lambda
+	// moves the query string into its capture and runs the PrismaUI dispatch:
+	// it formats `window.slppSetSearchQuery(<quoted>);` and hands it to the
+	// bridge's single guarded entry point (InvokeOn, 0x180028190), then applies
+	// the presentation (0x180024450 tail). Routing through a UiBridge:: helper
+	// would name the wrapper after UiBridge instead, so the dispatch lives here.
 	void Papyrus_SetSearchQuery(RE::StaticFunctionTag*, std::string a_query)
 	{
 		g_modalSearchOpen.store(false);
 #line 586 "src\\main.cpp"
 		logger::info("Modal search completed: {} characters", a_query.size());
 #line 190
-		UiBridge::SetSearchQuery(a_query);
+		auto* const task = SKSE::GetTaskInterface();
+		if (!task) {
+			return;
+		}
+		task->AddTask([query = std::move(a_query)]() {
+			const std::string code =
+				"window.slppSetSearchQuery(" + QuoteJson(query) + ");";
+			PrismaUI::InvokeOn(code);
+			Presentation::ApplyPresentation();
+		});
 	}
 }  // namespace
 
@@ -578,6 +606,14 @@ namespace SceneState
 	{
 		std::lock_guard lock{ g_jsonMutex };
 		return g_stateJson;
+	}
+
+	// Read by UiBridge::PushCompatible()'s task lambda (060.1's
+	// `PushCompatible(void)::lambda_1`), the twin of CurrentStateJson.
+	std::string CurrentCompatibleJson()
+	{
+		std::lock_guard lock{ g_jsonMutex };
+		return g_compatibleJson;
 	}
 }  // namespace SceneState
 
