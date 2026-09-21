@@ -129,11 +129,7 @@ cat "$WORK/clng-list.txt" | xargs -P "$JOBS" -I{} bash -c '
 echo "local-build: clng objects $(ls "$WORK"/obj/clng/*.obj 2>/dev/null | wc -l)/$(wc -l < "$WORK/clng-list.txt")"
 
 # --- project sources --------------------------------------------------------
-# Unity build: src/main.cpp #includes all other src/*.cpp (see the include
-# farm there and recon/unity-build.md), so it is the ONLY project TU to
-# compile.  Compiling the included files separately would define every symbol
-# twice and, worse, recreate the per-file `?A0x` tokens.
-for f in "$PROJ/src/main.cpp"; do
+for f in $(find "$PROJ/src" -name '*.cpp'); do
   rel=${f#"$PROJ"/src/}; out="$WORK/obj/proj/${rel//\//_}"
   clang $CXXFLAGS -I "$PROJ/src" -FI "$PROJ/src/PCH.h" -c "$f" \
     -o "${out%.cpp}.obj" || die "project compile failed: $f"

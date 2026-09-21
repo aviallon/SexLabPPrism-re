@@ -159,24 +159,6 @@ target(PROJECT_NAME)
 
     set_pcxxheader("src/PCH.h")
     add_files("src/**.cpp")
-    -- Unity build: the original is ONE translation unit (see src/main.cpp's
-    -- include farm and recon/unity-build.md).  Everything except main.cpp is
-    -- textually #included, so compiling it separately would both duplicate
-    -- symbols and - more importantly - give each file its own `?A0x<hash>`
-    -- anonymous-namespace token instead of the original's single one.
-    remove_files(
-        "src/FocusRecovery.cpp",
-        "src/ActionDispatch.cpp",
-        "src/UiBridge.cpp",
-        "src/Presentation.cpp",
-        "src/PrismaUI.cpp",
-        "src/Lifecycle.cpp",
-        "src/InputSink.cpp",
-        "src/MenuVisibilitySink.cpp",
-        "src/SceneState.cpp",
-        "src/Catalog.cpp",
-        "src/Papyrus/Natives.cpp"
-    )
     -- The original carries a VERSIONINFO resource (.rsrc, 752 bytes, no
     -- OriginalFilename/CompanyName). src/Version.rc reproduces it byte-for-byte
     -- as far as the resource contents go.
