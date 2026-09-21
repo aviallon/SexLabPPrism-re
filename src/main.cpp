@@ -71,12 +71,26 @@ SKSE_EXPORT bool SKSEPlugin_Query(SKSE::QueryInterface*, SKSE::PluginInfo* a_inf
 // Export 3: load. SetupLog() builds the project logger (file + stdout), then
 // SKSE::Init initialises the address library and interfaces; the version banner
 // and the native registration follow.
+#include "missing/MissingGroup1.h"
+#include "missing/MissingGroup2.h"
+#include "missing/MissingGroup3.h"
+
 SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
 	// 0x18002e25d: SetupLog() runs BEFORE SKSE::Init, and a_log is false so
 	// CLNG's own log::init()/msvc_sink is never instantiated.
 	SetupLog();
 	SKSE::Init(a_skse, false);
+
+	// Matching-decomp force-links, NOT behaviour: the parity build compiles with
+	// /Gy and links with /OPT:REF, so any function nothing references is stripped
+	// from the DLL and becomes invisible to the comparison. These three calls keep
+	// the reconstructed bodies in src/missing/MissingGroup*.cpp alive. Each group
+	// XORs a volatile sink over its whole table, because observing only one element
+	// lets the optimiser fold the table and the linker strip every other body.
+	ForceLink_MissingGroup1();
+	ForceLink_MissingGroup2();
+	ForceLink_MissingGroup3();
 
 	logger::info("SexLab P+ Prism 0.6.1 loading (strict lifecycle + confirmed freecam + selective UI)");
 
