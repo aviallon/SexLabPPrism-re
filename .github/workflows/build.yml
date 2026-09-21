@@ -304,7 +304,14 @@ jobs:
           rem internal STL symbols at LTCG time. The check_linker gate below
           rem proves which toolset actually produced the binary.
           xmake f -p windows -a x64 -m release -y
-          xmake build -v SexLabPPrism || exit /b 1
+          rem Keep the verbose log on disk so the staging step can prove the
+          rem /MAP token really is on link.exe's command line, instead of
+          rem trusting that the flag was accepted. Tee it back to the console so
+          rem CI still shows the full build.
+          xmake build -v SexLabPPrism > parity-build-verbose.log 2>&1
+          set "prism_rc=%errorlevel%"
+          type parity-build-verbose.log
+          if not "%prism_rc%"=="0" exit /b %prism_rc%
       - name: Assert the toolset actually matched, and stage the DLL
         shell: bash
         run: |
@@ -319,8 +326,34 @@ jobs:
           # row falls back to the similarity screen.  PRISM_LINK_MAP=0 is the
           # neutrality A/B (same commit, no map): no oracle, no failure.
           if [ "${PRISM_LINK_MAP:-1}" = "1" ]; then
-            map=$(find build -name SexLabPPrism.map -type f | head -1)
-            [ -n "$map" ] || { echo "::error::SexLabPPrism.map not found (/MAP did not run)"; exit 1; }
+            # Prove the flag reached the linker BEFORE trusting the map's
+            # absence to mean the branch did not run.  The previous parity run
+            # (35663144070) printed "[prism] parity linker map enabled (/MAP)"
+            # and still linked without it, because a DLL target reads xmake's
+            # `shflags`, not `ldflags`.
+            if [ ! -f parity-build-verbose.log ]; then
+              echo "::error::parity-build-verbose.log is missing; cannot prove /MAP reached link.exe"
+              exit 1
+            fi
+            mapflag=$(grep -oE '/MAP:[^ "]*' parity-build-verbose.log | head -1)
+            if [ -z "$mapflag" ]; then
+              echo "::error::/MAP token missing from the logged link.exe command line (/MAP did not reach the linker)"
+              echo "  link.exe line(s) from the build log:"
+              grep -n 'link\.exe' parity-build-verbose.log | tail -3 || true
+              exit 1
+            fi
+            echo "  link line /MAP evidence: $mapflag"
+            # The map may land beside the DLL, in the linker's cwd, or anywhere
+            # under the build tree: search the whole tree and say where.
+            map=$(find build -name SexLabPPrism.map -type f 2>/dev/null | head -1)
+            if [ -z "$map" ]; then
+              echo "::error::SexLabPPrism.map not found under build/ (/MAP did not run)"
+              echo "  link line said: $mapflag"
+              echo "  searched: $(pwd)/build for SexLabPPrism.map"
+              echo "  *.map files actually present under build/:"
+              find build -name '*.map' -type f 2>/dev/null || true
+              exit 1
+            fi
             cp "$map" parity-out/SexLabPPrism.map
             echo "  staged map: $map"
           else

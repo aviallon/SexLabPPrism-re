@@ -201,12 +201,26 @@ target(PROJECT_NAME)
         -- can resolve a declaration's source symbol to our function's exact
         -- address instead of guessing the body by similarity.  The parity
         -- artifact ships no COFF symbol table, so the map is the only symbol
-        -- oracle available.  /MAP writes a text side-file next to the DLL and
-        -- does not affect the image; gated on PRISM_LINK_MAP=1, which only the
-        -- parity CI job sets, so the shipping build stays byte-identical.
+        -- oracle available.  /MAP writes a text side-file only and does not
+        -- affect the image; gated on PRISM_LINK_MAP=1, which only the parity CI
+        -- job sets, so the shipping build stays byte-identical.
+        --
+        -- It MUST be add_shflags(), not add_ldflags().  xmake's linker flag
+        -- kinds are target-kind specific (languages/c++/xmake.lua:
+        --   set_targetflags{binary = "ldflags", static = "arflags", shared = "shflags"})
+        -- and this target is `set_kind("shared")`, so the linker instance is
+        -- built with _FLAGKINDS = {"shflags"} and never reads ldflags: the flag
+        -- is dropped silently, with no "is ignored" warning.  Measured on
+        -- parity run 35663144070: the logged link.exe argv carried
+        -- `/opt:ref /opt:icf -debug -pdb:...` but no `/MAP` token at all, even
+        -- though the guard below this block proves the Lua branch ran.  The fix
+        -- is the flag kind, and the explicit /MAP:<path> pin removes any doubt
+        -- about the linker's working directory.  `force = true` skips xmake's
+        -- has_flags probe so the flag is emitted verbatim.
         if os.getenv("PRISM_LINK_MAP") == "1" then
-            add_ldflags("/MAP")
-            print("[prism] parity linker map enabled (/MAP)")
+            local mapfile = "$(builddir)/$(plat)/$(arch)/$(mode)/" .. PROJECT_NAME .. ".map"
+            add_shflags("/MAP:" .. mapfile, {force = true})
+            print("[prism] parity linker map enabled (/MAP:" .. mapfile .. ")")
         end
     end
 target_end()
