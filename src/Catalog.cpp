@@ -97,14 +97,19 @@ namespace Catalog
 
 	void Begin(std::int32_t a_total)
 	{
-		std::lock_guard lock{ g_mutex };
-		g_records.clear();
-		g_index.clear();
-		if (a_total > 0) {
-			g_records.reserve(static_cast<std::size_t>(a_total));
+		// The original (FUN_18002a000) releases DAT_1800951f0 *before* it touches
+		// the ready/building flags; only the records/index mutation and the
+		// build-start timestamp are inside the locked region.
+		{
+			std::lock_guard lock{ g_mutex };
+			g_records.clear();
+			g_index.clear();
+			if (a_total > 0) {
+				g_records.reserve(static_cast<std::size_t>(a_total));
+			}
+			g_expectedTotal = a_total;
+			g_buildStart    = NowTicks();
 		}
-		g_expectedTotal = a_total;
-		g_buildStart    = NowTicks();
 		g_ready         = false;
 		g_building      = true;
 #line 480
@@ -137,7 +142,9 @@ namespace Catalog
 			g_index[g_records.back().id] = index;
 			added.push_back(g_records.back());
 		}
-		logger::info("Catalog append: {} scenes", g_records.size());
+		// The original has NO log call in Papyrus_CatalogAppend (the only log
+		// immediates used by that body live in 0x180029200 OnMessage); an extra
+		// logger::info here is a fabricated call that cannot byte-match.
 		// The original queues a TaskInterface lambda here that incrementally
 		// forwards the newly appended records and the progress to the view
 		// (recon/NATIVES-RECOVERED.md §3.7).
@@ -173,7 +180,11 @@ namespace Catalog
 		g_ready    = true;
 		g_building = false;
 		const std::uint64_t ms = (NowTicks() - g_buildStart) / 1'000'000ull;
+		// Pinned to the original's source_loc line (immediate 0x223) recovered
+		// from FUN_18002a270 at recon/decompiled/0x18002a270_Papyrus_CatalogFinish.c.
+#line 547
 		logger::info("Catalog build finished: {} scenes in {} ms", count, ms);
+#line 150
 		UiBridge::InvokeJs("slppCatalogDone", std::to_string(count));
 	}
 
@@ -198,7 +209,11 @@ namespace Catalog
 			std::lock_guard lock{ g_mutex };
 			snapshot = g_records;
 		}
+		// Pinned to the original's source_loc line (immediate 0x241) recovered
+		// from FUN_18002a6e0 at recon/decompiled/0x18002a6e0_Papyrus_CatalogPublish.c.
+#line 577
 		logger::info("Catalog session cache reused: {} scenes already in UI", snapshot.size());
+#line 177
 		UiBridge::PushCatalog(RowsJson(snapshot), static_cast<std::int32_t>(snapshot.size()));
 	}
 
