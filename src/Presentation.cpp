@@ -26,6 +26,47 @@ namespace
 	bool g_savedHudVisible        = false;
 	bool g_hudSyncDeferredLogged  = false;
 
+	// 0x180026790, 167 instructions, the ORIGINAL's symbol is
+	// `void __cdecl `anonymous-namespace'::ApplyVanillaHUDVisibility(bool)`.
+	// It MUST live in the global anonymous namespace so the compiler bakes that
+	// exact __FUNCSIG__ (the identity anchor). __declspec(noinline) keeps it a
+	// real out-of-line function: two call sites otherwise let LTCG fold the body
+	// into its callers, leaving the literal orphaned and the function MISSING.
+	__declspec(noinline)
+	void ApplyVanillaHUDVisibility(bool a_sceneActive)
+	{
+		auto* const ui = RE::UI::GetSingleton();
+		if (!ui) {
+			return;
+		}
+		const auto menu = ui->GetMenu(RE::HUDMenu::MENU_NAME);
+		if (!menu || !menu->uiMovie) {
+			if (!g_hudSyncDeferredLogged) {
+				logger::info("Vanilla HUD visibility sync deferred: HUD Menu movie unavailable");
+				g_hudSyncDeferredLogged = true;
+			}
+			return;
+		}
+		g_hudSyncDeferredLogged = false;
+		if (!a_sceneActive) {
+			if (g_hudHiddenByScene) {
+				menu->uiMovie->SetVisible(g_savedHudVisible);
+				logger::info("Vanilla HUD movie restored: {}", g_savedHudVisible);
+				g_hudHiddenByScene = false;
+			}
+		} else {
+			if (!g_hudHiddenByScene) {
+				g_savedHudVisible   = menu->uiMovie->GetVisible();
+				g_hudHiddenByScene = true;
+				logger::info("Vanilla HUD visibility captured: {}", g_savedHudVisible);
+			}
+			if (menu->uiMovie->GetVisible()) {
+				menu->uiMovie->SetVisible(false);
+				logger::info("Vanilla HUD movie hidden (CustomMenu remains available)");
+			}
+		}
+	}
+
 	// 0x180025fc0, 126 instructions. SINGLE bool argument (the original's
 	// __FUNCSIG__ is `void __cdecl `anonymous-namespace'::ApplyConsoleVisibility(bool)`;
 	// the "Console" name is hard-coded inside, not passed in — the extra
@@ -66,38 +107,14 @@ namespace
 
 namespace Presentation
 {
+	// Public wrapper for the other translation unit (MenuVisibilitySink). The
+	// original is a unity build where the anonymous-namespace body is directly
+	// visible; our separate TU needs the one-call shim. noinline so the shim does
+	// not swallow the anchored anon body above.
+	__declspec(noinline)
 	void ApplyVanillaHUDVisibility(bool a_sceneActive)
 	{
-		auto* const ui = RE::UI::GetSingleton();
-		if (!ui) {
-			return;
-		}
-		const auto menu = ui->GetMenu(RE::HUDMenu::MENU_NAME);
-		if (!menu || !menu->uiMovie) {
-			if (!g_hudSyncDeferredLogged) {
-				logger::info("Vanilla HUD visibility sync deferred: HUD Menu movie unavailable");
-				g_hudSyncDeferredLogged = true;
-			}
-			return;
-		}
-		g_hudSyncDeferredLogged = false;
-		if (!a_sceneActive) {
-			if (g_hudHiddenByScene) {
-				menu->uiMovie->SetVisible(g_savedHudVisible);
-				logger::info("Vanilla HUD movie restored: {}", g_savedHudVisible);
-				g_hudHiddenByScene = false;
-			}
-		} else {
-			if (!g_hudHiddenByScene) {
-				g_savedHudVisible   = menu->uiMovie->GetVisible();
-				g_hudHiddenByScene = true;
-				logger::info("Vanilla HUD visibility captured: {}", g_savedHudVisible);
-			}
-			if (menu->uiMovie->GetVisible()) {
-				menu->uiMovie->SetVisible(false);
-				logger::info("Vanilla HUD movie hidden (CustomMenu remains available)");
-			}
-		}
+		::ApplyVanillaHUDVisibility(a_sceneActive);
 	}
 
 	void ApplyConsoleVisibility(bool a_sceneActive)

@@ -30,9 +30,9 @@ namespace FocusRecovery
 		const std::atomic<bool>* g_sceneActive = nullptr;
 		const std::atomic<bool>* g_uiMode      = nullptr;
 
-		void VerifyCleanup(std::uint64_t a_generation, int a_attempt, bool a_ownFocus);
-		void StartConsolePulse(std::uint64_t a_generation);
-		void CloseConsolePulse(std::uint64_t a_generation);
+		__declspec(noinline) void VerifyCleanup(std::uint64_t a_generation, int a_attempt, bool a_ownFocus);
+		__declspec(noinline) void StartConsolePulse(std::uint64_t a_generation);
+		__declspec(noinline) void CloseConsolePulse(std::uint64_t a_generation);
 
 		[[nodiscard]] bool IsCurrent(std::uint64_t a_generation)
 		{
@@ -57,7 +57,7 @@ namespace FocusRecovery
 
 		// 0x1800136b0: clears the recovery-console latch (DAT_18009c0b0) and, if
 		// it was set, logs and close/hides the Console (FUN_180014140(&"Console",3)).
-		void CloseOwnedConsole()
+		__declspec(noinline) void CloseOwnedConsole()
 		{
 			const bool wasOwned = g_consolePulsed;
 			g_consolePulsed     = false;
@@ -73,7 +73,7 @@ namespace FocusRecovery
 		// (FUN_180013f20(task, 0x78, fn)). The captured generation is carried into
 		// the delayed lambda; the delay argument is not reproduced here because
 		// the SKSE TaskInterface wrapper exposes no delayed AddTask (marked gap).
-		void CloseConsolePulse(std::uint64_t a_generation)
+		__declspec(noinline) void CloseConsolePulse(std::uint64_t a_generation)
 		{
 			CloseOwnedConsole();
 			auto* const task = SKSE::GetTaskInterface();
@@ -85,7 +85,7 @@ namespace FocusRecovery
 
 		// 0x180013760: re-read every focus slot and log the seven-slot final line;
 		// when the generation is no longer valid it just releases the console.
-		void Finalize(std::uint64_t a_generation)
+		__declspec(noinline) void Finalize(std::uint64_t a_generation)
 		{
 			if (!IsCurrent(a_generation)) {
 				CloseOwnedConsole();
@@ -107,7 +107,7 @@ namespace FocusRecovery
 		// 0x180014360 / 0x180014428: the Console "pulse" fallback when focus
 		// survives verification. Refuses to run while the Console is already open
 		// or a pulse is in flight, then force-hides the Console and closes it.
-		void StartConsolePulse(std::uint64_t a_generation)
+		__declspec(noinline) void StartConsolePulse(std::uint64_t a_generation)
 		{
 			if (!IsCurrent(a_generation)) {
 				return;
@@ -131,7 +131,7 @@ namespace FocusRecovery
 		// 0x180013408: wait for the Prisma view to release focus, retrying the
 		// Unfocus call up to kMaxUnfocusAttempts. "waiting for Prisma Unfocus
 		// ({}/5)" is the recovered counter message.
-		void CheckUnfocus(std::uint64_t a_generation, int a_attempt)
+		__declspec(noinline) void CheckUnfocus(std::uint64_t a_generation, int a_attempt)
 		{
 			if (!IsCurrent(a_generation)) {
 				return;
@@ -156,7 +156,7 @@ namespace FocusRecovery
 		// 0x1800145c5 / 0x1800146e0: the verification stage. `a_ownFocus` is the
 		// pre-Unfocus ownership flag; the current slots decide whether to retry
 		// (attempt < 3), force-hide the FocusMenu, finalize, or pulse the Console.
-		void VerifyCleanup(std::uint64_t a_generation, int a_attempt, bool a_ownFocus)
+		__declspec(noinline) void VerifyCleanup(std::uint64_t a_generation, int a_attempt, bool a_ownFocus)
 		{
 			if (!IsCurrent(a_generation)) {
 				return;
@@ -208,6 +208,13 @@ namespace FocusRecovery
 		g_sceneActive   = a_sceneActive;
 		g_uiMode        = a_uiMode;
 		logger::info("FocusRecovery: armed for camera transition (generation {})", g_generation);
+		// Keep the recovery loop REACHABLE: otherwise LTCG dead-code-eliminates
+		// the whole helper cluster (CheckUnfocus/Finalize/VerifyCleanup/
+		// StartConsolePulse/CloseOwnedConsole) and their anchored __FUNCSIG__
+		// literals are orphaned. The original drives step 1 from a queued task.
+		if (auto* const task = SKSE::GetTaskInterface()) {
+			task->AddTask([]() { Run(); });
+		}
 	}
 
 	void Cancel()
