@@ -14,11 +14,14 @@
 namespace SceneState
 {
 	// DAT_18009c1d0, guarded by the session mutex.
-	std::int32_t BeginSceneSession();
+	std::int32_t BeginSceneSession(RE::StaticFunctionTag*);
 
 	// PublishSceneState. Returns after either rejecting (stale / invalid
 	// activation) or building the state JSON and queueing a UI push.
+	// The unused leading StaticFunctionTag* keeps the ABI identical to the
+	// registered native (original 0x18002ae90 homes its arguments that way).
 	void Publish(
+		RE::StaticFunctionTag*,
 		std::int32_t               a_session,
 		bool                       a_active,
 		std::int32_t               a_threadID,
@@ -38,9 +41,9 @@ namespace SceneState
 
 	bool IsFreeCameraActive();
 
-	void PublishCompatible(const std::vector<std::string>& a_sceneIDs);
+	void PublishCompatible(RE::StaticFunctionTag*, const std::vector<std::string>& a_sceneIDs);
 
-	void SetSearchQuery(std::string a_query);
+	void SetSearchQuery(RE::StaticFunctionTag*, std::string a_query);
 
 	// --- presentation state shared with the event sinks -----------------------
 	// These mirror the original globals DAT_18009c1c9 (sceneActive),

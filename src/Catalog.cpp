@@ -95,7 +95,7 @@ namespace Catalog
 		return static_cast<std::size_t>(hash);
 	}
 
-	void Begin(std::int32_t a_total)
+	void Begin(RE::StaticFunctionTag*, std::int32_t a_total)
 	{
 		// The original (FUN_18002a000) releases DAT_1800951f0 *before* it touches
 		// the ready/building flags; only the records/index mutation and the
@@ -118,7 +118,8 @@ namespace Catalog
 		UiBridge::InvokeJs("slppCatalogReset", std::to_string(a_total));
 	}
 
-	void Append(const std::vector<std::string>& a_ids,
+	void Append(RE::StaticFunctionTag*,
+		const std::vector<std::string>& a_ids,
 		const std::vector<std::string>&        a_names,
 		const std::vector<std::string>&        a_tags)
 	{
@@ -154,7 +155,7 @@ namespace Catalog
 		}
 	}
 
-	void Package(const std::string& a_package, const std::vector<std::string>& a_ids)
+	void Package(RE::StaticFunctionTag*, const std::string& a_package, const std::vector<std::string>& a_ids)
 	{
 		std::lock_guard lock{ g_mutex };
 		std::size_t     mapped = 0;
@@ -170,7 +171,7 @@ namespace Catalog
 #line 161
 	}
 
-	void Finish()
+	void Finish(RE::StaticFunctionTag*)
 	{
 		std::size_t count = 0;
 		{
@@ -188,7 +189,7 @@ namespace Catalog
 		UiBridge::InvokeJs("slppCatalogDone", std::to_string(count));
 	}
 
-	bool IsReady()
+	bool IsReady(RE::StaticFunctionTag*)
 	{
 		// 0x18002a8a0 `IsCatalogReady` is a lock-free byte read (`movzx eax,[ready]`):
 		// the original's flag is a standalone byte written with `xchg` by CatalogFinish,
@@ -196,13 +197,13 @@ namespace Catalog
 		return g_ready.load();
 	}
 
-	std::int32_t Count()
+	std::int32_t Count(RE::StaticFunctionTag*)
 	{
 		std::lock_guard lock{ g_mutex };
 		return static_cast<std::int32_t>(g_records.size());
 	}
 
-	void Publish()
+	void Publish(RE::StaticFunctionTag*)
 	{
 		std::vector<Record> snapshot;
 		{
