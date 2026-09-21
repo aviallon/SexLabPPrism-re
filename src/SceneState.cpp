@@ -78,8 +78,12 @@ namespace SceneState
 		std::unique_lock lock{ g_sessionMutex };
 
 		if (a_session < g_latestSession) {
+			// Pinned to the original's source_loc line (immediate 0x18a=394)
+			// recovered from FUN_18002ae90 at recon/decompiled/0x18002ae90_Papyrus_PublishSceneState.c.
+#line 394
 			logger::warn("Rejected stale scene publication: session {} < current {} (active={}, thread={})",
 				a_session, g_latestSession, a_active, a_threadID);
+#line 80
 			return;
 		}
 		if (g_latestSession < a_session) {
@@ -89,8 +93,11 @@ namespace SceneState
 		if (!a_active) {
 			g_wasActiveLatch = true;
 		} else if (g_wasActiveLatch || a_threadID < 0 || a_status != 3) {
+			// Pinned source_loc line 0x195=405 (same FUN_18002ae90).
+#line 405
 			logger::warn("Rejected invalid scene activation: session {} closed={} thread={} status={}",
 				a_session, g_wasActiveLatch, a_threadID, a_status);
+#line 91
 			return;
 		}
 
@@ -142,7 +149,10 @@ namespace SceneState
 			if (wasActive) {
 				FocusRecovery::Cancel();
 				g_modalSearchOpen.store(false);
+				// Pinned source_loc line 0x1b8=440 (same FUN_18002ae90).
+#line 440
 				logger::info("Scene state: became INACTIVE (thread {}, status {})", a_threadID, a_status);
+#line 126
 			}
 		} else {
 			g_sceneActive = true;
@@ -150,7 +160,10 @@ namespace SceneState
 				FocusRecovery::Cancel();
 				g_uiMode          = true;
 				g_interfaceHidden = false;
+				// Pinned source_loc line 0x1b4=436 (same FUN_18002ae90).
+#line 436
 				logger::info("Scene state: became ACTIVE (thread {}, scene '{}')", a_threadID, a_sceneID);
+#line 136
 			}
 		}
 
@@ -176,7 +189,11 @@ namespace SceneState
 		}
 		json += ']';
 
+		// Pinned to the original's source_loc line (immediate 0x1cc=460)
+		// recovered from FUN_18002a9a0 at recon/decompiled/0x18002a9a0_Papyrus_PublishCompatible.c.
+#line 460
 		logger::info("Compatible scene list published: {} scenes", a_sceneIDs.size());
+#line 154
 		{
 			std::lock_guard jsonLock{ g_jsonMutex };
 			g_compatibleJson = json;
