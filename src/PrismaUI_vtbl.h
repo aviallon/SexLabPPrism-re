@@ -42,12 +42,14 @@
 // stack. Confirmed in both DLLs by `mov (%rcx),%rax; call *0xNN(%rax)`.
 //
 // IMPORTANT — evidence levels:
-//   CONFIRMED  = the ORIGINAL DLL calls this offset itself (0x00/0x18/0x40/
-//                0x70/0xa8), so we are certain it exists on the interface
-//                returned by RequestPluginAPI(1).
+//   CONFIRMED  = the ORIGINAL DLL calls this offset itself, so we are certain
+//                it exists (with this shape) on the interface returned by
+//                RequestPluginAPI(1). That covers 0x00/0x08/0x18/0x20/0x30/
+//                0x40/0x60/0x70/0xa0/0xa8 (see per-slot call sites below).
 //   CROSS-CHECK= only PrismaUITeleportMenu calls it, on its RequestPluginAPI(0)
 //                handle. Strong evidence of the slot and its shape, but the
-//                offset is proven on the BASE interface, not on apiVersion 1.
+//                offset is proven on the BASE interface, not on apiVersion 1:
+//                0x10/0x28/0x38.
 //   UNKNOWN    = no call site recovered anywhere. Do not call it.
 //
 // The interface returned by RequestPluginAPI(1) is named
@@ -60,18 +62,19 @@ namespace PrismaUI::vtbl
 {
 	// --- byte offsets (vtable index = offset / 8) ---------------------------
 	inline constexpr std::size_t kCreateView      = 0x00;  // CONFIRMED (both)
-	inline constexpr std::size_t kExecuteJs       = 0x08;  // CROSS-CHECK
-	inline constexpr std::size_t kInvokeFunction  = 0x10;  // CROSS-CHECK
+	inline constexpr std::size_t kExecuteJs       = 0x08;  // CONFIRMED (original InvokeOn)
+	inline constexpr std::size_t kInvokeFunction  = 0x10;  // CROSS-CHECK (teleport only)
 	inline constexpr std::size_t kRegisterCallback= 0x18;  // CONFIRMED (both)
+	inline constexpr std::size_t kIsFocused       = 0x20;  // CONFIRMED (original CheckUnfocus)
 	inline constexpr std::size_t kSetInteractive  = 0x28;  // CROSS-CHECK
-	inline constexpr std::size_t kSlot30          = 0x30;  // CROSS-CHECK, name UNKNOWN
-	inline constexpr std::size_t kQueryFocus      = 0x38;  // CROSS-CHECK
+	inline constexpr std::size_t kUnfocus         = 0x30;  // CONFIRMED (original CheckUnfocus)
+	inline constexpr std::size_t kQueryFocus      = 0x38;  // CROSS-CHECK name UNKNOWN (teleport)
 	inline constexpr std::size_t kApplyView       = 0x40;  // CONFIRMED (both)
-	inline constexpr std::size_t kCloseView       = 0x60;  // CROSS-CHECK
+	inline constexpr std::size_t kQueryView       = 0x60;  // CONFIRMED (original InvokeOn+Begin)
 	inline constexpr std::size_t kSetViewFlags    = 0x70;  // CONFIRMED (original)
 	inline constexpr std::size_t kSlot80          = 0x80;  // UNKNOWN
 	inline constexpr std::size_t kSlot88          = 0x88;  // UNKNOWN (old guess; retired)
-	inline constexpr std::size_t kIsConnected     = 0xa0;  // CROSS-CHECK
+	inline constexpr std::size_t kIsConnected     = 0xa0;  // CONFIRMED (original CheckUnfocus)
 	inline constexpr std::size_t kSetConsoleSink  = 0xa8;  // CONFIRMED (both, api v1)
 
 	// --- CONFIRMED SLOTS ----------------------------------------------------
@@ -118,11 +121,13 @@ namespace PrismaUI::vtbl
 	// --- CROSS-CHECK SLOTS (proven on the base interface) -------------------
 
 	// 0x08 — Execute a JS *expression/snippet*. r9 is an optional callback.
+	//   original InvokeOn 0x1800281fb: `rex.W jmp *0x8(%rax)`
+	//     (rcx=iface, rdx=view, r8=std::string data, r9=0)
 	//   teleport 0x180046fe8: call *0x8(%rax)   (rcx=iface, rdx=view, r8="endScreenshot()", r9=0)
 	//   teleport 0x18004cfe5: call *0x8(%rax)   (rcx=iface, rdx=view, r8="locationsChanged()", r9=0)
 	//   teleport 0x18004a254: call *0x8(%rax)   (rcx=iface, rdx=view, r8="onImmersiveClose()", r9=0)
 	//   teleport 0x18004a32a: call *0x8(%rax)   (rcx=iface, rdx=view, r8="onMenuClose()", r9=0)
-	// NUL-terminated code string; no return used.
+	// NUL-terminated code string; no return used. This is THE C++->JS path.
 	using ExecuteJsFn = void (*)(void* a_self, void* a_view, const char* a_code, void* a_callback);
 
 	// 0x10 — Invoke a named global JS function with one string argument.
@@ -133,29 +138,38 @@ namespace PrismaUI::vtbl
 	// functions; the interface itself does not care.
 	using InvokeFunctionFn = void (*)(void* a_self, void* a_view, const char* a_name, const char* a_arg);
 
-	// 0x28 — Set view interactive / input ownership.
+	// 0x20 — `bool IsFocused(view)`. THE focus query on api version 1.
+	//   original FocusRecovery::CheckUnfocus 0x180013410:
+	//     rcx=[rbx] (the RequestPluginAPI(1) handle), rax=[rcx], rdx=view,
+	//     call *0x20(%rax); `movzx edi,al; test dil,dil`
+	//   FocusRecovery::Begin 0x180013410 likewise queries it after slot 0x60.
+	using IsFocusedFn = bool (*)(void* a_self, void* a_view);
+
+	// 0x28 — Set view interactive / input ownership (base interface,
+	// cross-checked in TeleportMenu).
 	//   teleport 0x180050fe8: call *0x28(%rax)  (rcx=iface, rdx=view, r8=0, r9=0)
 	//   teleport 0x18005111c: call *0x28(%rax)  (rcx=iface, rdx=view, r8b=1, r9=0)
-	// Called on close as `false` and on open as `true` around the
-	// onMenuClose()/onMenuOpen() JS notifications.
 	using SetInteractiveFn = void (*)(void* a_self, void* a_view, bool a_interactive, void* a_unused);
 
-	// 0x30 — (iface, view), no other args, return ignored. Name UNKNOWN.
-	//   teleport 0x18004a268 / 0x18004a33e: call *0x30(%rax)  (rcx=iface, rdx=view)
-	// Paired with 0x08("onMenuClose()") before the 0x40 tail-jump.
-	using Slot30Fn = void (*)(void* a_self, void* a_view);
+	// 0x30 — `Unfocus(view)`. THE focus release on api version 1.
+	//   original CheckUnfocus 0x1800134bb: rcx=iface, rdx=view, call *0x30(%rax)
+	//   (reached after the "waiting for Prisma Unfocus ({}/5)" log).
+	using UnfocusFn = void (*)(void* a_self, void* a_view);
 
-	// 0x38 — (iface, view) query, return ignored at both sites. Likely
-	// "is view focused/visible". Name UNKNOWN.
-	//   teleport 0x180050fe5 / 0x180051119: call *0x38(%rax)  (rcx=iface, rdx=view)
+	// 0x38 — (iface, view) query, return ignored at both teleport sites. Name
+	// UNKNOWN; only TeleportMenu calls it (0x180050fe5 / 0x180051119).
 	using QueryFocusFn = void (*)(void* a_self, void* a_view);
 
-	// 0x60 — Close/destroy the view; returns bool (true = it owned it).
-	//   teleport Teleport_Close (0x18005bb2a) and Teleport_Open (0x18005bbfa)
-	//   call *0x60(%rax)  (rcx=iface, rdx=view), then `test %al,%al`.
-	using CloseViewFn = bool (*)(void* a_self, void* a_view);
+	// 0x60 — (iface, view) query, returns bool. The original's InvokeOn uses it
+	// as a usability guard before invoking JS and logs
+	// "Invoke skipped, view {} not usable ({} bytes)" when it is false
+	// (0x1800281c7; strings.txt:198). Teleport_Close/Teleport_Open also test it
+	// (0x18005bb2a, 0x18005bbfa). Name UNKNOWN: IsViewValid / IsViewOpen.
+	using QueryViewFn = bool (*)(void* a_self, void* a_view);
 
-	// 0xa0 — (iface) only, returns bool. Likely "runtime connected / ready".
+	// 0xa0 — (iface) only, returns bool. Called immediately after the focus
+	// query in the original's CheckUnfocus (0x180013426: `mov rdx,[rcx+0xa0];
+	// rcx=iface; call rdx`), so it is a runtime/interface predicate.
 	//   teleport 0x180057f23: call *0xa0(%rax)  (rcx=iface), `test %al,%al`.
 	using IsConnectedFn = bool (*)(void* a_self);
 

@@ -49,18 +49,17 @@ namespace PrismaUI
 	void* View();
 
 	// --- C++ -> JS -------------------------------------------------------------
-	// Two recovered invocation slots (see PrismaUI_vtbl.h for the evidence):
-	//   InvokeJs  -> slot 0x10, calls a named global JS function with a string
-	//   ExecuteJs -> slot 0x08, evaluates a JS expression string
-	// Both are now backed by real call sites recovered from
-	// PrismaUITeleportMenu.dll, so the 12 JS-bridge functions have genuine
-	// instruction streams instead of the retired 0x88 guess.
+	// InvokeJs builds `window.<name>(<arg>)` and runs it through slot 0x08
+	// (the original's InvokeOn path, guard via slot 0x60 included). ExecuteJs
+	// runs an arbitrary expression through the same slot. See
+	// PrismaUI_vtbl.h for the evidence; the retired 0x88 guess is gone.
 	void InvokeJs(const char* a_functionName, std::string_view a_argument);
 	void ExecuteJs(const char* a_code);
 
 	// --- focus helpers (used by FocusRecovery / Presentation) ------------------
-	// Slot 0x38 (query) and slot 0x28 (set interactive). The query's return
-	// convention is not recovered; Unfocus reports whether the slot was called.
+	// Slot 0x20 (IsFocused) and slot 0x30 (Unfocus), both CONFIRMED on api
+	// version 1 by the original's FocusRecovery::CheckUnfocus. Unfocus reports
+	// whether the recovered slot was actually called.
 	bool IsFocused();
 	bool Unfocus();
 }  // namespace PrismaUI

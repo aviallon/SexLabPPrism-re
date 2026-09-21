@@ -38,6 +38,9 @@ namespace PrismaUI
 		using ExecuteJsFn = V::ExecuteJsFn;
 		using SetInteractiveFn = V::SetInteractiveFn;
 		using QueryFocusFn = V::QueryFocusFn;
+		using IsFocusedFn = V::IsFocusedFn;
+		using UnfocusFn = V::UnfocusFn;
+		using QueryViewFn = V::QueryViewFn;
 
 		struct State
 		{
@@ -179,15 +182,50 @@ namespace PrismaUI
 		}
 		static_assert(kLayoutConfirmed, "PrismaUI vtable layout not confirmed");
 
-		// C++ -> JS: slot 0x10 invokes a named global JS function with one
-		// string argument (PrismaUI_vtbl.h kInvokeFunction, evidence
-		// PrismaUITeleportMenu 0x180046473 / 0x180051e41, r8="setTheme").
-		// The controller page defines the receiving functions as
-		// `window.slppSetInteractive`, `window.slppState`, `window.slppVitals`, ...
-		// (recon/controller-0.6.1.html), so the plain name is correct here.
-		const std::string arg{ a_argument };
-		if (const auto call = Slot<InvokeFunctionFn>(g_state.iface, V::kInvokeFunction)) {
-			call(g_state.iface, g_state.view, a_functionName, arg.c_str());
+		// The original's InvokeOn (0x180028190) guards every C++->JS call with
+		// the view-usability query at slot 0x60 and logs the recovered message
+		// when it fails (strings.txt:198). Mirror that guard here so the stream
+		// includes the same call.
+		if (const auto query = Slot<QueryViewFn>(g_state.iface, V::kQueryView);
+			query && !query(g_state.iface, g_state.view)) {
+			logger::warn("Invoke skipped, view {} not usable ({} bytes)", a_functionName, a_argument.size());
+			return;
+		}
+
+		// C++ -> JS: slot 0x08 executes a JS expression. This is the path the
+		// ORIGINAL uses: InvokeOn (0x180028190) loads the RequestPluginAPI(1)
+		// handle (DAT_18009c1b0), guards with slot 0x60, then tail-jumps
+		// `*0x8(%rax)` with the std::string bytes as r8. Slot 0x10 is only
+		// cross-checked on RequestPluginAPI(0), so 0x08 is the correct call here.
+		// Build `window.<name>(<arg>)`, quoting `arg` when it is not already a
+		// JSON/number/boolean literal (the only such caller is the raw search
+		// query). The controller page defines the receivers as window.slpp*.
+		std::string code;
+		code.reserve(a_argument.size() + 24);
+		code += "window.";
+		code += a_functionName;
+		code += '(';
+		if (!a_argument.empty()) {
+			const char c = a_argument.front();
+			const bool literal = c == '{' || c == '[' || c == '"' || c == '-' ||
+			                     (c >= '0' && c <= '9') || c == 't' || c == 'f' || c == 'n';
+			if (literal) {
+				code += a_argument;
+			} else {
+				code += '"';
+				for (const char ch : a_argument) {
+					if (ch == '"' || ch == '\\') {
+						code += '\\';
+					}
+					code += ch;
+				}
+				code += '"';
+			}
+		}
+		code += ')';
+
+		if (const auto call = Slot<ExecuteJsFn>(g_state.iface, V::kExecuteJs)) {
+			call(g_state.iface, g_state.view, code.c_str(), nullptr);
 		}
 	}
 
@@ -205,31 +243,29 @@ namespace PrismaUI
 
 	bool IsFocused()
 	{
-		// Slot 0x38: (iface, view) query, called by the working consumer around
-		// its open/close path (PrismaUI_vtbl.h kQueryFocus, teleport
-		// 0x180050fe5 / 0x180051119). The return convention was not recovered,
-		// so the slot is invoked for its side effect and the answer is reported
-		// conservatively; FocusRecovery only needs "was an unfocus issued".
+		// Slot 0x20 — the real focus query on api version 1 (PrismaUI_vtbl.h
+		// kIsFocused): the original's FocusRecovery::CheckUnfocus calls it at
+		// 0x180013410 and branches on `test dil,dil`.
 		if (!IsAvailable()) {
 			return false;
 		}
-		if (const auto query = Slot<QueryFocusFn>(g_state.iface, V::kQueryFocus)) {
-			query(g_state.iface, g_state.view);
+		if (const auto query = Slot<IsFocusedFn>(g_state.iface, V::kIsFocused)) {
+			return query(g_state.iface, g_state.view);
 		}
 		return false;
 	}
 
 	bool Unfocus()
 	{
-		// Slot 0x28: set the view non-interactive (PrismaUI_vtbl.h
-		// kSetInteractive, teleport 0x180050fe8 calls it with r8=0). This is the
-		// C++ side of the F4 camera transition: release keyboard/mouse to the
-		// camera before FocusRecovery verifies cleanup.
+		// Slot 0x30 — release focus on api version 1 (PrismaUI_vtbl.h kUnfocus):
+		// the original's CheckUnfocus reaches it after "waiting for Prisma
+		// Unfocus ({}/5)" and calls it with (iface, view) at 0x1800134bb. This is
+		// the C++ side of the F4 camera transition.
 		if (!IsAvailable()) {
 			return false;
 		}
-		if (const auto setInteractive = Slot<SetInteractiveFn>(g_state.iface, V::kSetInteractive)) {
-			setInteractive(g_state.iface, g_state.view, false, nullptr);
+		if (const auto unfocus = Slot<UnfocusFn>(g_state.iface, V::kUnfocus)) {
+			unfocus(g_state.iface, g_state.view);
 			return true;
 		}
 		return false;
