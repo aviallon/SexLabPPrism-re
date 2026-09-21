@@ -91,7 +91,7 @@ namespace SceneState
 		// Cancel() entry point.
 	}  // namespace
 
-	std::int32_t BeginSceneSession()
+	std::int32_t BeginSceneSession(RE::StaticFunctionTag*)
 	{
 		std::lock_guard lock{ g_sessionMutex };
 		const auto      id = ++g_sessionCounter;
@@ -114,6 +114,7 @@ namespace SceneState
 	}
 
 	void Publish(
+		RE::StaticFunctionTag*,
 		std::int32_t              a_session,
 		bool                      a_active,
 		std::int32_t              a_threadID,
@@ -241,7 +242,7 @@ namespace SceneState
 		UiBridge::PushState(json);
 	}
 
-	void PublishCompatible(const std::vector<std::string>& a_sceneIDs)
+	void PublishCompatible(RE::StaticFunctionTag*, const std::vector<std::string>& a_sceneIDs)
 	{
 		// The original does not use std::format here: it builds "[" then appends
 		// a real call to the pre-quoting helper (FUN_18002bee0) per scene id,
@@ -268,7 +269,7 @@ namespace SceneState
 		UiBridge::PushCompatible(json);
 	}
 
-	void SetSearchQuery(std::string a_query)
+	void SetSearchQuery(RE::StaticFunctionTag*, std::string a_query)
 	{
 		g_modalSearchOpen.store(false);
 #line 586

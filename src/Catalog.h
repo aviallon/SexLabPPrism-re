@@ -33,15 +33,17 @@ namespace Catalog
 	};
 	static_assert(sizeof(Record) == 0x80, "catalogue record stride must be 128 bytes");
 
-	void         Begin(std::int32_t a_total);
-	void         Append(const std::vector<std::string>& a_ids,
-			 const std::vector<std::string>& a_names,
-			 const std::vector<std::string>& a_tags);
-	void         Package(const std::string& a_package, const std::vector<std::string>& a_ids);
-	void         Finish();
-	bool         IsReady();
-	std::int32_t Count();
-	void         Publish();
+	void         Begin(RE::StaticFunctionTag*, std::int32_t a_total);
+	void         Append(
+		RE::StaticFunctionTag*,
+		const std::vector<std::string>& a_ids,
+		const std::vector<std::string>& a_names,
+		const std::vector<std::string>& a_tags);
+	void         Package(RE::StaticFunctionTag*, const std::string& a_package, const std::vector<std::string>& a_ids);
+	void         Finish(RE::StaticFunctionTag*);
+	bool         IsReady(RE::StaticFunctionTag*);
+	std::int32_t Count(RE::StaticFunctionTag*);
+	void         Publish(RE::StaticFunctionTag*);
 
 	// slppCatalogRetry: the UI received fewer rows than expected, so republish
 	// with a smaller per-invoke slice. Logs "Catalog incomplete on UI side,

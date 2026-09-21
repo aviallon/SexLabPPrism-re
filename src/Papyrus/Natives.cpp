@@ -20,15 +20,15 @@ namespace Papyrus::Natives
 	}
 
 	// 0x180029630 — mutex + monotonic session counter.
-	std::int32_t BeginSceneSession(RE::StaticFunctionTag*)
+	std::int32_t BeginSceneSession(RE::StaticFunctionTag* a_this)
 	{
-		return SceneState::BeginSceneSession();
+		return SceneState::BeginSceneSession(a_this);
 	}
 
 	// 0x18002ae90 — stale rejection, latch/thread/status validation, state JSON,
 	// active/inactive transition handling, UI push through the task interface.
 	void PublishSceneState(
-		RE::StaticFunctionTag*,
+		RE::StaticFunctionTag*         a_this,
 		std::int32_t                   aiSession,
 		bool                           abActive,
 		std::int32_t                   aiThreadID,
@@ -47,6 +47,7 @@ namespace Papyrus::Natives
 		std::int32_t                   aiPlayerIdx)
 	{
 		SceneState::Publish(
+			a_this,
 			aiSession, abActive, aiThreadID, aiStatus,
 			std::move(asSceneID), std::move(asSceneName), std::move(asStage),
 			aiStageIdx, aiStageCount, abFreecam, abPaused, abMuted, afSpeed,
@@ -60,61 +61,61 @@ namespace Papyrus::Natives
 	}
 
 	// 0x18002a9a0 — JSON array of scene ids + UI push.
-	void PublishCompatible(RE::StaticFunctionTag*, std::vector<std::string> asSceneIDs)
+	void PublishCompatible(RE::StaticFunctionTag* a_this, std::vector<std::string> asSceneIDs)
 	{
-		SceneState::PublishCompatible(asSceneIDs);
+		SceneState::PublishCompatible(a_this, asSceneIDs);
 	}
 
 	// 0x18002a000 — clear/reserve the 128-byte-record vector, reset the id index.
-	void CatalogBegin(RE::StaticFunctionTag*, std::int32_t aiTotal)
+	void CatalogBegin(RE::StaticFunctionTag* a_this, std::int32_t aiTotal)
 	{
-		Catalog::Begin(aiTotal);
+		Catalog::Begin(a_this, aiTotal);
 	}
 
 	// 0x180029740 — append records, refresh the FNV-1a id -> index map.
 	void CatalogAppend(
-		RE::StaticFunctionTag*,
+		RE::StaticFunctionTag*   a_this,
 		std::vector<std::string> asIDs,
 		std::vector<std::string> asNames,
 		std::vector<std::string> asTags)
 	{
-		Catalog::Append(asIDs, asNames, asTags);
+		Catalog::Append(a_this, asIDs, asNames, asTags);
 	}
 
 	// 0x18002a410 — assign a package name to already-appended records.
-	void CatalogPackage(RE::StaticFunctionTag*, std::string asPackage, std::vector<std::string> asIDs)
+	void CatalogPackage(RE::StaticFunctionTag* a_this, std::string asPackage, std::vector<std::string> asIDs)
 	{
-		Catalog::Package(asPackage, asIDs);
+		Catalog::Package(a_this, asPackage, asIDs);
 	}
 
 	// 0x18002a270 — ready/building flags + elapsed-ms log + UI push.
-	void CatalogFinish(RE::StaticFunctionTag*)
+	void CatalogFinish(RE::StaticFunctionTag* a_this)
 	{
-		Catalog::Finish();
+		Catalog::Finish(a_this);
 	}
 
 	// 0x18002a8a0 — 9-byte leaf: movzx byte [ready].
-	bool IsCatalogReady(RE::StaticFunctionTag*)
+	bool IsCatalogReady(RE::StaticFunctionTag* a_this)
 	{
-		return Catalog::IsReady();
+		return Catalog::IsReady(a_this);
 	}
 
 	// 0x18002a830 — (end - begin) >> 7.
-	std::int32_t GetCatalogCount(RE::StaticFunctionTag*)
+	std::int32_t GetCatalogCount(RE::StaticFunctionTag* a_this)
 	{
-		return Catalog::Count();
+		return Catalog::Count(a_this);
 	}
 
 	// 0x18002a6e0 — hand the cached catalogue to the UI.
-	void CatalogPublish(RE::StaticFunctionTag*)
+	void CatalogPublish(RE::StaticFunctionTag* a_this)
 	{
-		Catalog::Publish();
+		Catalog::Publish(a_this);
 	}
 
 	// 0x18002bd20 — clear the modal flag and forward the query to the UI.
-	void SetSearchQuery(RE::StaticFunctionTag*, std::string asQuery)
+	void SetSearchQuery(RE::StaticFunctionTag* a_this, std::string asQuery)
 	{
-		SceneState::SetSearchQuery(std::move(asQuery));
+		SceneState::SetSearchQuery(a_this, std::move(asQuery));
 	}
 
 	bool Register(VM* a_vm)
