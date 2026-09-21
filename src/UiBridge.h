@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
+#include <string>
 
 // UiBridge — the C++ -> JS push helpers.
 //
@@ -11,30 +11,37 @@
 // matching the original's `GetTaskInterface()->AddTask(...)` pattern
 // (FUN_180037e90 in the decompilation), and names the JS entry points the
 // controller-0.6.1.html defines (slppState / slppSetCompatible /
-// slppSetSearchQuery / slppCatalogReset / slppCatalogChunk / slppCatalogDone).
+// slppCatalogReset / slppCatalogChunk / slppCatalogDone).
+//
+// IMPORTANT SHAPES (recon/libh3-shapes.md §2, round 8):
+//   PushState(void)        — NO argument; reads the published scene-state JSON
+//                            global (DAT_18009c190) and captures NOTHING (the
+//                            lambda re-reads the global inside the task).
+//   PushCompatible(void)   — NO argument; same for the compatible-list JSON.
+//   PushCatalog/PushCatalogChunk take by-value `std::string` (the original's
+//   Papyrus_* natives use std::string, never string_view; the 16-byte
+//   string_view -> std::string difference is the big natives' frame delta).
 namespace UiBridge
 {
-	// window.slppState(<scene-state JSON object>)
-	void PushState(std::string_view a_json);
+	// window.slppState(<scene-state JSON>), queued on the game thread. Reads
+	// SceneState::CurrentStateJson() inside the task lambda.
+	void PushState();
 
-	// window.slppSetCompatible(<JSON array of scene ids>)
-	void PushCompatible(std::string_view a_json);
+	// window.slppSetCompatible(<JSON array of scene ids>), queued on the game
+	// thread. Reads SceneState::CurrentCompatibleJson() inside the task lambda.
+	void PushCompatible();
 
-	// window.slppSetSearchQuery(<string>)
-	void SetSearchQuery(std::string_view a_query);
-
-	// slppCatalogReset(total) + slppCatalogChunk(rows) + slppCatalogProgress +
-	// slppCatalogDone(total). `a_rowsJson` is a JSON array of
-	// {"id","name","tags","package"} rows.
-	void PushCatalog(std::string_view a_rowsJson, std::int32_t a_total);
+	// slppCatalogReset(total) + slppCatalogChunk(rows) + slppCatalogDone(total).
+	// `a_rowsJson` is a JSON array of {"id","name","tags","package"} rows.
+	void PushCatalog(std::string a_rowsJson, std::int32_t a_total);
 
 	// The incremental push CatalogAppend() queues after each native call:
 	// window.slppCatalogChunk(rows) followed by window.slppCatalogProgress.
-	void PushCatalogChunk(std::string_view a_rowsJson, std::int32_t a_loaded, std::int32_t a_total);
+	void PushCatalogChunk(std::string a_rowsJson, std::int32_t a_loaded, std::int32_t a_total);
 
 	// True once RequestPluginAPI(1) succeeded and the view was created.
 	bool IsAvailable();
 
 	// Delegate to PrismaUI::InvokeJs (kept for the existing call sites).
-	void InvokeJs(const char* a_functionName, std::string_view a_argument);
+	void InvokeJs(const char* a_functionName, std::string a_argument);
 }  // namespace UiBridge

@@ -3,13 +3,21 @@
 #include "PCH.h"
 #include "Presentation.h"
 #include "PrismaUI.h"
+#include "SceneState.h"
 
 #include <format>
 
 #include <cstdint>
 #include <functional>
 #include <string>
-#include <string_view>
+
+// The compatible-list JSON (DAT_18009c1a0) lives in the Papyrus natives TU with
+// the other published JSON; its cross-TU accessor is declared here so this TU
+// can re-read it inside PushCompatible's task lambda without owning the storage.
+namespace SceneState
+{
+	std::string CurrentCompatibleJson();
+}
 
 // The original's src\main.cpp compiled these two script bodies at global
 // anonymous-namespace scope (mangled `anonymous-namespace'::JsCatalogReset` /
@@ -45,35 +53,6 @@ namespace
 		PrismaUI::InvokeOn(std::format("window.slppCatalogDone({});", a_total));
 	}
 
-	// JSON-string escape for a JS argument (the original pre-quotes the modal
-	// search text through the shared helper before pasting it into the script).
-	std::string QuoteForJs(std::string_view a_text)
-	{
-		std::string out;
-		out.reserve(a_text.size() + 2);
-		out += '"';
-		for (const char c : a_text) {
-			if (c == '"' || c == '\\') {
-				out += '\\';
-			}
-			out += c;
-		}
-		out += '"';
-		return out;
-	}
-
-	// 0x180024450 (152 insns), the outlined body of `PushState`'s sibling lambda:
-	// the queued `Papyrus_SetSearchQuery` task. The original builds
-	//   window.slppSetSearchQuery(<quoted query>);
-	// and hands it to InvokeOn, then re-applies the presentation. Without this
-	// out-of-line body the only caller is the task lambda and LTCG inlines it.
-	__declspec(noinline)
-	void PushSearchQueryBody(std::string a_query)
-	{
-		PrismaUI::InvokeOn(std::format("window.slppSetSearchQuery({});", QuoteForJs(a_query)));
-		Presentation::ApplyPresentation();
-	}
-
 	// 0x1800250f0 (302 insns): the outlined body of `PushState(void)::<lambda_1>`,
 	// the task Papyrus_PublishSceneState queues. It re-derives the presentation,
 	// then publishes the SAME current scene-state JSON to BOTH window.slppState
@@ -85,6 +64,13 @@ namespace
 		Presentation::ApplyPresentation();
 		PrismaUI::InvokeOn(std::format("window.slppState({});", a_json));
 		PrismaUI::InvokeOn(std::format("window.slppVitals({});", a_json));
+	}
+
+	// The compatible-list body (the `PushCompatible(void)::<lambda_1>` twin).
+	__declspec(noinline)
+	void PushCompatibleBody(std::string a_json)
+	{
+		PrismaUI::InvokeJs("slppSetCompatible", a_json);
 	}
 }  // namespace
 
@@ -109,48 +95,41 @@ namespace UiBridge
 		return PrismaUI::IsAvailable();
 	}
 
-	void InvokeJs(const char* a_functionName, std::string_view a_argument)
+	void InvokeJs(const char* a_functionName, std::string a_argument)
 	{
 		PrismaUI::InvokeJs(a_functionName, a_argument);
 	}
 
-	void PushState(std::string_view a_json)
+	// The original `PublishSceneState` queues `PushState(void)::lambda_1` with NO
+	// captures: the lambda re-reads the state-JSON global when the task runs.
+	void PushState()
 	{
-		const std::string json{ a_json };
-		QueueOnGameThread([json]() { PushStateBody(json); });
+		QueueOnGameThread([]() { PushStateBody(SceneState::CurrentStateJson()); });
 	}
 
-	void PushCompatible(std::string_view a_json)
+	// Same shape: `PushCompatible(void)::lambda_1`, no captures, global re-read.
+	void PushCompatible()
 	{
-		const std::string json{ a_json };
-		QueueOnGameThread([json]() { PrismaUI::InvokeJs("slppSetCompatible", json); });
+		QueueOnGameThread([]() { PushCompatibleBody(SceneState::CurrentCompatibleJson()); });
 	}
 
-	void SetSearchQuery(std::string_view a_query)
+	void PushCatalog(std::string a_rowsJson, std::int32_t a_total)
 	{
-		const std::string query{ a_query };
-		QueueOnGameThread([query]() { PushSearchQueryBody(query); });
-	}
-
-	void PushCatalog(std::string_view a_rowsJson, std::int32_t a_total)
-	{
-		const std::string rows{ a_rowsJson };
-		QueueOnGameThread([rows, a_total]() {
+		QueueOnGameThread([rows = std::move(a_rowsJson), a_total]() {
 			JsCatalogReset(a_total);
 			PrismaUI::InvokeJs("slppCatalogChunk", rows);
 			JsCatalogDone(a_total);
 		});
 	}
 
-	void PushCatalogChunk(std::string_view a_rowsJson, std::int32_t a_loaded, std::int32_t a_total)
+	void PushCatalogChunk(std::string a_rowsJson, std::int32_t a_loaded, std::int32_t a_total)
 	{
-		const std::string rows{ a_rowsJson };
-		const auto        loaded = std::to_string(a_loaded);
+		const auto loaded = std::to_string(a_loaded);
 		(void)a_total;  // slppCatalogProgress(loaded, total) takes two JS args;
 		// the recovered InteropCall is single-argument (see PrismaUI.h), so only
 		// `loaded` is sent and the JS `total || catalogTotal` fallback keeps the
 		// total from slppCatalogReset. Marked: two-arg interop was not recovered.
-		QueueOnGameThread([rows, loaded]() {
+		QueueOnGameThread([rows = std::move(a_rowsJson), loaded]() {
 			PrismaUI::InvokeJs("slppCatalogChunk", rows);
 			PrismaUI::InvokeJs("slppCatalogProgress", loaded);
 		});

@@ -108,11 +108,9 @@ namespace ActionDispatch
 			logger::debug("slppReady arg: {}", a_arg);
 		}
 		// Re-send the current scene state so a view that finished loading after
-		// the last PublishSceneState still renders correctly.
-		const auto json = SceneState::CurrentStateJson();
-		if (!json.empty()) {
-			UiBridge::PushState(json);
-		}
+		// the last PublishSceneState still renders correctly. PushState() re-reads
+		// the published global itself, so no payload is passed.
+		UiBridge::PushState();
 	}
 
 	void HandleLog(const char* a_message)

@@ -45,8 +45,8 @@ namespace
 			return;
 		}
 
-		InputSink::Register();
-		MenuVisibilitySink::Register();
+		PrismSinks::RegisterInput();
+		PrismSinks::RegisterMenuVisibility();
 
 		logger::info("SexLab P+ Prism ready");
 	}

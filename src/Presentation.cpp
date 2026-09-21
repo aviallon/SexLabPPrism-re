@@ -103,6 +103,22 @@ namespace
 			}
 		}
 	}
+
+	// `QueuePresentation(void)`: the original is a free function in the unity
+	// TU's GLOBAL anonymous namespace (its task lambda type is
+	// ``anonymous-namespace'::QueuePresentation(void)::lambda_1``), so the body
+	// lives at file scope and captures nothing. The named-namespace shim below
+	// keeps the cross-TU call site (InputSink) compiling.
+	__declspec(noinline)
+	void QueuePresentation()
+	{
+		auto* const task = SKSE::GetTaskInterface();
+		if (!task) {
+			Presentation::ApplyPresentation();
+			return;
+		}
+		task->AddTask([]() { Presentation::ApplyPresentation(); });
+	}
 }  // namespace
 
 namespace Presentation
@@ -139,11 +155,6 @@ namespace Presentation
 
 	void QueuePresentation()
 	{
-		auto* const task = SKSE::GetTaskInterface();
-		if (!task) {
-			ApplyPresentation();
-			return;
-		}
-		task->AddTask([]() { ApplyPresentation(); });
+		::QueuePresentation();
 	}
 }  // namespace Presentation
