@@ -72,24 +72,24 @@ namespace
 	{
 		PrismaUI::InvokeJs("slppSetCompatible", a_json);
 	}
+
+	// Queues a UI update on the game thread. Original shape:
+	// `anonymous-namespace'::QueueOnGameThread<T>` — file scope, not nested in
+	// UiBridge, so the unity TU keeps a single global unnamed namespace.
+	template <class F>
+	void QueueOnGameThread(F&& a_callable)
+	{
+		auto* const task = SKSE::GetTaskInterface();
+		if (!task) {
+			logger::warn("SKSE TaskInterface unavailable; dropping Prism UI update");
+			return;
+		}
+		task->AddTask(std::function<void()>(std::forward<F>(a_callable)));
+	}
 }  // namespace
 
 namespace UiBridge
 {
-	namespace
-	{
-		template <class F>
-		void QueueOnGameThread(F&& a_callable)
-		{
-			auto* const task = SKSE::GetTaskInterface();
-			if (!task) {
-				logger::warn("SKSE TaskInterface unavailable; dropping Prism UI update");
-				return;
-			}
-			task->AddTask(std::function<void()>(std::forward<F>(a_callable)));
-		}
-	}  // namespace
-
 	bool IsAvailable()
 	{
 		return PrismaUI::IsAvailable();
