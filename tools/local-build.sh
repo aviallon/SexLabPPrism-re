@@ -28,8 +28,47 @@
 # It is an iteration loop: a source change can be compiled, linked and diffed
 # against artifacts/SexLabPPrism.dll in ~3 minutes instead of a 16-minute CI
 # round-trip.  See docs/local-build-loop.md for what it can and cannot decide.
+#
+# Priority: the script re-executes itself under SCHED_BATCH, nice 19 and the
+# idle I/O class so a full rebuild does not make the machine unusable. Set
+# PRISM_KEEP_PRIORITY=1 to opt out (e.g. when timing the build); each wrapper
+# is probed and skipped with a warning if the kernel refuses it.
 # ---------------------------------------------------------------------------
 set -uo pipefail
+
+# ---------------------------------------------------------------------------
+# Low-priority scheduling. A build saturating every core at default priority
+# makes the machine unpleasant to use, so this script re-executes itself under
+# SCHED_BATCH, nice 19 and the idle I/O class. Each wrapper is probed first and
+# skipped (with a note) if the kernel refuses it, so the build still runs.
+# PRISM_LOW_PRIO=1 marks the re-executed pass and prevents an infinite loop;
+# PRISM_KEEP_PRIORITY=1 opts out entirely (e.g. when timing the build).
+# ---------------------------------------------------------------------------
+if [ -z "${PRISM_LOW_PRIO:-}" ] && [ -z "${PRISM_KEEP_PRIORITY:-}" ]; then
+    export PRISM_LOW_PRIO=1
+    wrap=()
+    if command -v ionice >/dev/null 2>&1 && ionice -c 3 true 2>/dev/null; then
+        wrap+=(ionice -c 3)
+    else
+        echo "local-build: ionice idle class unavailable; continuing without it" >&2
+    fi
+    if command -v nice >/dev/null 2>&1 && nice -n 19 true 2>/dev/null; then
+        wrap+=(nice -n 19)
+    fi
+    if command -v chrt >/dev/null 2>&1 && chrt -b 0 true 2>/dev/null; then
+        wrap+=(chrt -b 0)
+    else
+        echo "local-build: SCHED_BATCH unavailable; continuing without it" >&2
+    fi
+    if [ ${#wrap[@]} -gt 0 ]; then
+        echo "local-build: re-executing under: ${wrap[*]}"
+        exec "${wrap[@]}" bash "$0" "$@"
+    fi
+fi
+
+export PRISM_LOW_PRIO=1
+
+echo "local-build: scheduling: nice=$(nice) class=$(LC_ALL=C chrt -p $$ 2>/dev/null | sed -n 's/.*scheduling policy: //p') io=$(LC_ALL=C ionice -p $$ 2>/dev/null | sed 's/^.*: //')"
 
 PROJ=${PROJ:-$(pwd)}
 CLNG=${CLNG:-$PROJ/lib/CommonLibSSE-NG}

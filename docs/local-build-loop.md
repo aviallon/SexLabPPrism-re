@@ -103,3 +103,19 @@ does, and 14.44 is not installable here (Nix-only, no MSVC). So:
 * `src/Version.rc` is not compiled into the local DLL (needs `rc.exe`/`llvm-rc`
   resource plumbing); the VERSIONINFO resource does not affect function bytes, so
   it is omitted to keep the loop simple.
+## Scheduling (added after the first rounds)
+
+A full local rebuild saturates every core, which made the machine unpleasant to
+use during the grind, so `tools/local-build.sh` re-executes itself under:
+
+* `chrt -b 0` - SCHED_BATCH (throughput-friendly, no interactivity theft)
+* `nice -n 19` - lowest regular priority
+* `ionice -c 3` - idle I/O class, so the build never competes with foreground work
+
+Each wrapper is probed before use (`ionice -c 3 true`, `chrt -b 0 true`) and
+skipped with a warning if the kernel refuses it. `PRISM_KEEP_PRIORITY=1` opts
+out entirely, which is what you want when measuring build wall-clock.
+
+Verified on this machine: a child under the wrapper reports `ni=19`,
+`cls=B` (SCHED_BATCH) and `io=idle`, and the script prints the effective
+scheduling on start, e.g. `scheduling: nice=19 class=SCHED_BATCH io=idle`.
