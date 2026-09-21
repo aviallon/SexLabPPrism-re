@@ -7,6 +7,23 @@
 #include <cstring>
 #include <string>
 
+// 0x180029120, 48 instructions: the PRISMA_UI_API console-message sink installed
+// at vtable slot 0xa8 by CreateViews. It lives in the original's global
+// anonymous namespace (src\main.cpp), hence file scope here so the baked
+// __FUNCSIG__ recovers as ``anonymous-namespace'::OnConsoleMessage``.
+namespace
+{
+	// void OnConsoleMessage(unsigned __int64 view, ConsoleMessageLevel, const char*)
+	void OnConsoleMessage(std::uint64_t, int a_level, const char* a_message)
+	{
+		// The original switches on ConsoleMessageLevel (2 / 1 / other) to pick a
+		// tag string and logs the recovered format "[{}] {}". The exact tag
+		// literals were not extracted (marked gap); the level number is used so
+		// the call shape and format string are preserved.
+		logger::info("[{}] {}", a_level, a_message ? a_message : "");
+	}
+}  // namespace
+
 namespace PrismaUI
 {
 	namespace
@@ -50,6 +67,7 @@ namespace PrismaUI
 
 		State   g_state;
 		bool    g_created = false;
+		bool    g_domReady = false;
 
 		template <class Fn>
 		Fn Slot(void* a_iface, std::size_t a_byteOffset)
@@ -66,17 +84,21 @@ namespace PrismaUI
 		// --- JS trampolines (CreateViews::<lambda_N> in the original) ----------
 
 		// CreateViews::<lambda_1>::operator()(unsigned __int64) const
-		// (recon/strings.txt:45). The view-ready completion; it only logs in the
-		// original, so it stays inert but keeps the recovered ABI.
-		void OnViewCreated(std::uint64_t /*a_view*/)
+		// (0x18001f5b0, recon/strings.txt:45). The view-ready completion: the
+		// original receives the CreateView result and logs; it is wired as the
+		// creation callback below. Kept as a named trampoline because a C++
+		// lambda cannot be referenced from the vtable-call helper without also
+		// changing the callback ABI.
+		void OnViewCreated(std::uint64_t a_view)
 		{
-			logger::debug("Controller view created");
-		}
-
-		// OnConsoleMessage(uint64, ConsoleMessageLevel, const char*)
-		void OnConsoleMessage(std::uint64_t, int a_level, const char* a_message)
-		{
-			logger::info("[PrismaUI console:{}] {}", a_level, a_message ? a_message : "");
+			// Original (0x18001f5b0): set the "DOM ready" atomic DAT_18009c1c8 =
+			// 1, log, then queue PushState() and PushCompatible() on the task
+			// interface. UiBridge's push helpers need a JSON payload the lambda
+			// does not carry here, so only the latch + log are reproduced (the two
+			// queued pushes are a marked gap).
+			g_domReady = true;
+			logger::info("Controller view DOM ready");
+			(void)a_view;
 		}
 
 		void OnSlppReady(const char* a_arg)

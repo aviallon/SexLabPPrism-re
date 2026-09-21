@@ -81,6 +81,12 @@ ALIASES = {
     "MenuVisibilitySink::`anonymous-namespace'::Handle":
         ("`anonymous-namespace'::MenuVisibilitySink::ProcessEvent",
          "our Handle is the MenuVisibilitySink vtable method"),
+    "MenuVisibilitySink::`anonymous-namespace'::Sink::ProcessEvent":
+        ("`anonymous-namespace'::MenuVisibilitySink::ProcessEvent",
+         "folded Handle() into ProcessEvent; same vtable method"),
+    "PrismaUI::`anonymous-namespace'::OnViewCreated":
+        ("`anonymous-namespace'::CreateViews::<lambda_1>::operator()",
+         "our named trampoline is the CreateView completion lambda"),
 }
 
 NAME, ALIAS, RTTI, STRING, CALLGRAPH, STRUCT, ICF = (

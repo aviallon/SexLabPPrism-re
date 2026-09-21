@@ -3,6 +3,7 @@
 #include "PCH.h"
 #include "FocusRecovery.h"
 #include "Presentation.h"
+#include "PrismaUI.h"
 #include "SceneState.h"
 
 namespace InputSink
@@ -62,7 +63,12 @@ namespace InputSink
 						logger::info("F4: {}", wasUiMode ? "UI mode (Prisma focused)" : "camera mode (Prisma released)");
 						Presentation::QueuePresentation();
 						if (!wasUiMode) {
-							FocusRecovery::Begin();
+							// Original: Begin(DAT_18009c1b0, DAT_18009c1c0, &sceneActive,
+							// &uiMode) at 0x18001f285. The two atomics are owned by
+							// SceneState and not address-exposed yet, so nullptr is passed
+							// and the state machine reads the SceneState predicates instead
+							// (marked gap).
+							FocusRecovery::Begin(PrismaUI::Interface(), reinterpret_cast<std::uint64_t>(PrismaUI::View()), nullptr, nullptr);
 						} else {
 							FocusRecovery::Cancel();
 						}
