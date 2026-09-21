@@ -6,13 +6,69 @@
 #include "UiBridge.h"
 
 #include <atomic>
+#include <format>
 #include <mutex>
+#include <string_view>
 #include <utility>
+
+// The original's per-string pre-quoting helper (FUN_18002bee0) returns a
+// std::string that already carries the surrounding quotes and the JSON
+// escapes. Inside std::format it travels as a user-defined type (MSVC's
+// "custom" format arg, type 0xc) whose formatter writes the pre-quoted text
+// verbatim. Declaring the type at file scope lets us specialise
+// std::formatter<JsonQuoted>; keeping the escaper out-of-line reproduces the
+// original's real `call FUN_18002bee0` at every string field.
+namespace
+{
+	struct JsonQuoted
+	{
+		std::string_view text;
+	};
+}  // namespace
+
+template <>
+struct std::formatter<JsonQuoted>
+{
+	constexpr auto parse(std::format_parse_context& a_ctx) { return a_ctx.begin(); }
+
+	auto format(const JsonQuoted& a_value, std::format_context& a_ctx) const
+	{
+		return std::format_to(a_ctx.out(), "{}", a_value.text);
+	}
+};
 
 namespace SceneState
 {
 	namespace
 	{
+		// FUN_18002bee0: "..." with JSON escaping. Out-of-line on purpose so the
+		// natives issue the same real call the original does.
+		std::string QuoteJson(std::string_view a_in)
+		{
+			std::string out;
+			out.reserve(a_in.size() + 2);
+			out += '"';
+			for (const char c : a_in) {
+				switch (c) {
+				case '"':  out += "\\\""; break;
+				case '\\': out += "\\\\"; break;
+				case '\n': out += "\\n"; break;
+				case '\r': out += "\\r"; break;
+				case '\t': out += "\\t"; break;
+				default:
+					if (static_cast<unsigned char>(c) < 0x20) {
+						char buf[8];
+						std::snprintf(buf, sizeof(buf), "\\u%04x", static_cast<unsigned>(static_cast<unsigned char>(c)));
+						out += buf;
+					} else {
+						out += c;
+					}
+				}
+			}
+			out += '"';
+			return out;
+		}
+
 		// --- session state (DAT_1800951a0) -------------------------------------
 		std::mutex   g_sessionMutex;
 		std::int32_t g_sessionCounter = 0;   // DAT_18009c1d0
@@ -101,45 +157,54 @@ namespace SceneState
 			return;
 		}
 
-		// fmt literal at 0x18005d6a0, field order preserved exactly.
-		std::string json;
-		json.reserve(256 + a_actorNames.size() * 64);
-		json += "{\"active\":";
-		json += a_active ? "true" : "false";
-		json += ",\"thread\":";
-		json += std::to_string(a_threadID);
-		json += ",\"status\":";
-		json += std::to_string(a_status);
-		json += ",\"sceneId\":";
-		PrismJson::AppendQuoted(json, a_sceneID);
-		json += ",\"sceneName\":";
-		PrismJson::AppendQuoted(json, a_sceneName);
-		json += ",\"stage\":";
-		PrismJson::AppendQuoted(json, a_stage);
-		json += ",\"stageIndex\":";
-		json += std::to_string(a_stageIdx);
-		json += ",\"stageCount\":";
-		json += std::to_string(a_stageCount);
-		json += ",\"freecam\":";
-		json += a_freecam ? "true" : "false";
-		json += ",\"paused\":";
-		json += a_paused ? "true" : "false";
-		json += ",\"muted\":";
-		json += a_muted ? "true" : "false";
-		json += ",\"speed\":";
-		PrismJson::AppendFixed2(json, a_speed);
-		json += ",\"actors\":[";
+		// fmt literal at 0x18005d6a0 (std::format, spdlog std_format=true), field
+		// order preserved exactly. The three strings are pre-quoted first, then
+		// formatted once through std::vformat with 12 args, exactly as the
+		// original calls its format helper.
+		constexpr std::string_view kSceneFormat =
+			"{{\"active\":{},\"thread\":{},\"status\":{},\"sceneId\":{},\"sceneName\":{},\"stage\":{},\"stageIndex\":{},\"stageCount\":{},\"freecam\":{},\"paused\":{},\"muted\":{},\"speed\":{:.2f},\"actors\":[";
+		constexpr std::string_view kActorFormat =
+			"{{\"name\":{},\"enjoyment\":{},\"player\":{}}}";
+
+		const std::string qSceneID   = QuoteJson(a_sceneID);
+		const std::string qSceneName = QuoteJson(a_sceneName);
+		const std::string qStage     = QuoteJson(a_stage);
+		// MSVC's make_format_args only accepts lvalues.
+		const char* activeStr  = a_active ? "true" : "false";
+		const char* freecamStr = a_freecam ? "true" : "false";
+		const char* pausedStr  = a_paused ? "true" : "false";
+		const char* mutedStr   = a_muted ? "true" : "false";
+		JsonQuoted  argSceneID{ qSceneID };
+		JsonQuoted  argSceneName{ qSceneName };
+		JsonQuoted  argStage{ qStage };
+
+		std::string json = std::vformat(
+			kSceneFormat,
+			std::make_format_args(
+				activeStr,
+				a_threadID,
+				a_status,
+				argSceneID,
+				argSceneName,
+				argStage,
+				a_stageIdx,
+				a_stageCount,
+				freecamStr,
+				pausedStr,
+				mutedStr,
+				a_speed));
+
 		for (std::size_t i = 0; i < a_actorNames.size(); ++i) {
 			if (i != 0) {
 				json += ',';
 			}
-			json += "{\"name\":";
-			PrismJson::AppendQuoted(json, a_actorNames[i]);
-			json += ",\"enjoyment\":";
-			json += std::to_string(i < a_enjoyment.size() ? a_enjoyment[i] : 0);
-			json += ",\"player\":";
-			json += (static_cast<std::int32_t>(i) == a_playerIdx) ? "true" : "false";
-			json += '}';
+			const std::string  qName = QuoteJson(a_actorNames[i]);
+			std::int32_t enjoyment = i < a_enjoyment.size() ? a_enjoyment[i] : 0;
+			const char* playerStr = (static_cast<std::int32_t>(i) == a_playerIdx) ? "true" : "false";
+			JsonQuoted   argName{ qName };
+			json += std::vformat(
+				kActorFormat,
+				std::make_format_args(argName, enjoyment, playerStr));
 		}
 		json += "]}";
 
@@ -178,14 +243,16 @@ namespace SceneState
 
 	void PublishCompatible(const std::vector<std::string>& a_sceneIDs)
 	{
+		// The original does not use std::format here: it builds "[" then appends
+		// a real call to the pre-quoting helper (FUN_18002bee0) per scene id,
+		// separated by ',', then ']' (recon/decompiled/0x18002a9a0).
 		std::string json;
-		json.reserve(a_sceneIDs.size() * 24 + 2);
 		json += '[';
 		for (std::size_t i = 0; i < a_sceneIDs.size(); ++i) {
 			if (i != 0) {
 				json += ',';
 			}
-			PrismJson::AppendQuoted(json, a_sceneIDs[i]);
+			json += QuoteJson(a_sceneIDs[i]);
 		}
 		json += ']';
 
