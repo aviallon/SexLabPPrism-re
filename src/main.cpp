@@ -40,6 +40,42 @@ namespace
 	}
 }  // namespace
 
+// ---------------------------------------------------------------------------
+// UNITY INCLUDE FARM - reproduces the original's single translation unit.
+//
+// The original SexLabPrism.dll is a unity build: every plugin implementation
+// file is #included from src\main.cpp, so the whole plugin shares ONE
+// anonymous namespace, `?A0xbb2e73b6`, plus exactly one nested one,
+// `?A0xa6da2f39@FocusRecovery`.  Our separate TUs each derive `?A0x<hash>`
+// from their own source path, so they can never reproduce the original's
+// RTTI / __FUNCSIG__ literals (19 `_Func_impl_no_alloc<...lambda...>` names in
+// the original vs 12 in the r8 separate-TU build).  Evidence and the full
+// token -> function table: recon/unity-build.md.
+//
+// The farm sits AFTER this file's own `namespace {}` (above) so the GLOBAL
+// unnamed namespace is declared first, and BEFORE the exports so the three
+// SKSE entry points land at the end of .text exactly as in the original
+// (SKSEPlugin_Load 0x18002e250, SKSEPlugin_Query 0x18002e340).  FocusRecovery
+// is included first because its nested unnamed namespace must be the SECOND
+// unnamed namespace of the TU (the original's two tokens are distinct, so the
+// nested namespace cannot share the global one's ordinal).
+//
+// These files are REMOVED from xmake's compile set (see xmake.lua, the
+// remove_files() call); they exist only to be textually included here.  Do not
+// add a translation unit that compiles them directly: that would recreate the
+// per-file `?A0x` tokens this layout exists to eliminate.
+#include "FocusRecovery.cpp"
+#include "ActionDispatch.cpp"
+#include "UiBridge.cpp"
+#include "Presentation.cpp"
+#include "PrismaUI.cpp"
+#include "Lifecycle.cpp"
+#include "InputSink.cpp"
+#include "MenuVisibilitySink.cpp"
+#include "SceneState.cpp"
+#include "Catalog.cpp"
+#include "Papyrus/Natives.cpp"
+
 // Export 1: the version-independent plugin description, emitted as DATA exactly
 // like the original. The original 0.6.1 struct is
 //   +0x00 dataVersion   = 1
@@ -103,37 +139,3 @@ SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	// reconstruction does not either.
 	return true;
 }
-
-// ---------------------------------------------------------------------------
-// UNITY INCLUDE FARM - reproduces the original's single translation unit.
-//
-// The original SexLabPrism.dll is a unity build: every plugin implementation
-// file is #included from src\main.cpp, so the whole plugin shares ONE
-// anonymous namespace, `?A0xbb2e73b6`, plus exactly one nested one,
-// `?A0xa6da2f39@FocusRecovery`.  Our separate TUs each derive `?A0x<hash>`
-// from their own source path, so they can never reproduce the original's
-// RTTI / __FUNCSIG__ literals (19 `_Func_impl_no_alloc<...lambda...>` names in
-// the original vs 12 in the r8 separate-TU build).  Evidence and the full
-// token -> function table: recon/unity-build.md.
-//
-// FocusRecovery.cpp is included FIRST so its unnamed namespace (nested inside
-// `namespace FocusRecovery`) is the second unnamed namespace of the TU - the
-// global one is the `namespace {}` at the top of THIS file, which therefore
-// stays the first.  The original's two tokens are distinct, so the nested
-// namespace must not share the global one's ordinal.
-//
-// These files are REMOVED from xmake's compile set (see xmake.lua, the
-// remove_files() call); they exist only to be textually included here.  Do not
-// add a translation unit that compiles them directly: that would recreate the
-// per-file `?A0x` tokens this layout exists to eliminate.
-#include "FocusRecovery.cpp"
-#include "ActionDispatch.cpp"
-#include "UiBridge.cpp"
-#include "Presentation.cpp"
-#include "PrismaUI.cpp"
-#include "Lifecycle.cpp"
-#include "InputSink.cpp"
-#include "MenuVisibilitySink.cpp"
-#include "SceneState.cpp"
-#include "Catalog.cpp"
-#include "Papyrus/Natives.cpp"
