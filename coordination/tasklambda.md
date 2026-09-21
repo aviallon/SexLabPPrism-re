@@ -55,3 +55,24 @@ CatalogBegin/Append/Finish/Publish must instantiate their own lambdas inside the
 - `tools/match.py --new <artifact> --focus 0x18002bd20` — SetSearchQuery ratio and
   first divergence.
 - Confirm the SetSearchQuery wrapper's RTTI name equals the original's.
+## Verification done locally (no CI yet)
+
+Compile check of the INTEGRATED shape (my `src/Papyrus/Natives.cpp` on top of
+`grind/bridgeparams`' headers) with clang-cl against `/tmp/CommonLibSSE-NG` +
+`/tmp/xwin-sysroot`: **EXIT=0, 0 errors** (81 pre-existing CLNG offsetof
+warnings). The scratch worktree was removed afterwards.
+
+Objective check of the acceptance criterion (`strings` the object):
+`/tmp/tlcheck/Natives.obj` contains
+`?AV?$_Func_impl_no_alloc@V<lambda_0>@?0??Papyrus_SetSearchQuery...` (clang-cl
+numbers the first lambda `0`; MSVC emits `<lambda_1>`) — i.e. the wrapper is now
+instantiated **inside `Papyrus_SetSearchQuery`**, exactly like the original's
+`_Func_impl_no_alloc@V<lambda_1>@?1??Papyrus_SetSearchQuery@?A0xbb2e73b6@...`.
+Before this commit, that wrapper lived inside `UiBridge::SetSearchQuery`.
+
+Caveat (open, not mine): the mangled anon-namespace hash our build emits is not
+`?A0xbb2e73b6`, and bridgeparams' `UiBridge::PushState/PushCompatible` name the
+wrapper `?1??PushState@UiBridge@@` instead of the original's
+`?1??PushState@?A0xbb2e73b6@`. Count is right; byte-match of those two wrapper
+names needs the TU to be `src\main.cpp` / global-anon PushState. Flagged to
+bridgeparams + main.
