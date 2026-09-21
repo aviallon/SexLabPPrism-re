@@ -2,6 +2,7 @@
 
 #include "ActionDispatch.h"
 #include "PCH.h"
+#include "PrismaUI_vtbl.h"
 
 #include <cstring>
 #include <string>
@@ -15,32 +16,31 @@ namespace PrismaUI
 		constexpr std::string_view kViewPath   = "SexLabPPrism/controller-0.6.1.html"sv;
 		constexpr int              kApiVersion = 1;
 
-		// --- recovered IVPrismaUI1 vtable byte offsets (OnMessage) -------------
-		constexpr std::size_t kCreateViewVtblOffset       = 0x00;
-		constexpr std::size_t kRegisterCallbackVtblOffset = 0x18;
-		constexpr std::size_t kDomReadyVtblOffset         = 0x40;
-		constexpr std::size_t kViewFlagsVtblOffset        = 0x70;
-		constexpr std::size_t kConsoleHandlerVtblOffset   = 0xa8;
+		// Recovered IVPrismaUI1 layout: see PrismaUI_vtbl.h for the evidence
+		// (offset, argument registers, cross-check call sites in
+		// PrismaUITeleportMenu.dll). Never infer an offset from a name here.
+		namespace V = vtbl;
 
-		// NOT recovered (recon/NATIVES-RECOVERED.md §6): the slot used to invoke
-		// JS from C++. Kept as a named constant so there is exactly one place to
-		// correct it, and gated by kLayoutConfirmed so we never mis-call it.
-		constexpr std::size_t kInteropCallVtblOffset = 0x88;
-		constexpr bool        kLayoutConfirmed       = false;
+		// The layout is confirmed for every slot the original itself calls
+		// (0x00/0x18/0x40/0x70/0xa8) and cross-checked for the JS invocation
+		// slots (0x08/0x10). InvokeJs may therefore call the interface now.
+		constexpr bool kLayoutConfirmed = true;
 
 		// void* __cdecl RequestPluginAPI(int version)
 		using RequestPluginApiFn = void* (*)(int);
 
-		// GUESSED ABI (slot order recovered, signatures are not): CreateView
-		// receives the page path and a completion callback; RegisterCallback
-		// receives (view, name, trampoline). Marked because only the offsets are
-		// evidence-backed.
-		using CreateViewFn = void* (*)(void* a_self, const char* a_path, void* a_callback);
-		using RegisterCallbackFn = void (*)(void* a_self, void* a_view, const char* a_name, JsCallback a_cb);
-		using ViewFlagsFn = void (*)(void* a_self, void* a_view, int a_flags);
-		using ConsoleHandlerFn = void (*)(void* a_self, void* a_view, ConsoleMessageCallback a_cb);
-		using DomReadyFn = void (*)(void* a_self, void* a_view);
-		using InteropCallFn = void (*)(void* a_self, void* a_view, const char* a_function, const char* a_argument);
+		using CreateViewFn = V::CreateViewFn;
+		using RegisterCallbackFn = V::RegisterCallbackFn;
+		using ViewFlagsFn = V::SetViewFlagsFn;
+		using ConsoleHandlerFn = V::SetConsoleSinkFn;
+		using DomReadyFn = V::ApplyViewFn;
+		using InvokeFunctionFn = V::InvokeFunctionFn;
+		using ExecuteJsFn = V::ExecuteJsFn;
+		using SetInteractiveFn = V::SetInteractiveFn;
+		using QueryFocusFn = V::QueryFocusFn;
+		using IsFocusedFn = V::IsFocusedFn;
+		using UnfocusFn = V::UnfocusFn;
+		using QueryViewFn = V::QueryViewFn;
 
 		struct State
 		{
@@ -65,9 +65,10 @@ namespace PrismaUI
 
 		// --- JS trampolines (CreateViews::<lambda_N> in the original) ----------
 
-		// CreateViews::<lambda_1>: the view-ready completion. Its exact ABI is
-		// not recovered; it only logs in the original, so keep it inert.
-		void OnViewCreated(void* /*a_view*/, void* /*a_userdata*/)
+		// CreateViews::<lambda_1>::operator()(unsigned __int64) const
+		// (recon/strings.txt:45). The view-ready completion; it only logs in the
+		// original, so it stays inert but keeps the recovered ABI.
+		void OnViewCreated(std::uint64_t /*a_view*/)
 		{
 			logger::debug("Controller view created");
 		}
@@ -111,7 +112,9 @@ namespace PrismaUI
 		}
 		g_created = true;
 
-		const auto mod = REX::W32::GetModuleHandleW(L"PrismaUI.dll");
+		// 0x180029220: GetModuleHandleA("PrismaUI.dll") — the original uses the
+		// ANSI variant, not the wide one.
+		const auto mod = REX::W32::GetModuleHandleA(kPluginDll.data());
 		if (!mod) {
 			logger::warn("PrismaUI API not found");
 			return false;
@@ -130,34 +133,36 @@ namespace PrismaUI
 		}
 		g_state.iface = iface;
 
-		const auto createView = Slot<CreateViewFn>(iface, kCreateViewVtblOffset);
-		void*      view       = createView ? createView(iface, kViewPath.data(), nullptr) : nullptr;
+		const auto createView = Slot<CreateViewFn>(iface, V::kCreateView);
+		void*      view       = createView ?
+		                  createView(iface, kViewPath.data(), reinterpret_cast<void*>(&OnViewCreated)) :
+		                  nullptr;
 		g_state.view          = view;
 		if (!view) {
 			logger::error("PrismaUI CreateView failed for {}", kViewPath);
 			return false;
 		}
 
-		if (const auto setFlags = Slot<ViewFlagsFn>(iface, kViewFlagsVtblOffset)) {
+		if (const auto setFlags = Slot<ViewFlagsFn>(iface, V::kSetViewFlags)) {
 			setFlags(iface, view, 0x50);
 		}
-		if (const auto setConsole = Slot<ConsoleHandlerFn>(iface, kConsoleHandlerVtblOffset)) {
-			setConsole(iface, view, OnConsoleMessage);
+		if (const auto setConsole = Slot<ConsoleHandlerFn>(iface, V::kSetConsoleSink)) {
+			setConsole(iface, view, reinterpret_cast<void*>(&OnConsoleMessage));
 		}
 
-		const auto registerCallback = Slot<RegisterCallbackFn>(iface, kRegisterCallbackVtblOffset);
+		const auto registerCallback = Slot<RegisterCallbackFn>(iface, V::kRegisterCallback);
 		if (registerCallback) {
-			registerCallback(iface, view, "slppReady", OnSlppReady);
-			registerCallback(iface, view, "slppAction", ActionDispatch::HandleAction);
-			registerCallback(iface, view, "slppSearchRequest", ActionDispatch::HandleSearchRequest);
-			registerCallback(iface, view, "slppCollapsed", OnSlppCollapsed);
-			registerCallback(iface, view, "slppLog", OnSlppLog);
-			registerCallback(iface, view, "slppCatalogRetry", OnSlppCatalogRetry);
+			registerCallback(iface, view, "slppReady", reinterpret_cast<void*>(&OnSlppReady));
+			registerCallback(iface, view, "slppAction", reinterpret_cast<void*>(&ActionDispatch::HandleAction));
+			registerCallback(iface, view, "slppSearchRequest", reinterpret_cast<void*>(&ActionDispatch::HandleSearchRequest));
+			registerCallback(iface, view, "slppCollapsed", reinterpret_cast<void*>(&OnSlppCollapsed));
+			registerCallback(iface, view, "slppLog", reinterpret_cast<void*>(&OnSlppLog));
+			registerCallback(iface, view, "slppCatalogRetry", reinterpret_cast<void*>(&OnSlppCatalogRetry));
 		} else {
 			logger::error("PrismaUI RegisterCallback slot unavailable; JS callbacks not wired");
 		}
 
-		if (const auto domReady = Slot<DomReadyFn>(iface, kDomReadyVtblOffset)) {
+		if (const auto domReady = Slot<DomReadyFn>(iface, V::kApplyView)) {
 			domReady(iface, view);
 		}
 
@@ -175,31 +180,94 @@ namespace PrismaUI
 			}
 			return;
 		}
-		if (!kLayoutConfirmed) {
-			static bool warned = false;
-			if (!warned) {
-				warned = true;
-				logger::warn("Invoke skipped, view {} not usable ({} bytes)", a_functionName, a_argument.size());
-			}
+		static_assert(kLayoutConfirmed, "PrismaUI vtable layout not confirmed");
+
+		// The original's InvokeOn (0x180028190) guards every C++->JS call with
+		// the view-usability query at slot 0x60 and logs the recovered message
+		// when it fails (strings.txt:198). Mirror that guard here so the stream
+		// includes the same call.
+		if (const auto query = Slot<QueryViewFn>(g_state.iface, V::kQueryView);
+			query && !query(g_state.iface, g_state.view)) {
+			logger::warn("Invoke skipped, view {} not usable ({} bytes)", a_functionName, a_argument.size());
 			return;
 		}
-		if (const auto call = Slot<InteropCallFn>(g_state.iface, kInteropCallVtblOffset)) {
-			const std::string arg{ a_argument };
-			call(g_state.iface, g_state.view, a_functionName, arg.c_str());
+
+		// C++ -> JS: slot 0x08 executes a JS expression. This is the path the
+		// ORIGINAL uses: InvokeOn (0x180028190) loads the RequestPluginAPI(1)
+		// handle (DAT_18009c1b0), guards with slot 0x60, then tail-jumps
+		// `*0x8(%rax)` with the std::string bytes as r8. Slot 0x10 is only
+		// cross-checked on RequestPluginAPI(0), so 0x08 is the correct call here.
+		// Build `window.<name>(<arg>)`, quoting `arg` when it is not already a
+		// JSON/number/boolean literal (the only such caller is the raw search
+		// query). The controller page defines the receivers as window.slpp*.
+		std::string code;
+		code.reserve(a_argument.size() + 24);
+		code += "window.";
+		code += a_functionName;
+		code += '(';
+		if (!a_argument.empty()) {
+			const char c = a_argument.front();
+			const bool literal = c == '{' || c == '[' || c == '"' || c == '-' ||
+			                     (c >= '0' && c <= '9') || c == 't' || c == 'f' || c == 'n';
+			if (literal) {
+				code += a_argument;
+			} else {
+				code += '"';
+				for (const char ch : a_argument) {
+					if (ch == '"' || ch == '\\') {
+						code += '\\';
+					}
+					code += ch;
+				}
+				code += '"';
+			}
+		}
+		code += ')';
+
+		if (const auto call = Slot<ExecuteJsFn>(g_state.iface, V::kExecuteJs)) {
+			call(g_state.iface, g_state.view, code.c_str(), nullptr);
+		}
+	}
+
+	void ExecuteJs(const char* a_code)
+	{
+		// Slot 0x08: evaluate a JS expression (PrismaUI_vtbl.h kExecuteJs,
+		// evidence PrismaUITeleportMenu 0x18004a32a r8="onMenuClose()").
+		if (!IsAvailable()) {
+			return;
+		}
+		if (const auto call = Slot<ExecuteJsFn>(g_state.iface, V::kExecuteJs)) {
+			call(g_state.iface, g_state.view, a_code, nullptr);
 		}
 	}
 
 	bool IsFocused()
 	{
-		// The PrismaUI focus query slot was not recovered; report "unknown" as
-		// not focused so FocusRecovery does not spin on a false positive.
+		// Slot 0x20 — the real focus query on api version 1 (PrismaUI_vtbl.h
+		// kIsFocused): the original's FocusRecovery::CheckUnfocus calls it at
+		// 0x180013410 and branches on `test dil,dil`.
+		if (!IsAvailable()) {
+			return false;
+		}
+		if (const auto query = Slot<IsFocusedFn>(g_state.iface, V::kIsFocused)) {
+			return query(g_state.iface, g_state.view);
+		}
 		return false;
 	}
 
 	bool Unfocus()
 	{
-		// Same unknown-slot caveat as InvokeJs. Returns false = "could not
-		// confirm an unfocus was issued", the conservative branch.
+		// Slot 0x30 — release focus on api version 1 (PrismaUI_vtbl.h kUnfocus):
+		// the original's CheckUnfocus reaches it after "waiting for Prisma
+		// Unfocus ({}/5)" and calls it with (iface, view) at 0x1800134bb. This is
+		// the C++ side of the F4 camera transition.
+		if (!IsAvailable()) {
+			return false;
+		}
+		if (const auto unfocus = Slot<UnfocusFn>(g_state.iface, V::kUnfocus)) {
+			unfocus(g_state.iface, g_state.view);
+			return true;
+		}
 		return false;
 	}
 }  // namespace PrismaUI
