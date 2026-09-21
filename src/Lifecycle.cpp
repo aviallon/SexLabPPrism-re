@@ -16,6 +16,20 @@ namespace
 	// literal is kept so the load point matches the original exactly.
 	constexpr std::uint32_t kPrismMessageType = 8;
 
+	// The original's linker split the `PrismaUI API not found` error path of
+	// OnMessage out of the hot body (a separate .pdata function at 0x1800295a4,
+	// 23 instructions, sharing the parent epilogue). Keeping it in its own
+	// __declspec(noinline) body is the closest source-level counterpart: it
+	// stays a real function the matcher can anchor instead of being folded into
+	// OnMessage and vanishing. The parameter is the OnMessage message so the
+	// recovered signature keeps the same `struct SKSE::MessagingInterface::
+	// Message *` argument shape.
+	__declspec(noinline)
+	void OnMessageColdBlock(SKSE::MessagingInterface::Message*)
+	{
+		logger::warn("PrismaUI API not found");
+	}
+
 	void OnMessage(SKSE::MessagingInterface::Message* a_msg)
 	{
 		if (!a_msg || a_msg->type != kPrismMessageType) {
@@ -27,7 +41,7 @@ namespace
 		// JS callbacks (recon/NATIVES-RECOVERED.md §4.1). The sinks are only
 		// registered on the success path, matching the original.
 		if (!PrismaUI::CreateViews()) {
-			logger::warn("SexLab P+ Prism UI bridge unavailable; event sinks not registered");
+			OnMessageColdBlock(a_msg);
 			return;
 		}
 
