@@ -73,8 +73,10 @@ ALIASES = {
                               "Papyrus native registration order/contract"),
     "ActionDispatch::SendModEvent": ("`anonymous-namespace'::SendAction",
                                      "sends the action ModEvent; string/semantic"),
-    "Presentation::ApplyVanillaHUDVisibility": ("`anonymous-namespace'::ApplyPresentation",
-                                                "applies presentation state; semantic"),
+    # NOT an alias any more: ApplyVanillaHUDVisibility is now DEFINED in the
+    # global anonymous namespace, so its recovered name equals the original's
+    # name exactly and the `name` anchor pairs it (the old entry mispaired it to
+    # original ApplyPresentation 0x1800261e0, leaving 0x180026790 MISSING).
     "InputSink::`anonymous-namespace'::Sink::ProcessEvent":
         ("`anonymous-namespace'::InputSink::ProcessEvent",
          "our Sink::ProcessEvent is the InputSink vtable method"),
