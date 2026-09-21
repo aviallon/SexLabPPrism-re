@@ -11,14 +11,14 @@
 // six JS callbacks (recon/NATIVES-RECOVERED.md §4.1, recon/decompiled/
 // 0x180029200_OnMessage.c). This translation unit reproduces that structure.
 //
-// The IVPrismaUI1 vtable is EXTERNAL to the original DLL, so only the slots the
-// original actually calls are recovered, and only by BYTE OFFSET:
-//   0x00 CreateView          0x18 RegisterCallback   0x40 DOM-ready / show
-//   0x70 view flags/size     0xa8 console-message handler
-// (recon/NATIVES-RECOVERED.md §6). The C++ -> JS invoke slot (InteropCall) was
-// NOT traced; see kInteropCallVtblOffset below. Every dereference of the
-// external interface funnels through this file (PrismaUI::Slot<>), which is the
-// ONE indirection point the reconstruction is allowed to touch.
+// The IVPrismaUI1 vtable is EXTERNAL to the original DLL. The offsets the
+// original itself calls (0x00 CreateView, 0x18 RegisterCallback, 0x40 apply,
+// 0x70 view config, 0xa8 console-message handler) are CONFIRMED from its
+// OnMessage; the working consumer PrismaUITeleportMenu.dll additionally
+// reveals the JS-invocation slots 0x08 (eval) and 0x10 (named function) and
+// the focus slots 0x28/0x38. The complete recovered layout, with per-slot
+// evidence, is in src/PrismaUI_vtbl.h. Every dereference of the external
+// interface funnels through PrismaUI::Slot<>, the ONE indirection point.
 namespace PrismaUI
 {
 	// The callback shape handed to RegisterCallback. The original's recovered
@@ -49,16 +49,18 @@ namespace PrismaUI
 	void* View();
 
 	// --- C++ -> JS -------------------------------------------------------------
-	// The single C++ -> JS indirection point. `a_functionName` is a page-level
-	// JS function name (e.g. "slppState"), NOT a full script. The original
-	// reached JS through PrismaUI's interop slot; that slot offset is unknown
-	// (§6) and kLayoutConfirmed is false, so the call is logged and skipped
-	// rather than mis-called. Change kInteropCallVtblOffset once it is known.
+	// Two recovered invocation slots (see PrismaUI_vtbl.h for the evidence):
+	//   InvokeJs  -> slot 0x10, calls a named global JS function with a string
+	//   ExecuteJs -> slot 0x08, evaluates a JS expression string
+	// Both are now backed by real call sites recovered from
+	// PrismaUITeleportMenu.dll, so the 12 JS-bridge functions have genuine
+	// instruction streams instead of the retired 0x88 guess.
 	void InvokeJs(const char* a_functionName, std::string_view a_argument);
+	void ExecuteJs(const char* a_code);
 
 	// --- focus helpers (used by FocusRecovery / Presentation) ------------------
-	// Both are interop operations on the view; the exact slots were not
-	// recovered, so they go through the same single-indirection gate.
+	// Slot 0x38 (query) and slot 0x28 (set interactive). The query's return
+	// convention is not recovered; Unfocus reports whether the slot was called.
 	bool IsFocused();
 	bool Unfocus();
 }  // namespace PrismaUI
