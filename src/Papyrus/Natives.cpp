@@ -8,21 +8,6 @@ namespace Papyrus::Natives
 	namespace
 	{
 		constexpr std::string_view kClassName = "SexLabPrismNative"sv;
-
-		std::string ToStr(const RE::BSFixedString& a_value)
-		{
-			return std::string(static_cast<std::string_view>(a_value));
-		}
-
-		std::vector<std::string> ToStrVector(const std::vector<RE::BSFixedString>& a_values)
-		{
-			std::vector<std::string> out;
-			out.reserve(a_values.size());
-			for (const auto& value : a_values) {
-				out.emplace_back(ToStr(value));
-			}
-			return out;
-		}
 	}  // namespace
 
 	// 0x18002a8e0 — spdlog only, '[Papyrus] {}'. The original compiled this in
@@ -57,7 +42,7 @@ namespace Papyrus::Natives
 		bool                           abPaused,
 		bool                           abMuted,
 		float                          afSpeed,
-		std::vector<RE::BSFixedString> asActorNames,
+		std::vector<std::string>       asActorNames,
 		std::vector<std::int32_t>      aiEnjoyment,
 		std::int32_t                   aiPlayerIdx)
 	{
@@ -65,7 +50,7 @@ namespace Papyrus::Natives
 			aiSession, abActive, aiThreadID, aiStatus,
 			std::move(asSceneID), std::move(asSceneName), std::move(asStage),
 			aiStageIdx, aiStageCount, abFreecam, abPaused, abMuted, afSpeed,
-			ToStrVector(asActorNames), std::move(aiEnjoyment), aiPlayerIdx);
+			std::move(asActorNames), std::move(aiEnjoyment), aiPlayerIdx);
 	}
 
 	// 0x18002a8b0 — PlayerCamera free-camera predicate.
@@ -75,9 +60,9 @@ namespace Papyrus::Natives
 	}
 
 	// 0x18002a9a0 — JSON array of scene ids + UI push.
-	void PublishCompatible(RE::StaticFunctionTag*, std::vector<RE::BSFixedString> asSceneIDs)
+	void PublishCompatible(RE::StaticFunctionTag*, std::vector<std::string> asSceneIDs)
 	{
-		SceneState::PublishCompatible(ToStrVector(asSceneIDs));
+		SceneState::PublishCompatible(asSceneIDs);
 	}
 
 	// 0x18002a000 — clear/reserve the 128-byte-record vector, reset the id index.
@@ -89,17 +74,17 @@ namespace Papyrus::Natives
 	// 0x180029740 — append records, refresh the FNV-1a id -> index map.
 	void CatalogAppend(
 		RE::StaticFunctionTag*,
-		std::vector<RE::BSFixedString> asIDs,
-		std::vector<RE::BSFixedString> asNames,
-		std::vector<RE::BSFixedString> asTags)
+		std::vector<std::string> asIDs,
+		std::vector<std::string> asNames,
+		std::vector<std::string> asTags)
 	{
-		Catalog::Append(ToStrVector(asIDs), ToStrVector(asNames), ToStrVector(asTags));
+		Catalog::Append(asIDs, asNames, asTags);
 	}
 
 	// 0x18002a410 — assign a package name to already-appended records.
-	void CatalogPackage(RE::StaticFunctionTag*, std::string asPackage, std::vector<RE::BSFixedString> asIDs)
+	void CatalogPackage(RE::StaticFunctionTag*, std::string asPackage, std::vector<std::string> asIDs)
 	{
-		Catalog::Package(asPackage, ToStrVector(asIDs));
+		Catalog::Package(asPackage, asIDs);
 	}
 
 	// 0x18002a270 — ready/building flags + elapsed-ms log + UI push.

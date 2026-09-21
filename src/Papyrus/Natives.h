@@ -60,26 +60,26 @@ namespace Papyrus::Natives
 		bool         abPaused,
 		bool         abMuted,
 		float        afSpeed,
-		std::vector<RE::BSFixedString> asActorNames,
+		std::vector<std::string>       asActorNames,
 		std::vector<std::int32_t>      aiEnjoyment,
 		std::int32_t                   aiPlayerIdx);
 
 	bool IsFreeCameraActive(RE::StaticFunctionTag*);
 
-	void PublishCompatible(RE::StaticFunctionTag*, std::vector<RE::BSFixedString> asSceneIDs);
+	void PublishCompatible(RE::StaticFunctionTag*, std::vector<std::string> asSceneIDs);
 
 	void CatalogBegin(RE::StaticFunctionTag*, std::int32_t aiTotal);
 
 	void CatalogAppend(
 		RE::StaticFunctionTag*,
-		std::vector<RE::BSFixedString> asIDs,
-		std::vector<RE::BSFixedString> asNames,
-		std::vector<RE::BSFixedString> asTags);
+		std::vector<std::string> asIDs,
+		std::vector<std::string> asNames,
+		std::vector<std::string> asTags);
 
 	void CatalogPackage(
 		RE::StaticFunctionTag*,
-		std::string                    asPackage,
-		std::vector<RE::BSFixedString> asIDs);
+		std::string              asPackage,
+		std::vector<std::string> asIDs);
 
 	void CatalogFinish(RE::StaticFunctionTag*);
 
