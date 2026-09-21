@@ -153,8 +153,20 @@ def build_side(path):
 
 
 def load_orig_meta(path=OUTJSON):
-    """Reuse tier/name/basis already computed by tools/parity.py, if present."""
-    p = "recon/parity-parity/per-function.json"
+    """Reuse tier/name/basis already computed by tools/parity.py, if present.
+
+    The classifier input is the report written by the full tools/parity.py run,
+    which is NOT produced by match.py itself.  Resolve it against the repo root
+    (HERE/..) rather than the current working directory: the historical all-
+    library bug was simply match.py being run from build/ where the relative
+    path "recon/parity-parity/per-function.json" does not exist.
+    """
+    repo = os.path.dirname(HERE)
+    cands = [os.path.join(repo, "recon/parity-parity/per-function.json"),
+             os.path.join(repo, "build/recon/parity-parity/per-function.json"),
+             "recon/parity-parity/per-function.json",
+             "build/recon/parity-parity/per-function.json"]
+    p = next((c for c in cands if os.path.exists(c)), cands[0])
     tiers, names = {}, {}
     if os.path.exists(p):
         try:
@@ -168,6 +180,41 @@ def load_orig_meta(path=OUTJSON):
                 names[a] = r["name"]
             elif r.get("names"):
                 names[a] = r["names"][0]
+    return tiers, names
+
+
+def compute_tiers(pe, funcs, name_map=None, root=None):
+    """Self-contained tier assignment, using exactly the definition in
+    tools/parity.py's classify(): original exports + plugin string/RTTI refs +
+    registration table + BFS over direct calls from those roots, with
+    library-named functions as a hard stop.
+
+    ``name_map`` is intentionally NOT the output-name symbol map: the reference
+    classifier was fed recon/functions.json + recovered __cdecl signatures.
+    Passing recon/symbols.csv instead would make RTTI/slot names hit the
+    library-name stop list and shrink the plugin tier.
+
+    Returns ({addr: 'plugin'|'library'}, {addr: name}).
+    """
+    repo = root or os.path.dirname(HERE)
+    nm = {}
+    for cand in (os.path.join(repo, "recon/functions.json"),
+                 os.path.join(repo, "build/recon/functions.json"),
+                 "recon/functions.json"):
+        if os.path.exists(cand):
+            nm, _ = parity.load_name_json(cand, pe)
+            break
+    parity.recover_sig_names(pe, funcs)
+    for f in funcs:
+        for n in nm.get(f["addr"], []):
+            f.setdefault("names", []).append(n)
+    plugin_refs = parity.plugin_ref_addresses(pe)
+    known = parity.load_manifest(os.path.join(repo, "recon/decompiled/MANIFEST.txt"))
+    if not known:
+        known = parity.load_manifest("recon/decompiled/MANIFEST.txt")
+    parity.classify(pe, funcs, nm, pe.exports(), plugin_refs, known)
+    tiers = {f["addr"]: f["tier"] for f in funcs}
+    names = {f["addr"]: f["name"] for f in funcs if f.get("name")}
     return tiers, names
 
 
@@ -608,8 +655,6 @@ def main():
     args = ap.parse_args()
 
     name_map = load_symbols()
-    tier_map, meta_names = load_orig_meta()
-    name_map = {**meta_names, **name_map}
 
     if args.self_test:
         pe_o = PE(args.orig)
@@ -631,6 +676,13 @@ def main():
 
     pe_o, fo, mo, ro = build_side(args.orig)
     _, fn, mn, rn = build_side(args.new)
+    # Tier classifier: computed here from the original's exports / plugin
+    # string+RTTI refs / registration table / call reachability, exactly as
+    # tools/parity.py does.  Do not depend on a stale external report whose
+    # relative path silently failed when match.py ran from build/.
+    tier_map, meta_names = compute_tiers(
+        pe_o, fo, root=os.path.dirname(os.path.dirname(os.path.abspath(args.orig))))
+    name_map = {**meta_names, **name_map}
     id_meta = None
     if args.identity:
         import pair_identity

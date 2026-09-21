@@ -1,0 +1,29 @@
+orig 2149 funcs, 1495 real (pdata); rebuild 2780 funcs; build 56s
+real MISSING = 291 (10866 insn)
+class,funcs,insn
+  PRESENT-UNPAIRED    5 funcs     318 insn
+  ABSENT-LIBRARY     19 funcs    1625 insn
+  ABSENT-PLUGIN      50 funcs    2313 insn
+  UNCERTAIN         217 funcs    6610 insn
+top ABSENT-PLUGIN by insn:
+   0x18001f0b0  167 `anonymous-namespace'::InputSink::Proces no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x180026790  167 `anonymous-namespace'::ApplyVanillaHUDVi no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.13
+   0x18001e740  123                                          no distinctive reference | tier=plugin (reachable) | best cross-all ratio=0.585 
+   0x180023e90  114 `anonymous-namespace'::RequestSearchInpu no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x180013760  110 FocusRecovery::`anonymous-namespace'::Fi no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x18004d830  102                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180013f20   99                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x1800146e0   94 FocusRecovery::`anonymous-namespace'::Ve no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x18002d170   94                                          plugin func 0x180028190  0x1800282a6  void __cdecl `anonymous-namespace'; plugin
+   0x180023230   77                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180006110   73                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180014428   68 FocusRecovery::`anonymous-namespace'::St no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x18002d340   67                                          plugin func 0x180028190  0x1800282a6  void __cdecl `anonymous-namespace'; plugin
+   0x18004dfa0   67                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x18003aca0   65                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x1800145c5   57 FocusRecovery::`anonymous-namespace'::Ve no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.00
+   0x1800196b0   55                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180013920   53                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180012a60   49                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+   0x180047500   47                                          no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-a
+total 291 funcs 10866 insn; wrote /home/aviallon/Projects/SexLabPPrism-re/build/recon/missing-triage.csv

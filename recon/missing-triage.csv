@@ -1,0 +1,292 @@
+address,insn,name,class,evidence,action
+0x180001100,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180001d20,33,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180005629,2,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x180003342),needs manual adjudication
+0x1800058ad,113,,PRESENT-UNPAIRED,rebuild 0x18001986d ratio=0.956 (113 insn); 1 rebuild func(s) >=0.95,improve pairing (identity anchors); do NOT implement
+0x180005a2e,46,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.636 (0x1800199ee),needs manual adjudication
+0x180005cee,116,,PRESENT-UNPAIRED,rebuild 0x18001065e ratio=0.957 (116 insn); 1 rebuild func(s) >=0.95,improve pairing (identity anchors); do NOT implement
+0x180005e92,44,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.581 (0x180010802),needs manual adjudication
+0x180006110,73,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.473 (0x180003130),"implement (plugin-owned, no rebuild match)"
+0x180006216,20,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.700 (0x1800030bb),needs manual adjudication
+0x180006262,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.600 (0x1800129c6),needs manual adjudication
+0x180006290,42,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.333 (0x18005e890),needs manual adjudication
+0x180007e01,1,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180007e06,28,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180007e68,39,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=library | tier=library (unreached) | best cross-all ratio=0.416 (0x18000ac18),"build-config / template-shape, not hand-written body"
+0x180008a30,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.308 (0x180008a60),needs manual adjudication
+0x180008a45,21,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180008a98,5,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.800 (0x180056131),needs manual adjudication
+0x18000d194,356,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.941 (0x180014c14),needs manual adjudication
+0x18000f350,28,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.906 (0x18001b9f0),"implement (plugin-owned, no rebuild match)"
+0x18000fea0,11,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.842 (0x180004560),"implement (plugin-owned, no rebuild match)"
+0x18000fef0,102,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_beginthreadex | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x180010070,21,.?AVexception@std@@::vtable[0],PRESENT-UNPAIRED,rebuild 0x180003e90 ratio=0.952 (21 insn); 1 rebuild func(s) >=0.95,improve pairing (identity anchors); do NOT implement
+0x1800101e0,15,.?AVexception@std@@::vtable[0],UNCERTAIN,no distinctive reference | tier=library (unreached) | best cross-all ratio=0.938 (0x180034080),needs manual adjudication
+0x1800102f0,23,.?AVsystem_error@std@@::vtable[0],PRESENT-UNPAIRED,rebuild 0x180003e30 ratio=0.957 (23 insn); 1 rebuild func(s) >=0.95,improve pairing (identity anchors); do NOT implement
+0x1800107a0,22,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.533 (0x180055df0),needs manual adjudication
+0x180010820,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.500 (0x180005790),needs manual adjudication
+0x180010839,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001084f,16,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180010885,14,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800108c0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800108f0,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.800 (0x18000a055),needs manual adjudication
+0x1800108fb,6,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=library | tier=library (unreached) | best cross-all ratio=0.833 (0x180009445),"build-config / template-shape, not hand-written body"
+0x180010990,40,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=library | tier=library (unreached) | best cross-all ratio=0.806 (0x18000add0),"build-config / template-shape, not hand-written body"
+0x180010aa0,14,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.786 (0x18001d120),needs manual adjudication
+0x180010b20,55,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!terminate | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x180010cb0,7,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!terminate | prior=library | tier=library (unreached) | best cross-all ratio=0.615 (0x180039020),"build-config / template-shape, not hand-written body"
+0x180012a60,49,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180012b1e,28,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180012b85,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800130e0,18,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180013254,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x18000ad9a),needs manual adjudication
+0x180013268,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.462 (0x180006f99),needs manual adjudication
+0x1800133b0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800133e1,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001368e,1,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180013696,5,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.600 (0x18000e398),needs manual adjudication
+0x1800136b0,32,FocusRecovery::`anonymous-namespace'::CloseOwnedConsole,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180013760,110,FocusRecovery::`anonymous-namespace'::Finalize,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180013920,53,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180013a20,349,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180013f20,99,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180014360,44,FocusRecovery::`anonymous-namespace'::StartConsolePulse,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180014428,68,FocusRecovery::`anonymous-namespace'::StartConsolePulse,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180014571,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x180023313),needs manual adjudication
+0x180014590,15,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800145c5,57,FocusRecovery::`anonymous-namespace'::VerifyCleanup,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x1800146d3,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.545 (0x18000e398),needs manual adjudication
+0x1800146e0,94,FocusRecovery::`anonymous-namespace'::VerifyCleanup,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180014dd0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180014dfb,84,,ABSENT-LIBRARY,import MSVCP140.dll!?tolower@?$ctype@D@std@@QEBADD@Z | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x180014f16,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.615 (0x18003292a),needs manual adjudication
+0x1800158d0,23,.?AV_Node_base@std@@::vtable[0],ABSENT-PLUGIN,no distinctive reference | tier=plugin (reachable) | best cross-all ratio=0.578 (0x180005930),"implement (plugin-owned, no rebuild match)"
+0x180015a10,43,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=library | tier=library (unreached) | best cross-all ratio=0.649 (0x18000d610),"build-config / template-shape, not hand-written body"
+0x1800161d0,8,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.750 (0x180006cb0),"implement (plugin-owned, no rebuild match)"
+0x180016317,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180016339,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180056131),needs manual adjudication
+0x180016820,16,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.938 (0x180001e00),needs manual adjudication
+0x180016870,17,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180016b02,2,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180016b0c,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.714 (0x180008972),needs manual adjudication
+0x180016c10,66,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180016d20,17,,ABSENT-PLUGIN,plugin func 0x1800136b0  0x180013754  void __cdecl FocusRecovery::`anony | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180017e30,45,,PRESENT-UNPAIRED,rebuild 0x180007950 ratio=0.978 (45 insn); 1 rebuild func(s) >=0.95,improve pairing (identity anchors); do NOT implement
+0x180018cc0,32,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.627 (0x18002f470),"implement (plugin-owned, no rebuild match)"
+0x1800190b0,57,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800196b0,55,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180019802,15,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001b34a,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001b380,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e000,100,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!abort | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x18001e46c,25,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e4be,23,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e501,1,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e506,5,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.545 (0x180020381),needs manual adjudication
+0x18001e517,23,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e556,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e610,25,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18001e65b,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e682,27,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e6e0,1,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e6e5,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x180008972),needs manual adjudication
+0x18001e6f3,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.500 (0x180009ba0),needs manual adjudication
+0x18001e708,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001e740,123,,ABSENT-PLUGIN,no distinctive reference | tier=plugin (reachable) | best cross-all ratio=0.585 (0x180038a50),"implement (plugin-owned, no rebuild match)"
+0x18001eac3,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.476 (0x18001cd73),needs manual adjudication
+0x18001eaf1,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18001f0b0,167,`anonymous-namespace'::InputSink::ProcessEvent,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180020610,22,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180021320,117,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.632 (0x180001f00),"build-config / template-shape, not hand-written body"
+0x180021550,127,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.542 (0x1800463c0),"build-config / template-shape, not hand-written body"
+0x1800217d0,122,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.504 (0x180049870),"build-config / template-shape, not hand-written body"
+0x180021ca0,117,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.583 (0x180001f00),"build-config / template-shape, not hand-written body"
+0x180022be0,127,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.542 (0x180002180),"build-config / template-shape, not hand-written body"
+0x180022e60,112,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.620 (0x180001f00),"build-config / template-shape, not hand-written body"
+0x180023230,77,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180023348,29,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800233b3,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.545 (0x180019c76),needs manual adjudication
+0x1800236f0,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.783 (0x1800229b0),needs manual adjudication
+0x180023b60,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180026cc0),needs manual adjudication
+0x180023c10,25,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.902 (0x180026280),needs manual adjudication
+0x180023e90,114,`anonymous-namespace'::RequestSearchInput::<lambda_1>::,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x1800250f0,302,,UNCERTAIN,no distinctive reference | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180025ce0,169,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x180026790,167,`anonymous-namespace'::ApplyVanillaHUDVisibility,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.132 (0x180023bc0),"implement (plugin-owned, no rebuild match)"
+0x180027cc3,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.471 (0x18001cd73),needs manual adjudication
+0x180027ce6,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180029200,6,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (known-native-address) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x1800295a4,23,`anonymous-namespace'::OnMessage,ABSENT-PLUGIN,no distinctive reference | tier=plugin (name:plugin) | best cross-all ratio=0.415 (0x180028e79),"implement (plugin-owned, no rebuild match)"
+0x18002961e,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x180023313),needs manual adjudication
+0x18002a270,7,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (known-native-address) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18002a3ec,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.462 (0x180006f99),needs manual adjudication
+0x18002a6e0,7,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (known-native-address) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18002a802,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.462 (0x180006f99),needs manual adjudication
+0x18002a830,7,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (known-native-address) | best cross-all ratio=0.533 (0x180006cb0),"implement (plugin-owned, no rebuild match)"
+0x18002a850,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18002a87f,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.462 (0x180006f99),needs manual adjudication
+0x18002bea0,11,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.500 (0x18003dd00),"implement (plugin-owned, no rebuild match)"
+0x18002c710,20,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x180042550),needs manual adjudication
+0x18002c970,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.727 (0x180042b50),needs manual adjudication
+0x18002c9a0,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.727 (0x180042b50),needs manual adjudication
+0x18002c9d0,16,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.552 (0x180005750),needs manual adjudication
+0x18002ca70,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.727 (0x180042b50),needs manual adjudication
+0x18002caf0,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.727 (0x180042b50),needs manual adjudication
+0x18002cb60,16,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.875 (0x180001e00),needs manual adjudication
+0x18002d170,94,,ABSENT-PLUGIN,"plugin func 0x180028190  0x1800282a6  void __cdecl `anonymous-namespace'; plugin string 'window.slppCatalogReset({});window.slppCatalogProgress(0,{});' | prior=library | tier=library (unreached) | best cross-all ratio=0.000","implement (plugin-owned, no rebuild match)"
+0x18002d340,67,,ABSENT-PLUGIN,plugin func 0x180028190  0x1800282a6  void __cdecl `anonymous-namespace'; plugin string 'window.slppCatalogDone({});' | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18002dad0,14,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x180020260),needs manual adjudication
+0x18002dbf3,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.833 (0x180020381),needs manual adjudication
+0x180037490,9,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x1800374bd,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800374e6,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800374f0,8,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18003751e,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180037547,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003786d,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180037896,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180037a40,17,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180037aad,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180037ae0,9,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180037b0d,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180037b36,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800390b0,9,,ABSENT-PLUGIN,no distinctive reference | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x1800390dd,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180039106,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180039120,9,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x18003914d,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180039176,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180039730,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a110,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a143,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.476 (0x18001cd73),needs manual adjudication
+0x18003a171,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a370,17,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a3b7,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.471 (0x18001cd73),needs manual adjudication
+0x18003a3da,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a45d,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a486,3,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a653,19,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.811 (0x180003373),needs manual adjudication
+0x18003a6c0,26,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.627 (0x18000acb0),"implement (plugin-owned, no rebuild match)"
+0x18003a71d,64,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003a801,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.588 (0x180020d8c),needs manual adjudication
+0x18003a830,15,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.867 (0x18004a380),needs manual adjudication
+0x18003a862,54,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.444 (0x18004a3b2),needs manual adjudication
+0x18003aa1b,136,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003aca0,65,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.527 (0x18004a7b0),"implement (plugin-owned, no rebuild match)"
+0x18003af59,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.818 (0x18004aae4),needs manual adjudication
+0x18003af80,173,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.701 (0x18004ab00),needs manual adjudication
+0x18003c9f0,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003ca10,73,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.453 (0x18001b2b4),needs manual adjudication
+0x18003cb1d,5,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.750 (0x1800057e9),needs manual adjudication
+0x18003cb27,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.200 (0x180023319),needs manual adjudication
+0x18003cd70,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x18000ae50),needs manual adjudication
+0x18003cd9e,93,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003d710,303,,UNCERTAIN,no distinctive reference | tier=library (unreached) | best cross-all ratio=0.711 (0x18004d200),needs manual adjudication
+0x18003e380,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.636 (0x18001a260),needs manual adjudication
+0x18003e39b,25,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.622 (0x18001941a),needs manual adjudication
+0x18003e3e5,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x18003292a),needs manual adjudication
+0x18003e400,40,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e479,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.578 (0x1800179dd),needs manual adjudication
+0x18003e4cd,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e5e9,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.578 (0x1800179dd),needs manual adjudication
+0x18003e63d,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e6e0,40,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e759,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.578 (0x1800179dd),needs manual adjudication
+0x18003e7ad,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e850,40,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e8c9,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.578 (0x1800179dd),needs manual adjudication
+0x18003e91d,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003e9c0,40,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003ea39,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.578 (0x1800179dd),needs manual adjudication
+0x18003ea8d,49,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18003eb30,134,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.575 (0x180019480),needs manual adjudication
+0x18003fec0,306,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.465 (0x18004fb60),needs manual adjudication
+0x180040330,57,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.702 (0x180019b00),needs manual adjudication
+0x1800403f0,52,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.692 (0x180019bbf),needs manual adjudication
+0x1800404aa,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.818 (0x180019c76),needs manual adjudication
+0x180040890,18,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.684 (0x18001fbf0),needs manual adjudication
+0x1800408ed,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x18001fc52),needs manual adjudication
+0x180044536,55,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800445f9,23,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800446bd,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180044720,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180044740,174,.?AV?$_Fmt_iterator_buffer@V?$back_insert_iterator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@DU_Fmt_buffer_traits@2@@std@@::vtable[0],UNCERTAIN,no distinctive reference | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180044b80,30,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"implement (plugin-owned, no rebuild match)"
+0x180045980,2,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x180055ac0),needs manual adjudication
+0x180045988,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180045995,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.600 (0x180055ada),needs manual adjudication
+0x1800459e2,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.571 (0x180055b1e),needs manual adjudication
+0x1800459f4,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x180055b2c),needs manual adjudication
+0x180045cd9,21,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.537 (0x180055f15),needs manual adjudication
+0x180045d26,20,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.558 (0x1800204df),needs manual adjudication
+0x180045d70,24,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180046050,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.750 (0x1800179b0),needs manual adjudication
+0x180046069,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004607d,19,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.737 (0x1800179dd),needs manual adjudication
+0x1800460c5,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.500 (0x180017a25),needs manual adjudication
+0x1800460d3,39,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.744 (0x180017a33),needs manual adjudication
+0x1800464d0,166,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.772 (0x1800567a0),needs manual adjudication
+0x1800466d0,183,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.501 (0x1800569a0),needs manual adjudication
+0x180046910,183,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.501 (0x1800569a0),needs manual adjudication
+0x180046dea,61,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180046ed2,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.625 (0x180020d8c),needs manual adjudication
+0x180046f00,39,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180046f90,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.833 (0x180057110),needs manual adjudication
+0x180046fbf,19,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.895 (0x180057142),needs manual adjudication
+0x180047008,60,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800470ed,6,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.727 (0x18001fbc1),needs manual adjudication
+0x1800470fe,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.909 (0x18005727c),needs manual adjudication
+0x180047140,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.917 (0x1800572b0),needs manual adjudication
+0x180047170,23,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.809 (0x1800572e0),needs manual adjudication
+0x1800471ca,111,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.349 (0x180057342),needs manual adjudication
+0x180047371,8,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004738d,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180047470,11,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004748c,26,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.565 (0x18000e3d7),needs manual adjudication
+0x1800474e3,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180038f2d),needs manual adjudication
+0x180047500,47,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.884 (0x1800576b0),"implement (plugin-owned, no rebuild match)"
+0x180047b60,194,,ABSENT-LIBRARY,import api-ms-win-crt-filesystem-l1-1-0.dll!_mkdir; import api-ms-win-crt-filesystem-l1-1-0.dll!_stat64i32 | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x180047e40,7,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.500 (0x180018540),"implement (plugin-owned, no rebuild match)"
+0x180047e5e,73,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180047f83,33,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004802d,45,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x1800483b0,35,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.452 (0x180058680),"implement (plugin-owned, no rebuild match)"
+0x18004ccd1,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.933 (0x18005d711),needs manual adjudication
+0x18004ccf3,12,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004ce40,146,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x18004d830,102,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.683 (0x18005e330),"implement (plugin-owned, no rebuild match)"
+0x18004da00,35,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.452 (0x180058680),"implement (plugin-owned, no rebuild match)"
+0x18004dfa0,67,,ABSENT-PLUGIN,no distinctive reference | prior=plugin | tier=plugin (reachable) | best cross-all ratio=0.776 (0x18005ed20),"implement (plugin-owned, no rebuild match)"
+0x18004fb6c,45,,ABSENT-LIBRARY,import KERNEL32.dll!GetTickCount64; import KERNEL32.dll!SleepConditionVariableSRW; import KERNEL32.dll!GetCurrentThreadId | prior=library | tier=library (unreached) | best cross-all ratio=0.000,"build-config / template-shape, not hand-written body"
+0x1800519f0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.846 (0x180065356),needs manual adjudication
+0x1800522c0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x1800633b0),needs manual adjudication
+0x1800523c0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.923 (0x180062f20),needs manual adjudication
+0x180052750,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x1800633b0),needs manual adjudication
+0x180052e10,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180063670),needs manual adjudication
+0x180052e50,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180063610),needs manual adjudication
+0x180052e80,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180063670),needs manual adjudication
+0x180052f30,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.846 (0x180065880),needs manual adjudication
+0x180052f70,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180063ee0),needs manual adjudication
+0x180052fe0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.846 (0x180062f20),needs manual adjudication
+0x180053010,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.846 (0x180065330),needs manual adjudication
+0x180053090,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x1800635e0),needs manual adjudication
+0x1800530c0,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180063b20),needs manual adjudication
+0x1800530f0,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180063b70),needs manual adjudication
+0x180053120,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.923 (0x1800635e0),needs manual adjudication
+0x180053150,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.923 (0x180063640),needs manual adjudication
+0x1800532d0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.846 (0x180063700),needs manual adjudication
+0x180053420,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.692 (0x180062f60),needs manual adjudication
+0x1800534e0,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.923 (0x180064e3c),needs manual adjudication
+0x180053510,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.923 (0x180062f60),needs manual adjudication
+0x180053b00,13,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.769 (0x180063670),needs manual adjudication
+0x180054540,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180065c00),needs manual adjudication
+0x180054630,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180063b50),needs manual adjudication
+0x1800546d0,9,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.889 (0x180065c00),needs manual adjudication
+0x180054970,83,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.522 (0x180066320),needs manual adjudication
+0x180054d30,10,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.667 (0x18004c970),needs manual adjudication
+0x180054d70,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.500 (0x1800302b0),needs manual adjudication
+0x180054d84,4,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180054d95,17,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180054ddc,7,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication
+0x180054dfb,19,,ABSENT-LIBRARY,import api-ms-win-crt-runtime-l1-1-0.dll!_invoke_watson | prior=library | tier=library (unreached) | best cross-all ratio=0.500 (0x18000bd60),"build-config / template-shape, not hand-written body"
+0x180055090,20,,UNCERTAIN,no distinctive reference | prior=library | tier=library (unreached) | best cross-all ratio=0.000,needs manual adjudication

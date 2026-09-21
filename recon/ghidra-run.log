@@ -1,0 +1,119 @@
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+openjdk version "21.0.12" 2026-07-21
+OpenJDK Runtime Environment (build 21.0.12+8-nixos)
+OpenJDK 64-Bit Server VM (build 21.0.12+8-nixos, mixed mode)
+INFO  Using log config file: jar:file:/nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: /home/aviallon/.config/ghidra/ghidra_12.1.2_NIX/application.log (LoggingInitialization)  
+INFO  Loading user preferences: /home/aviallon/.config/ghidra/ghidra_12.1.2_NIX/preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (943 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: NativePRNGNonBlocking (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (1929 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+INFO  HEADLESS Script Paths:
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/GnuDemangler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/WildcardAssembler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/BytePatterns/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/8051/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/MicrosoftCodeAnalyzer/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/BSim/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/PDB/ghidra_scripts
+    /home/aviallon/Projects/SexLabPPrism-re/tools/ghidra
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/DecompilerDependent/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/SystemEmulation/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/PyGhidra/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Debug/Debugger/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Base/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/JVM/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/SwiftDemangler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/Atmel/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/PIC/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Debug/Debugger-rmi-trace/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/VersionTracking/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/FunctionID/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/FileFormats/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Decompiler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/DATA/ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Opening existing project: /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism (HeadlessAnalyzer)  
+INFO  Opening project: /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism (HeadlessProject)  
+INFO  REPORT: Processing project file: /SexLabPPrism.dll (HeadlessAnalyzer)  
+INFO  ANALYZING all memory and code: /SexLabPPrism.dll (HeadlessAnalyzer)  
+WARN  Ignoring leading '_' chars on no-return name '___raise_securityfailure' specified in file: /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn (NoReturnFunctionAnalyzer)  
+WARN  Ignoring leading '_' chars on no-return name '___report_rangecheckfailure' specified in file: /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Base/data/PEFunctionsThatDoNotReturn (NoReturnFunctionAnalyzer)  
+INFO  Skipping PDB processing: missing PDB information in program metadata (PdbUniversalAnalyzer)  
+WARN  Decompiling 18003b200, pcode error at 18003c1e0: Unable to resolve constructor at 18003c1e0 (DecompileCallback)  
+INFO  Packed database cache: /home/aviallon/.cache/ghidra/packed-db-cache (PackedDatabaseCache)  
+INFO  Applied data type archive: windows_vs12_64 (ApplyDataArchiveAnalyzer)  
+WARN  Decompiling 18003bb10, pcode error at 18003c1e0: Unable to resolve constructor at 18003c1e0 (DecompileCallback)  
+WARN  Decompiling 18003b200, pcode error at 18003c1e0: Unable to resolve constructor at 18003c1e0 (DecompileCallback)  
+INFO  -----------------------------------------------------
+    ASCII Strings                              0.281 secs
+    Apply Data Archives                        0.366 secs
+    Call Convention ID                         0.012 secs
+    Call-Fixup Installer                       0.034 secs
+    Create Address Tables                      0.204 secs
+    Create Function                            0.003 secs
+    Data Reference                             0.112 secs
+    Decompiler Parameter ID                    6.169 secs
+    Decompiler Switch Analysis                 4.171 secs
+    Demangler Microsoft                        0.015 secs
+    Disassemble Entry Points                   0.228 secs
+    Embedded Media                             0.016 secs
+    External Entry References                  0.000 secs
+    Function ID                                0.821 secs
+    Function Start Search                      0.039 secs
+    Non-Returning Functions - Discovered       0.698 secs
+    Non-Returning Functions - Known            0.033 secs
+    PDB Universal                              0.003 secs
+    Reference                                  0.193 secs
+    Scalar Operand References                  0.601 secs
+    Shared Return Calls                        0.282 secs
+    Stack                                      0.229 secs
+    Subroutine References                      0.229 secs
+    Windows x86 PE Exception Handling          0.014 secs
+    Windows x86 PE RTTI Analyzer               0.001 secs
+    Windows x86 Thread Environment Block (TEB) Analyzer     0.000 secs
+    WindowsResourceReference                   0.284 secs
+    x86 Constant Reference Analyzer            2.133 secs
+-----------------------------------------------------
+     Total Time   17 secs
+-----------------------------------------------------
+ (AutoAnalysisManager)  
+INFO  REPORT: Analysis succeeded for file: /SexLabPPrism.dll (HeadlessAnalyzer)  
+INFO  REPORT: Execute script: PrismExport.java '/home/aviallon/Projects/SexLabPPrism-re/build/recon/decompiled-new' '/home/aviallon/Projects/SexLabPPrism-re/build/recon/implement-list.csv' '/home/aviallon/Projects/SexLabPPrism-re/recon/functions.txt'  (HeadlessAnalyzer)  
+INFO  SCRIPT: /home/aviallon/Projects/SexLabPPrism-re/tools/ghidra/PrismExport.java (HeadlessAnalyzer)  
+INFO  PrismExport.java> [PrismExport] renamed 53 functions (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18001f0b0 .?AVInputSink@?A0xbb2e73b6@@::vfunc[1] lines=95 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180025fc0 `anonymous-namespace'::ApplyConsoleVisibility lines=97 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180013760 FocusRecovery::`anonymous-namespace'::Finalize lines=101 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800146e0 FocusRecovery::`anonymous-namespace'::VerifyCleanup lines=146 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18002c0d0 `anonymous-namespace'::RequestSearchInput lines=86 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180014428 FocusRecovery::`anonymous-namespace'::StartConsolePulse lines=103 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800145c5 FocusRecovery::`anonymous-namespace'::VerifyCleanup lines=146 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180029120 `anonymous-namespace'::OnConsoleMessage lines=55 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180014360 FocusRecovery::`anonymous-namespace'::StartConsolePulse lines=103 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18001f5b0 `anonymous-namespace'::CreateViews::<lambda_1>::operator() lines=42 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800136b0 FocusRecovery::`anonymous-namespace'::CloseOwnedConsole lines=42 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180044740 .?AV?$_Fmt_iterator_buffer@V?$back_insert_iterator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@DU_Fmt_buffer_traits@2@@std@@::vtable[0] lines=163 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800102f0 .?AV_System_error@std@@::vtable[0] lines=21 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800158d0 .?AV_Node_base@std@@::vtable[0] lines=20 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800295a4 `anonymous-namespace'::OnMessage lines=137 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x180010070 .?AV_System_error@std@@::vtable[0] lines=18 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x1800101e0 .?AVexception@std@@::vtable[0] lines=17 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] degraded 0x18002cc20 .?AV?$_Func_impl_no_alloc@P6AXPEAUStaticFunctionTag@RE@@H@ZXPEAU12@H@std@@::vfunc[2] lines=11 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18002d930 .?AV?$_Func_impl_no_alloc@P6AXPEAUStaticFunctionTag@RE@@H_NHHV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@22HH111MV?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@4@V?$vector@HV?$allocator@H@std@@@4@H@ZXPEAU12@H_NHHV34@V34@V34@HH_N_N_NMV54@V64@H@std@@::vfunc[3] lines=9 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18002d950 .?AV?$_Func_impl_no_alloc@P6AXPEAUStaticFunctionTag@RE@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@4@@ZXPEAU12@V34@V54@@std@@::vfunc[3] lines=9 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18002d960 .?AV?$_Func_impl_no_alloc@P6AXPEAUStaticFunctionTag@RE@@V?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@11@ZXPEAU12@V34@V34@V34@@std@@::vfunc[3] lines=9 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean 0x18002d970 .?AV?$_Func_impl_no_alloc@P6AXPEAUStaticFunctionTag@RE@@V?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@std@@@ZXPEAU12@V34@@std@@::vfunc[3] lines=9 (GhidraScript)  
+INFO  PrismExport.java> [PrismExport] clean=21 degraded=1 incomplete=0 notfound=0 (GhidraScript)  
+INFO  ANALYZING changes made by post scripts: /SexLabPPrism.dll (HeadlessAnalyzer)  
+INFO  REPORT: Post-analysis succeeded for file: /SexLabPPrism.dll (HeadlessAnalyzer)  
+INFO  REPORT: Save succeeded for processed file: /SexLabPPrism.dll (HeadlessAnalyzer)  
+EXIT=0

@@ -1,0 +1,10 @@
+orig_addr,name,area,orig_insn,named
+0x18002d170,JsCatalogReset
+0x18002d340,JsCatalogDone
+0x18002e340,VersionPacker
+0x180016d20,CallCloseOwnedConsole
+0x180016c00,ThunkFinalize
+0x18002cfc0,ThunkRequestSearch
+0x18002d4a0,ThunkRequestSearch2
+0x18002d4d0,ThunkApplyPresentation
+0x18002d4e0,ThunkRequestSearch3
