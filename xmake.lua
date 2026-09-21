@@ -197,5 +197,16 @@ target(PROJECT_NAME)
         add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob2")
         -- /GL comes from the build.optimization.lto policy above.
         add_ldflags("/OPT:REF", "/OPT:ICF")
+        -- Parity measurement only: emit an MSVC linker MAP so tools/match.py
+        -- can resolve a declaration's source symbol to our function's exact
+        -- address instead of guessing the body by similarity.  The parity
+        -- artifact ships no COFF symbol table, so the map is the only symbol
+        -- oracle available.  /MAP writes a text side-file next to the DLL and
+        -- does not affect the image; gated on PRISM_LINK_MAP=1, which only the
+        -- parity CI job sets, so the shipping build stays byte-identical.
+        if os.getenv("PRISM_LINK_MAP") == "1" then
+            add_ldflags("/MAP")
+            print("[prism] parity linker map enabled (/MAP)")
+        end
     end
 target_end()

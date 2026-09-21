@@ -328,6 +328,106 @@ def load_declared(path):
     return out
 
 
+# ---------------------------------------------------------------------------
+# MSVC linker map (--map): symbol-exact binding for declarations
+# ---------------------------------------------------------------------------
+# The parity artifact ships NO COFF symbol table (number-of-symbols = 0), so a
+# declaration's source symbol cannot be looked up in the binary.  The parity CI
+# job therefore links with MSVC /MAP and uploads SexLabPPrism.map beside the
+# DLL.  This parser resolves a declaration's source symbol to a VA from that
+# map by EXACT name, instead of guessing the body by similarity.  /MAP writes a
+# text side-file only and has no effect on the linked image.
+
+# Publics-by-value / Static-symbols row:
+#   0001:0000000000001060       ?Foo@?A0x...@@YAXXZ  0000000180001060  f  obj.obj
+# The trailing "Rva+Base" column is the absolute VA (preferred load address).
+_MAP_SYM_RE = re.compile(
+    r"^\s*[0-9a-fA-F]{4}:[0-9a-fA-F]{8,16}\s+(\S+)\s+"
+    r"([0-9a-fA-F]{8,16})\s+(\S+)\s+(\S.*)$")
+
+
+def load_msvc_map(path):
+    """Parse an MSVC /MAP file into {raw_symbol: set(addr_va)}.
+
+    Only rows that carry an Rva+Base address are collected; the section table
+    rows (``0001:... 0000F000H .text CODE``) do not match because ``.text`` is
+    not a hex address.  A symbol listed at several distinct addresses is kept as
+    several entries so the resolver can reject it as ambiguous.
+    """
+    out = defaultdict(set)
+    if not path or not os.path.exists(path):
+        return out
+    for line in open(path, encoding="utf-8", errors="replace"):
+        m = _MAP_SYM_RE.match(line.rstrip("\n"))
+        if not m:
+            continue
+        sym, addr = m.group(1), int(m.group(2), 16)
+        if sym.startswith("."):
+            continue
+        out[sym].add(addr)
+    return out
+
+
+def _map_symbol_keys(addr_by_sym, name):
+    """EXACT-symbol candidate keys, never a substring/fuzzy hit.
+
+    A C-linkage symbol matches its raw name; an MSVC-mangled C++ identifier
+    embeds the identifier as ``?Name@`` (``?Foo@@YAXXZ`` at global scope,
+    ``?Foo@?A0x...@@YAXXZ`` in an anonymous namespace, ``?Foo@Ns@@YAXXZ`` in a
+    named one) so the identifier boundary is an exact prefix ``?Name@``.
+    ``?FooExtra@...`` therefore does NOT match ``Foo``.
+    """
+    keys = []
+    if name in addr_by_sym:
+        keys.append(name)
+    pref = "?" + name + "@"
+    for raw in addr_by_sym:
+        if raw.startswith(pref):
+            keys.append(raw)
+    return keys
+
+
+def resolve_map_symbol(addr_by_sym, name, text_lo, text_hi):
+    """Resolve a source symbol to a VA.  Returns (addr, "") or (None, reason).
+
+    A declaration resolves ONLY on an exact symbol match.  A missing symbol, a
+    symbol that resolves to several distinct addresses, and a symbol whose
+    address is outside the rebuild's .text range are all rejected with a reason;
+    the caller then leaves the original MISSING (never a fabricated pair).
+    """
+    if not name:
+        return None, "empty symbol"
+    keys = _map_symbol_keys(addr_by_sym, name)
+    if not keys:
+        return None, "symbol not found"
+    addrs = set()
+    for k in keys:
+        addrs |= addr_by_sym[k]
+    if len(addrs) > 1:
+        return None, f"duplicate symbol ({len(addrs)} addresses)"
+    addr = addrs.pop()
+    if not (text_lo <= addr < text_hi):
+        return None, "address outside .text"
+    return addr, ""
+
+
+def declared_map_symbol(dec):
+    """The source symbol to resolve for a declaration row.
+
+    RECONSTRUCTED rows carry the function name directly.  PRESENT-UNPAIRED rows
+    carry a file:line in that column (the body lives elsewhere); their evidence
+    text names the claimed symbol, so take its last ``::`` component there.
+    """
+    sym = (dec.get("our_symbol_or_source_location") or "").strip()
+    if sym and not re.search(r"\.(?:cpp|h|hpp|cxx|cc):\d+$", sym) \
+            and not sym.startswith("src/"):
+        return sym
+    m = re.search(r"claims\s+`?([^`>]+?)`?\s*->", dec.get("evidence", ""))
+    if m:
+        return m.group(1).strip().strip("`'").split("::")[-1].strip()
+    return ""
+
+
 def _jaccard(ca, cb):
     inter = sum((ca & cb).values())
     tot = sum(ca.values()) + sum(cb.values()) - inter
@@ -375,7 +475,8 @@ def find_declared_candidate(fo, fn, i, pool, counters, min_ratio):
     return best[0], best[1], above
 
 
-def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50):
+def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50,
+                   map_resolver=None):
     """Seed declared pairs and return (pairs, unmA, unmB, rows).
 
     Declarations never displace an existing pair: a declared original that is
@@ -385,6 +486,11 @@ def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50):
     (or pinned by ``our_new_addr`` in the CSV); the pair is then scored with the
     normal verdicts(), so a real byte/insn match is still reported as such and
     anything less is DECLARED-DIVERGENT, which is NOT a match.
+
+    ``map_resolver(name) -> (addr|None, reason)`` switches the binding to
+    symbol-exact: the declared source symbol is looked up in the rebuild's
+    linker map.  When it is supplied, the similarity screen is NOT used as a
+    fallback - an unresolvable symbol stays MISSING with its reason recorded.
     """
     pair_by_i = {p["i"]: p for p in pairs}
     j2 = {fn[j]["addr"]: j for j in range(len(fn))}
@@ -403,7 +509,8 @@ def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50):
                "tier": "", "orig_insn": len(f["tokens"]),
                "declared_symbol": sym, "evidence": ev, "round": dec.get("round", ""),
                "kind": kind, "binding": "", "new_addr": "", "our_insn": "",
-               "bytematch": 0, "insn": 0, "ratio": 0.0, "verdict": ""}
+               "bytematch": 0, "insn": 0, "ratio": 0.0, "verdict": "",
+               "map_symbol": "", "map_reason": ""}
         if i in pair_by_i:
             p = pair_by_i[i]
             row.update(binding="existing-pair", new_addr=hex(fn[p["j"]]["addr"]),
@@ -413,14 +520,38 @@ def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50):
             rows.append(row)
             continue
         j, r, above = None, 0.0, 0
+        if map_resolver is not None:
+            name = declared_map_symbol(dec)
+            addr, reason = map_resolver(name)
+            row["binding"] = "map"
+            row["map_symbol"] = name
+            if addr is None:
+                row["map_reason"] = reason
+                row["verdict"] = MISSING
+                rows.append(row)
+                continue
+            j = j2.get(addr)
+            if j is None:
+                row["map_reason"] = f"address {hex(addr)} not in inventory"
+                row["verdict"] = MISSING
+                rows.append(row)
+                continue
+            if j not in pool:
+                row["map_reason"] = "target function already paired"
+                row["verdict"] = MISSING
+                rows.append(row)
+                continue
+            pool.remove(j)
+            r = SequenceMatcher(None, f["tokens"], fn[j]["tokens"],
+                                autojunk=False).ratio()
         pin = dec.get("our_new_addr", "").strip()
-        if pin:
+        if map_resolver is None and pin:
             j = j2.get(int(pin, 16)) if re.match(r"^(0x)?[0-9a-fA-F]+$", pin) else None
             if j is not None:
                 r = SequenceMatcher(None, f["tokens"], fn[j]["tokens"],
                                     autojunk=False).ratio()
                 row["binding"] = "pinned"
-        if j is None:
+        if map_resolver is None and j is None:
             j, r, above = find_declared_candidate(fo, fn, i, pool, counters, min_ratio)
             row["binding"] = "best-ratio"
             if j is not None:
@@ -656,7 +787,8 @@ def write_declared(out_csv, out_md, declared_rows, fo, fn, pairs, name_map,
     with open(out_csv, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=["orig_addr", "name", "tier", "orig_insn",
                                            "declared_symbol", "evidence", "round",
-                                           "kind", "binding", "new_addr", "our_insn",
+                                           "kind", "binding", "map_symbol",
+                                           "map_reason", "new_addr", "our_insn",
                                            "bytematch", "insn", "ratio", "verdict",
                                            "real_function"])
         w.writeheader()
@@ -884,6 +1016,12 @@ def main():
                     help="minimum token ratio for binding a declared original "
                          "to an unpaired rebuild function (default 0.50).  "
                          "Below it the declared address stays MISSING.")
+    ap.add_argument("--map", default=None, metavar="MAP",
+                    help="MSVC /MAP linker map for the rebuild DLL.  When given, "
+                         "a declaration's source symbol is bound to our "
+                         "function's ADDRESS by exact map lookup instead of "
+                         "being guessed by similarity.  Off by default; a "
+                         "missing map file falls back to similarity binding.")
     ap.add_argument("--declared-out", default="recon/declared-verdicts.csv")
     ap.add_argument("--declared-report", default="recon/declared-report.md")
     args = ap.parse_args()
@@ -928,11 +1066,35 @@ def main():
     else:
         pairs, unmA, unmB = pair(fo, fn)
     declared_rows = None
+    map_resolver = None
+    map_counts = None
     if args.declared:
         verdicts(fo, fn, pairs)   # so existing pairs carry bytematch/insn/ratio
         declared = load_declared(args.declared)
+        if args.map:
+            sym2addr = load_msvc_map(args.map)
+            if not sym2addr:
+                print(f"warning: map {args.map!r} missing or has no symbols; "
+                      f"falling back to similarity binding")
+            else:
+                text = pe_n.section(".text")
+                lo = pe_n.image_base + text["va"]
+                hi = lo + max(text["vsize"], text["rsize"])
+
+                def map_resolver(name, _s=sym2addr, _lo=lo, _hi=hi):
+                    return resolve_map_symbol(_s, name, _lo, _hi)
+
+                print(f"map {args.map}: {len(sym2addr)} symbols, "
+                      f".text {hex(lo)}..{hex(hi)}")
         pairs, unmA, unmB, declared_rows = apply_declared(
-            fo, fn, pairs, unmA, unmB, declared, args.declared_min_ratio)
+            fo, fn, pairs, unmA, unmB, declared, args.declared_min_ratio,
+            map_resolver)
+        if map_resolver is not None:
+            map_counts = Counter((r.get("map_reason") or "resolved")
+                                 for r in declared_rows
+                                 if r.get("binding") == "map")
+            print("map binding: " + "  ".join(
+                f"{k}={v}" for k, v in sorted(map_counts.items())))
     verdicts(fo, fn, pairs)
 
     infolding = None
@@ -987,6 +1149,11 @@ def main():
         jout["declared"] = {"csv": args.declared,
                             "min_ratio": args.declared_min_ratio,
                             "counts": dict(declared_kinds)}
+        if args.map:
+            jout["declared"]["map"] = {
+                "path": args.map,
+                "symbols": sum(len(v) for v in load_msvc_map(args.map).values()),
+                "binding": dict(map_counts or {})}
     dec_by_addr = {}
     if declared_rows is not None:
         dec_by_addr = {r["orig_addr"]: r for r in declared_rows}
@@ -1013,6 +1180,8 @@ def main():
             row["declared_symbol"] = r["declared_symbol"] if r else ""
             row["declared_evidence"] = r["evidence"] if r else ""
             row["declared_binding"] = r["binding"] if r else ""
+            row["declared_map_symbol"] = r.get("map_symbol", "") if r else ""
+            row["declared_map_reason"] = r.get("map_reason", "") if r else ""
         if infolding is not None and f["addr"] in infolding:
             r = infolding[f["addr"]]
             row["missing_class"] = r["class"]

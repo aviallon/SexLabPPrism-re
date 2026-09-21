@@ -45,6 +45,10 @@ on:
         description: "Parity sweep: xmake-repo commit to check out before configuring (default/empty = image's repo)"
         required: false
         default: ""
+      parity_link_map:
+        description: "Parity job: 1 = emit the /MAP symbol oracle (default), 0 = omit it. Use 0 for the /MAP binary-neutrality A/B against a run with 1 on the same commit."
+        required: false
+        default: "1"
 
 permissions:
   contents: read
@@ -213,6 +217,11 @@ jobs:
       # oracle. Default the parity job to `off`; the other scopes stay
       # selectable for the sweep.
       PRISM_LTO_SCOPE: ${{ github.event.inputs.lto_scope || 'off' }}
+      # Measurement instrument, not parity config: emit SexLabPPrism.map beside
+      # the parity DLL so tools/match.py --map can bind declarations by exact
+      # symbol. /MAP writes a text side-file only and does not change the image.
+      # The shipping `build` job does NOT set this.
+      PRISM_LINK_MAP: ${{ github.event.inputs.parity_link_map || '1' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -305,14 +314,30 @@ jobs:
           python tools/check_linker.py "$dll" 14.44
           mkdir -p parity-out
           cp "$dll" parity-out/SexLabPPrism-parity.dll
+          # The symbol oracle for tools/match.py --map. With PRISM_LINK_MAP=1
+          # fail loudly if /MAP did not produce it: without it every declared
+          # row falls back to the similarity screen.  PRISM_LINK_MAP=0 is the
+          # neutrality A/B (same commit, no map): no oracle, no failure.
+          if [ "${PRISM_LINK_MAP:-1}" = "1" ]; then
+            map=$(find build -name SexLabPPrism.map -type f | head -1)
+            [ -n "$map" ] || { echo "::error::SexLabPPrism.map not found (/MAP did not run)"; exit 1; }
+            cp "$map" parity-out/SexLabPPrism.map
+            echo "  staged map: $map"
+          else
+            echo "  PRISM_LINK_MAP=0: no map staged (neutrality A/B)"
+          fi
 
       - name: Report hashes
         shell: bash
         run: |
           sha256sum parity-out/SexLabPPrism-parity.dll | sed 's/^/  dll  /'
+          if [ -f parity-out/SexLabPPrism.map ]; then
+            sha256sum parity-out/SexLabPPrism.map | sed 's/^/  map  /'
+            echo "  map symbols  $(grep -cE '^ [0-9a-f]{4}:[0-9a-f]{8,16} ' parity-out/SexLabPPrism.map || true)"
+          fi
           echo "  commonlib  $COMMONLIB_REV"
 
       - uses: actions/upload-artifact@v4
         with:
           name: SexLabPPrism-0.6.1-parity
-          path: parity-out/SexLabPPrism-parity.dll
+          path: parity-out/

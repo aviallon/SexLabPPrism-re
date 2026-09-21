@@ -191,13 +191,13 @@ namespace
 
 	// -----------------------------------------------------------------------
 	// 0x1800374f0 (plugin, 20 insns) and 0x1800390b0 (plugin, 21 insns) —
-	// REL::IDDatabase lookups returning a dereferenced address. Three-word ID
-	// literals are resolved via id2offset (REL::IDDatabase::id2offset), the
-	// module base comes from +0x110 of the resolved entry
-	// (FUN_18001bc40), and the second id2offset result indexes it. GUESS:
+	// REL::IDDatabase lookups returning a dereferenced address. The body below
+	// reconstructs both: IdLookup_7e3b3 (0x1800374f0) uses the id triple
+	// {0x7e3b3, 0x6285f, 0x7e3b3}; IdLookup_615a0 (0x1800390b0) uses the
+	// .rdata triple at 0x1800615a0. Three-word ID literals are resolved by the
+	// local offset helper, the module base comes from +0x110 of the resolved
+	// entry (FUN_18001bc40), and the second offset result indexes it. GUESS:
 	// REL::Relocation<...>::address for two Address-Library ids.
-	//   0x1800374f0 literals: {0x7e3b3, 0x6285f, 0x7e3b3}
-	//   0x1800390b0 literals: the .rdata triple at 0x1800615a0
 	// -----------------------------------------------------------------------
 	struct RelIdTriple
 	{
