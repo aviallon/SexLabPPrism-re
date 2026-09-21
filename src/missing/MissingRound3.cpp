@@ -1,3 +1,4 @@
+#include <cstring>  // memcpy (MSVC has no __builtin_memcpy; the clang syntax check accepted it)
 // src/missing/MissingRound3.cpp — round-3 residue reconstructions.
 //
 // OWNER: missing7 (grind/missing7). This file covers the MISSING real
@@ -118,7 +119,7 @@ namespace
 	static Mg7ViewElem* mg7_RehomeStringViews(Mg7ViewElem* a_src, u64 a_count, Mg7ViewElem* a_dst)
 	{
 		while (a_count != 0) {
-			__builtin_memcpy(a_dst, a_src, 0x60);
+			memcpy(a_dst, a_src, 0x60);
 			// std::string default: inline buffer, size 0, capacity 0xf.
 			*reinterpret_cast<u64*>(a_dst->owner.storage) = 0;
 			a_dst->owner.size = 0;
