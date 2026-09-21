@@ -78,7 +78,10 @@ SKSE_EXPORT bool SKSEPlugin_Query(SKSE::QueryInterface*, SKSE::PluginInfo* a_inf
 #include "missing/MissingRound2Group2.h"
 #include "missing/MissingRound2Group3.h"
 #include "missing/MissingRound3.h"
-#include "missing/MissingRound4.h"
+
+// Round 4 has no header (its own file declares the entry point only), so it is
+// declared here: without the call /Gy + /OPT:REF strips PublishVitalsState.
+extern "C" void ForceLink_MissingRound4();
 
 SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
