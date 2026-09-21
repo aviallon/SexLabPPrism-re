@@ -626,7 +626,18 @@ def build_functions(pe, insns):
     for b, e, uw in sorted(pdata, key=lambda t: t[0]):
         if e <= b:
             continue
-        if merged and merged[-1][1] == b:
+        # MSVC splits one function into several RUNTIME_FUNCTION entries; only a
+        # CONTINUATION record carries UNW_FLAG_CHAININFO (0x4) in its UNWIND_INFO.
+        # Merging on mere ADJACENCY chains different functions that happen to sit
+        # next to each other with no padding, which inflates their measured size
+        # (found on real cases: 0x180047140 read as 207 instructions instead of
+        # 12). UNWIND_INFO byte 0 is Version:3 | Flags:5.
+        chain = False
+        o = pe.rva2off(uw) if isinstance(uw, int) else None
+        if o is not None:
+            flags = (pe.data[o] >> 3) & 0x1F
+            chain = bool(flags & 0x4)  # UNW_FLAG_CHAININFO
+        if merged and chain and merged[-1][1] == b:
             merged[-1] = (merged[-1][0], e, merged[-1][2])
         else:
             merged.append((b, e, uw))
