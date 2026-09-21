@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <format>
 #include <mutex>
 #include <string>
 #include <string_view>
@@ -147,7 +148,14 @@ namespace
 #line 480 "src\\main.cpp"
 		logger::info("Catalog build started: {} registered scenes expected", a_total);
 #line 112
-		UiBridge::InvokeJs("slppCatalogReset", std::to_string(a_total));
+		// The original's own `Papyrus_CatalogBegin::`2'::<lambda_1>` (0x18002d170),
+		// capturing the expected total (32-bit, [this+8]) and formatting its own JS
+		// text into InvokeOn (0x180028190):
+		//   window.slppCatalogReset({});window.slppCatalogProgress(0,{});
+		SKSE::GetTaskInterface()->AddTask([total = a_total]() {
+			PrismaUI::InvokeOn(std::format(
+				"window.slppCatalogReset({});window.slppCatalogProgress(0,{});", total, total));
+		});
 	}
 
 	// 0x180029740 — append records, refresh the FNV-1a id -> index map.
@@ -237,7 +245,12 @@ namespace
 #line 547 "src\\main.cpp"
 		logger::info("Catalog build finished: {} scenes in {} ms", count, ms);
 #line 150
-		UiBridge::InvokeJs("slppCatalogDone", std::to_string(count));
+		// The original's `Papyrus_CatalogFinish::`2'::<lambda_1>` (0x18002d340),
+		// capturing the record count (64-bit, [this+8]); it formats
+		//   window.slppCatalogDone({});  and hands it to InvokeOn.
+		SKSE::GetTaskInterface()->AddTask([count]() {
+			PrismaUI::InvokeOn(std::format("window.slppCatalogDone({});", count));
+		});
 	}
 
 	// 0x18002a8a0 — 9-byte leaf: movzx byte [ready].
@@ -253,18 +266,25 @@ namespace
 		return static_cast<std::int32_t>(g_catalogRecords.size());
 	}
 
-	// 0x18002a6e0 — hand the cached catalogue to the UI.
+	// 0x18002a6e0 — the cache is already in the UI; re-assert the total.
+	//
+	// The original copies no records: it reads the count under the lock, logs it
+	// and queues its own `Papyrus_CatalogPublish::`2'::<lambda_1>` (0x18002d340,
+	// the same ICF-folded body as CatalogFinish's), capturing the 64-bit count and
+	// formatting `window.slppCatalogDone({});` into InvokeOn.
 	void Papyrus_CatalogPublish(RE::StaticFunctionTag*)
 	{
-		std::vector<Catalog::Record> snapshot;
+		std::size_t count = 0;
 		{
 			std::lock_guard lock{ g_catalogMutex };
-			snapshot = g_catalogRecords;
+			count = g_catalogRecords.size();
 		}
 #line 577 "src\\main.cpp"
-		logger::info("Catalog session cache reused: {} scenes already in UI", snapshot.size());
+		logger::info("Catalog session cache reused: {} scenes already in UI", count);
 #line 177
-		UiBridge::PushCatalog(RowsJson(snapshot), static_cast<std::int32_t>(snapshot.size()));
+		SKSE::GetTaskInterface()->AddTask([count]() {
+			PrismaUI::InvokeOn(std::format("window.slppCatalogDone({});", count));
+		});
 	}
 }  // namespace
 
