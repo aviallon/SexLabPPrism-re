@@ -10,6 +10,34 @@
 #include <string>
 #include <string_view>
 
+// 0x18002c0d0, 88 instructions: the `slppSearchRequest` JS callback. It lives in
+// the original's global anonymous namespace (src\main.cpp), so it is defined at
+// file scope here. It only fires while a scene is active in camera mode with
+// the interface shown and the Prisma bridge connected; the modal-search latch
+// (DAT_18009c1cb) makes it idempotent.
+namespace
+{
+	void RequestSearchInput(const char* a_currentText)
+	{
+		if (!(SceneState::IsSceneActive() && !SceneState::IsUiMode() &&
+				!SceneState::IsInterfaceHidden() && PrismaUI::IsAvailable())) {
+			return;
+		}
+		if (SceneState::IsModalSearchOpen()) {
+			logger::info("Modal search request ignored: menu already open");
+			return;
+		}
+		SceneState::SetModalSearchOpen(true);
+		const std::string text{ a_currentText ? a_currentText : "" };
+		auto* const       task = SKSE::GetTaskInterface();
+		if (task) {
+			// Original queues a lambda that drives the Prisma search UI; the JS
+			// entry point it calls was not extracted (marked gap).
+			task->AddTask([text]() { PrismaUI::InvokeJs("slppOpenSearch", text); });
+		}
+	}
+}  // namespace
+
 namespace ActionDispatch
 {
 	namespace
@@ -60,12 +88,9 @@ namespace ActionDispatch
 
 	void HandleSearchRequest(const char* a_currentText)
 	{
-		// The click on the read-only search box asks the controller to open the
-		// text-entry menu. The controller later calls the SetSearchQuery native
-		// with the typed result (recon/PAPYRUS-CONTRACT.md §2). `a_currentText`
-		// (the current filter) is only informational for the log.
-		logger::info("Prisma search requested (current '{}')", a_currentText ? a_currentText : "");
-		SendModEvent("SLPPPrism_SearchRequest", a_currentText ? a_currentText : "", 0.0F);
+		// The registered JS trampoline; the recovered body is the file-scope
+		// RequestSearchInput (see above).
+		::RequestSearchInput(a_currentText);
 	}
 
 	void SetCollapsed(bool a_collapsed, const char* a_source)
