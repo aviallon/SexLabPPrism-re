@@ -44,6 +44,7 @@ CSVOUT = "recon/matching.csv"
 SYMBOLS = "recon/symbols.csv"
 
 BYTE, INSN, RATIO, MISSING = "BYTE-MATCH", "INSN-MATCH", "RATIO", "MISSING"
+DECLARED = "DECLARED-DIVERGENT"   # a declared pair that is NOT a real match
 
 RELOC_TYPE_SIZE = {1: 2, 2: 4, 3: 4, 4: 8, 5: 8, 10: 8}
 
@@ -285,6 +286,10 @@ def verdicts(fo, fn, pairs):
             p["verdict"] = BYTE
         elif p["insn"]:
             p["verdict"] = INSN
+        elif p.get("declared"):
+            # an explicit declaration whose body does not actually match:
+            # reported separately, NEVER counted as a match.
+            p["verdict"] = DECLARED
         else:
             p["verdict"] = RATIO
     return pairs
@@ -297,6 +302,153 @@ def first_div(a, b):
     if len(a) != len(b):
         return min(len(a), len(b))
     return None
+
+
+# ---------------------------------------------------------------------------
+# declared pairs (tools/extract_declared.py -> recon/declared-mappings.csv)
+# ---------------------------------------------------------------------------
+
+def load_declared(path):
+    """Read a declared-mappings CSV into {orig_addr: row}.
+
+    Required columns: orig_addr, our_symbol_or_source_location, evidence, round
+    (kind and an optional our_new_addr override are accepted).  The declaration
+    is a claim of intent, NEVER a match: it says *our function S was written to
+    implement original address A*.  It is only ever used to propose the pair
+    (A, S); the verdict is still computed from bytes/tokens.
+    """
+    out = {}
+    if not path or not os.path.exists(path):
+        return out
+    for row in csv.DictReader(open(path, encoding="utf-8")):
+        a = row.get("orig_addr", "").strip()
+        if not re.match(r"^(0x)?[0-9a-fA-F]+$", a):
+            continue
+        out[int(a, 16)] = row
+    return out
+
+
+def _jaccard(ca, cb):
+    inter = sum((ca & cb).values())
+    tot = sum(ca.values()) + sum(cb.values()) - inter
+    return inter / tot if tot else 0.0
+
+
+def _tok_counter(tokens):
+    c = Counter()
+    for t in tokens:
+        c[t] += 1
+    return c
+
+
+def find_declared_candidate(fo, fn, i, pool, counters, min_ratio):
+    """Pick the rebuild function that best implements original ``i``.
+
+    This is the *retrieval* step only: the declaration supplies the intent
+    (which source body), the similarity search locates that body's compiled
+    function among the still-unpaired rebuild functions.  Candidates are
+    screened by instruction count window and token Jaccard, then scored with
+    the same SequenceMatcher ratio the harness uses elsewhere.  A candidate
+    that does not clear ``min_ratio`` is not bound at all, so the declared
+    address stays MISSING (never a fabricated pair).
+    """
+    toks = fo[i]["tokens"]
+    n = len(toks)
+    if not toks:
+        return None, 0.0, 0
+    ct = _tok_counter(toks)
+    best = (None, 0.0)
+    above = 0
+    for j in pool:
+        m = len(fn[j]["tokens"])
+        if m == 0 or m < n * 0.45 or m > n * 2.2:
+            continue
+        if _jaccard(ct, counters[j]) < 0.25:
+            continue
+        r = SequenceMatcher(None, toks, fn[j]["tokens"], autojunk=False).ratio()
+        if r >= min_ratio:
+            above += 1
+        if r > best[1]:
+            best = (j, r)
+    if best[1] < min_ratio:
+        return None, best[1], above
+    return best[0], best[1], above
+
+
+def apply_declared(fo, fn, pairs, unmA, unmB, declared, min_ratio=0.50):
+    """Seed declared pairs and return (pairs, unmA, unmB, rows).
+
+    Declarations never displace an existing pair: a declared original that is
+    already paired keeps its verdict (rule: a declaration must not turn a
+    BYTE-MATCH into something else).  For a declared original that is still
+    MISSING, the target rebuild function is located among the unpaired pool
+    (or pinned by ``our_new_addr`` in the CSV); the pair is then scored with the
+    normal verdicts(), so a real byte/insn match is still reported as such and
+    anything less is DECLARED-DIVERGENT, which is NOT a match.
+    """
+    pair_by_i = {p["i"]: p for p in pairs}
+    j2 = {fn[j]["addr"]: j for j in range(len(fn))}
+    pool = list(unmB)
+    counters = {j: _tok_counter(fn[j]["tokens"]) for j in pool}
+    rows = []
+    seeded = []
+    for i, f in enumerate(fo):
+        dec = declared.get(f["addr"])
+        if dec is None:
+            continue
+        sym = dec.get("our_symbol_or_source_location", "")
+        ev = dec.get("evidence", "")
+        kind = dec.get("kind", "declared")
+        row = {"orig_addr": hex(f["addr"]), "name": fo[i].get("name") or "",
+               "tier": "", "orig_insn": len(f["tokens"]),
+               "declared_symbol": sym, "evidence": ev, "round": dec.get("round", ""),
+               "kind": kind, "binding": "", "new_addr": "", "our_insn": "",
+               "bytematch": 0, "insn": 0, "ratio": 0.0, "verdict": ""}
+        if i in pair_by_i:
+            p = pair_by_i[i]
+            row.update(binding="existing-pair", new_addr=hex(fn[p["j"]]["addr"]),
+                       our_insn=len(fn[p["j"]]["tokens"]), bytematch=int(p["bytematch"]),
+                       insn=int(p["insn"]), ratio=round(p["ratio"], 6),
+                       verdict=p["verdict"])
+            rows.append(row)
+            continue
+        j, r, above = None, 0.0, 0
+        pin = dec.get("our_new_addr", "").strip()
+        if pin:
+            j = j2.get(int(pin, 16)) if re.match(r"^(0x)?[0-9a-fA-F]+$", pin) else None
+            if j is not None:
+                r = SequenceMatcher(None, f["tokens"], fn[j]["tokens"],
+                                    autojunk=False).ratio()
+                row["binding"] = "pinned"
+        if j is None:
+            j, r, above = find_declared_candidate(fo, fn, i, pool, counters, min_ratio)
+            row["binding"] = "best-ratio"
+            if j is not None:
+                pool.remove(j)
+        if j is None:
+            row["verdict"] = MISSING
+            row["ratio"] = round(r, 6)
+            rows.append(row)
+            continue
+        p = {"i": i, "j": j, "ratio": 1.0, "verdict": RATIO, "pass": "declared"}
+        seeded.append(p)
+        pair_by_i[i] = p
+        row.update(new_addr=hex(fn[j]["addr"]), our_insn=len(fn[j]["tokens"]),
+                   ratio=round(r, 6), binding=row["binding"] or "best-ratio")
+        rows.append(row)
+    if seeded:
+        for p in seeded:
+            p["declared"] = True
+        verdicts(fo, fn, seeded)
+        pairs = pairs + seeded
+        # fill the verdict fields from the (now) paired rows
+        by_addr = {hex(fo[p["i"]]["addr"]): p for p in seeded}
+        for row in rows:
+            p = by_addr.get(row["orig_addr"])
+            if p is not None:
+                row.update(bytematch=int(p["bytematch"]), insn=int(p["insn"]),
+                           ratio=round(p["ratio"], 6), verdict=p["verdict"])
+    return pairs, [i for i in range(len(fo)) if i not in pair_by_i], pool, rows
 
 
 # ---------------------------------------------------------------------------
@@ -456,7 +608,9 @@ def write_report(path, fo, fn, pairs, unmA, name_map, tier_map, masked):
     allt = tiers["all"]
     A("## Overall\n")
     A(f"- original functions: {allt['orig_funcs']}")
-    for k in (BYTE, INSN, RATIO, MISSING):
+    for k in (BYTE, INSN, RATIO, MISSING, DECLARED):
+        if k == DECLARED and not allt["counts"].get(k):
+            continue
         A(f"- {k}: {allt['counts'].get(k, 0)}")
     pct_f = 100.0 * allt["counts"].get(BYTE, 0) / max(allt["orig_funcs"], 1)
     pct_i = 100.0 * allt["byte_insn"] / max(allt["orig_insn"], 1)
@@ -488,6 +642,54 @@ def write_report(path, fo, fn, pairs, unmA, name_map, tier_map, masked):
     A("")
     open(path, "w", encoding="utf-8").write("\n".join(L) + "\n")
     return tiers
+
+
+def write_declared(out_csv, out_md, declared_rows, fo, fn, pairs, name_map,
+                   tier_map, pdata_addrs):
+    """Write the declared-pair audit CSV and the honest split.
+
+    A DECLARED-DIVERGENT row is a pair that a source declaration claims but
+    whose bytes/instructions do NOT match.  It is never a match.
+    """
+    order = {hex(a): a for a in pdata_addrs}
+    pair_by_i = {p["i"]: p for p in pairs}
+    with open(out_csv, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=["orig_addr", "name", "tier", "orig_insn",
+                                           "declared_symbol", "evidence", "round",
+                                           "kind", "binding", "new_addr", "our_insn",
+                                           "bytematch", "insn", "ratio", "verdict",
+                                           "real_function"])
+        w.writeheader()
+        for r in sorted(declared_rows, key=lambda r: -r["orig_insn"]):
+            f = next((f for f in fo if hex(f["addr"]) == r["orig_addr"]), None)
+            r["name"] = name_map.get(f["addr"]) or (f.get("name") if f else "") or ""
+            r["tier"] = tier_map.get(f["addr"], "") if f else ""
+            r["real_function"] = int(f["addr"] in pdata_addrs) if f else 0
+            w.writerow(r)
+    L = ["# Declared pairs — audit (DECLARED-DIVERGENT is NOT a match)\n"]
+    A = L.append
+    kinds = Counter(r["verdict"] for r in declared_rows)
+    A(f"declarations in CSV: {len(declared_rows)}")
+    for k in (BYTE, INSN, DECLARED, MISSING):
+        if kinds.get(k):
+            A(f"- {k}: {kinds.get(k, 0)}")
+    real = [r for r in declared_rows if int(r.get("real_function", 0))]
+    A(f"\ndeclared rows that are REAL (unwind-entry) functions: {len(real)}")
+    rc = Counter(r["verdict"] for r in real)
+    for k in (BYTE, INSN, DECLARED, MISSING):
+        if rc.get(k):
+            A(f"- {k}: {rc.get(k, 0)} "
+              f"({sum(r['orig_insn'] for r in real if r['verdict'] == k)} insn)")
+    A("\n## DECLARED-DIVERGENT rows (claim of intent, no match)\n")
+    A("| orig | symbol | src evidence | new | orig insn | our insn | ratio |")
+    A("|---|---|---|---|---|---|---|")
+    for r in sorted((r for r in declared_rows if r["verdict"] == DECLARED),
+                    key=lambda r: -r["orig_insn"]):
+        A(f"| {r['orig_addr']} | {r['declared_symbol'][:40]} | {r['evidence']} | "
+          f"{r['new_addr']} | {r['orig_insn']} | {r['our_insn']} | {r['ratio']:.4f} |")
+    A("")
+    open(out_md, "w", encoding="utf-8").write("\n".join(L) + "\n")
+    return kinds, rc, real
 
 
 # ---------------------------------------------------------------------------
@@ -672,6 +874,18 @@ def main():
                          "only: it never adds, removes or changes a pair, and "
                          "PRESENT-INFOLDED is reported as its own bucket, never "
                          "as matched.")
+    ap.add_argument("--declared", default=None, metavar="CSV",
+                    help="seed evidence-based declared pairs from a mappings CSV "
+                         "(tools/extract_declared.py).  Off by default so "
+                         "previous numbers stay comparable.  A declared pair "
+                         "whose bytes do not match is reported as "
+                         f"{DECLARED}, which is NOT a match.")
+    ap.add_argument("--declared-min-ratio", type=float, default=0.50,
+                    help="minimum token ratio for binding a declared original "
+                         "to an unpaired rebuild function (default 0.50).  "
+                         "Below it the declared address stays MISSING.")
+    ap.add_argument("--declared-out", default="recon/declared-verdicts.csv")
+    ap.add_argument("--declared-report", default="recon/declared-report.md")
     args = ap.parse_args()
 
     name_map = load_symbols()
@@ -713,6 +927,12 @@ def main():
             f"{k}={v}" for k, v in sorted(id_meta["anchors"].items())))
     else:
         pairs, unmA, unmB = pair(fo, fn)
+    declared_rows = None
+    if args.declared:
+        verdicts(fo, fn, pairs)   # so existing pairs carry bytematch/insn/ratio
+        declared = load_declared(args.declared)
+        pairs, unmA, unmB, declared_rows = apply_declared(
+            fo, fn, pairs, unmA, unmB, declared, args.declared_min_ratio)
     verdicts(fo, fn, pairs)
 
     infolding = None
@@ -749,6 +969,13 @@ def main():
     tiers = write_report(REPORT, fo, fn, pairs, unmA, name_map, tier_map, masked)
     rows = write_csv(CSVOUT, fo, fn, pairs, unmA, name_map, tier_map)
 
+    declared_kinds = None
+    if declared_rows is not None:
+        pdata_addrs = {b for b, e, _ in pe_o.parse_pdata() if e > b}
+        declared_kinds, _rc, _real = write_declared(
+            args.declared_out, args.declared_report, declared_rows, fo, fn,
+            pairs, name_map, tier_map, pdata_addrs)
+
     pbyi = {p["i"]: p for p in pairs}
     jout = {
         "harness": "tools/match.py",
@@ -756,6 +983,13 @@ def main():
         "masking": masked,
         "functions": [],
     }
+    if declared_rows is not None:
+        jout["declared"] = {"csv": args.declared,
+                            "min_ratio": args.declared_min_ratio,
+                            "counts": dict(declared_kinds)}
+    dec_by_addr = {}
+    if declared_rows is not None:
+        dec_by_addr = {r["orig_addr"]: r for r in declared_rows}
     for i, f in enumerate(fo):
         p = pbyi.get(i)
         row = {
@@ -773,6 +1007,12 @@ def main():
             "anchor": p.get("anchor") if p else None,
             "confidence": p.get("confidence") if p else None,
         }
+        if p and p.get("declared"):
+            r = dec_by_addr.get(hex(f["addr"]))
+            row["declared"] = True
+            row["declared_symbol"] = r["declared_symbol"] if r else ""
+            row["declared_evidence"] = r["evidence"] if r else ""
+            row["declared_binding"] = r["binding"] if r else ""
         if infolding is not None and f["addr"] in infolding:
             r = infolding[f["addr"]]
             row["missing_class"] = r["class"]
@@ -786,7 +1026,8 @@ def main():
     c = allt["counts"]
     print(f"orig functions {allt['orig_funcs']}, rebuild {len(fn)}")
     print(f"BYTE-MATCH {c.get(BYTE,0)}  INSN-MATCH {c.get(INSN,0)}  "
-          f"RATIO {c.get(RATIO,0)}  MISSING {c.get(MISSING,0)}")
+          f"RATIO {c.get(RATIO,0)}  MISSING {c.get(MISSING,0)}"
+          + (f"  {DECLARED} {c.get(DECLARED,0)}" if c.get(DECLARED) else ""))
     print(f"function-weighted {100.0*c.get(BYTE,0)/max(allt['orig_funcs'],1):.2f}%  "
           f"instruction-weighted {100.0*allt['byte_insn']/max(allt['orig_insn'],1):.2f}%")
     for tier in ("plugin", "library"):
@@ -801,6 +1042,9 @@ def main():
     print(f"base-relocation table entries: orig {ro} / rebuild {rn} "
           f"(all in .rdata/.data, none in .text)")
     print(f"wrote {REPORT}, {CSVOUT}")
+    if declared_rows is not None:
+        print(f"declared: {dict(declared_kinds)}  wrote {args.declared_out}, "
+              f"{args.declared_report}")
     return 0
 
 

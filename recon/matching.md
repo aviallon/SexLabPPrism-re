@@ -1,43 +1,44 @@
 # Matching decompilation scoreboard
 
 Original: `artifacts/SexLabPPrism.dll`  |  Rebuild: `artifacts/rebuild/SexLabPPrism-parity-lto.dll`
-Verdict basis: BYTE-MATCH = INSN-MATCH plus identical bytes after masking address-encoding bytes (55708 orig / 67574 rebuild bytes inside function windows, over 1972/2454 instructions); plus base-relocation-table bytes (1533 orig / 1524 rebuild entries) and a trailing-padding strip.
+Verdict basis: BYTE-MATCH = INSN-MATCH plus identical bytes after masking address-encoding bytes (71874 orig / 92968 rebuild bytes inside function windows, over 1580/2278 instructions); plus base-relocation-table bytes (1533 orig / 1673 rebuild entries) and a trailing-padding strip.
 
 ## Overall
 
-- original functions: 2149
-- BYTE-MATCH: 1070
-- INSN-MATCH: 16
-- RATIO: 329
-- MISSING: 734
-- matching, function-weighted: **49.79%**
-- matching, instruction-weighted: **36.11%** (31737/87894 orig instructions)
+- original functions: 1645
+- BYTE-MATCH: 861
+- INSN-MATCH: 40
+- RATIO: 271
+- MISSING: 445
+- DECLARED-DIVERGENT: 28
+- matching, function-weighted: **52.34%**
+- matching, instruction-weighted: **49.00%** (43076/87918 orig instructions)
 
 ## Per tier
 
 | tier | funcs | BYTE | INSN | RATIO | MISSING | byte% | insn% |
 |---|---|---|---|---|---|---|---|
-| plugin | 399 | 180 | 1 | 144 | 74 | 45.1 | 26.5 |
-| library | 1750 | 890 | 15 | 185 | 660 | 50.9 | 41.3 |
-| all | 2149 | 1070 | 16 | 329 | 734 | 49.8 | 36.1 |
+| plugin | 498 | 310 | 5 | 142 | 34 | 62.2 | 53.2 |
+| library | 1147 | 551 | 35 | 129 | 411 | 48.0 | 43.2 |
+| all | 1645 | 861 | 40 | 271 | 445 | 52.3 | 49.0 |
 
 ## Closest to matching (unmatched by bytes)
 
 | orig | name | tier | orig insn | our insn | ratio | first div |
 |---|---|---|---|---|---|---|
-| 0x180023a80 |  | library | 7 | 7 | 1.0000 | None |
-| 0x1800312f0 |  | library | 7 | 7 | 1.0000 | None |
-| 0x180031440 |  | library | 5 | 5 | 1.0000 | None |
-| 0x180048265 |  | library | 13 | 13 | 1.0000 | None |
-| 0x1800505c8 |  | library | 19 | 19 | 1.0000 | None |
-| 0x180050604 |  | library | 35 | 35 | 1.0000 | None |
-| 0x18005074c |  | library | 14 | 14 | 1.0000 | None |
-| 0x180050778 |  | plugin | 17 | 17 | 1.0000 | None |
-| 0x180050b64 |  | library | 67 | 67 | 1.0000 | None |
-| 0x180050c7c |  | library | 34 | 34 | 1.0000 | None |
-| 0x180050e68 |  | library | 155 | 155 | 1.0000 | None |
-| 0x180051498 |  | library | 39 | 39 | 1.0000 | None |
-| 0x180051690 |  | library | 9 | 9 | 1.0000 | None |
-| 0x180054ef0 |  | library | 28 | 28 | 1.0000 | None |
-| 0x180054fb0 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180010bf0 |  | library | 16 | 16 | 1.0000 | None |
+| 0x180031520 |  | library | 19 | 19 | 1.0000 | None |
+| 0x180037e90 |  | plugin | 42 | 42 | 1.0000 | None |
+| 0x180037f90 |  | library | 3 | 3 | 1.0000 | None |
+| 0x180038270 |  | plugin | 5 | 5 | 1.0000 | None |
+| 0x180038290 |  | plugin | 5 | 5 | 1.0000 | None |
+| 0x1800382c0 |  | plugin | 5 | 5 | 1.0000 | None |
+| 0x180047e20 |  | plugin | 5 | 5 | 1.0000 | None |
+| 0x180051fb0 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180052120 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180052470 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180052550 |  | library | 13 | 13 | 1.0000 | None |
+| 0x1800526b0 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180052790 |  | library | 13 | 13 | 1.0000 | None |
+| 0x180052840 |  | library | 60 | 60 | 1.0000 | None |
 
