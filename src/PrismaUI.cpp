@@ -138,19 +138,16 @@ namespace PrismaUI
 		// ANSI variant, not the wide one.
 		const auto mod = REX::W32::GetModuleHandleA(kPluginDll.data());
 		if (!mod) {
-			logger::warn("PrismaUI API not found");
 			return false;
 		}
 		const auto request = reinterpret_cast<RequestPluginApiFn>(
 			REX::W32::GetProcAddress(mod, kExportName.data()));
 		if (!request) {
-			logger::warn("PrismaUI API not found");
 			return false;
 		}
 
 		void* const iface = request(kApiVersion);
 		if (!iface) {
-			logger::warn("PrismaUI API not found");
 			return false;
 		}
 		g_state.iface = iface;

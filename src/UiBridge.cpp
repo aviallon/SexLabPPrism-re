@@ -1,6 +1,7 @@
 #include "UiBridge.h"
 
 #include "PCH.h"
+#include "Presentation.h"
 #include "PrismaUI.h"
 
 #include <format>
@@ -8,6 +9,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <string_view>
 
 // The original's src\main.cpp compiled these two script bodies at global
 // anonymous-namespace scope (mangled `anonymous-namespace'::JsCatalogReset` /
@@ -24,6 +26,7 @@ namespace
 	// args; both slots read the lambda's 32-bit capture at [this+8]) and hands
 	// the result to InvokeOn (0x180028190), which guards on view + connected +
 	// slot 0x60 before executing it via slot 0x08.
+	__declspec(noinline)
 	void JsCatalogReset(std::int32_t a_total)
 	{
 		PrismaUI::InvokeOn(std::format(
@@ -33,9 +36,55 @@ namespace
 	// 0x18002d340 (67 insns): the catalog completion sibling.
 	//   "window.slppCatalogDone({});" — one placeholder, arg read as a 64-bit
 	//   capture at [this+8], again through InvokeOn.
+	// noinline: it has exactly one caller (the PublishCatalogToUi body below),
+	// so LTCG would otherwise fold the 67-instruction body into that caller and
+	// the linker would drop the standalone function the matcher looks for.
+	__declspec(noinline)
 	void JsCatalogDone(std::int64_t a_total)
 	{
 		PrismaUI::InvokeOn(std::format("window.slppCatalogDone({});", a_total));
+	}
+
+	// JSON-string escape for a JS argument (the original pre-quotes the modal
+	// search text through the shared helper before pasting it into the script).
+	std::string QuoteForJs(std::string_view a_text)
+	{
+		std::string out;
+		out.reserve(a_text.size() + 2);
+		out += '"';
+		for (const char c : a_text) {
+			if (c == '"' || c == '\\') {
+				out += '\\';
+			}
+			out += c;
+		}
+		out += '"';
+		return out;
+	}
+
+	// 0x180024450 (152 insns), the outlined body of `PushState`'s sibling lambda:
+	// the queued `Papyrus_SetSearchQuery` task. The original builds
+	//   window.slppSetSearchQuery(<quoted query>);
+	// and hands it to InvokeOn, then re-applies the presentation. Without this
+	// out-of-line body the only caller is the task lambda and LTCG inlines it.
+	__declspec(noinline)
+	void PushSearchQueryBody(std::string a_query)
+	{
+		PrismaUI::InvokeOn(std::format("window.slppSetSearchQuery({});", QuoteForJs(a_query)));
+		Presentation::ApplyPresentation();
+	}
+
+	// 0x1800250f0 (302 insns): the outlined body of `PushState(void)::<lambda_1>`,
+	// the task Papyrus_PublishSceneState queues. It re-derives the presentation,
+	// then publishes the SAME current scene-state JSON to BOTH window.slppState
+	// and window.slppVitals (the vitals panel consumes the identical payload).
+	// The original reads the global JSON (DAT_18009c190); our copy carries it.
+	__declspec(noinline)
+	void PushStateBody(std::string a_json)
+	{
+		Presentation::ApplyPresentation();
+		PrismaUI::InvokeOn(std::format("window.slppState({});", a_json));
+		PrismaUI::InvokeOn(std::format("window.slppVitals({});", a_json));
 	}
 }  // namespace
 
@@ -68,7 +117,7 @@ namespace UiBridge
 	void PushState(std::string_view a_json)
 	{
 		const std::string json{ a_json };
-		QueueOnGameThread([json]() { PrismaUI::InvokeJs("slppState", json); });
+		QueueOnGameThread([json]() { PushStateBody(json); });
 	}
 
 	void PushCompatible(std::string_view a_json)
@@ -80,7 +129,7 @@ namespace UiBridge
 	void SetSearchQuery(std::string_view a_query)
 	{
 		const std::string query{ a_query };
-		QueueOnGameThread([query]() { PrismaUI::InvokeJs("slppSetSearchQuery", query); });
+		QueueOnGameThread([query]() { PushSearchQueryBody(query); });
 	}
 
 	void PushCatalog(std::string_view a_rowsJson, std::int32_t a_total)
