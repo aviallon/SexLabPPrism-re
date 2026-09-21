@@ -485,6 +485,13 @@ namespace
 
 extern "C" void ForceLink_MissingGroup3()
 {
-	volatile const void* sink = kForce3[0];
+	// Consume EVERY element, for the same reason group 2 documents: reading only
+	// kForce3[0] lets the optimiser fold the table away and /OPT:REF then strips
+	// every body, making this whole group invisible to the comparison. Verified
+	// with llvm-nm in group 2. Matching-decomp force-link, not behaviour.
+	volatile unsigned long long sink = 0;
+	for (unsigned i = 0; i < sizeof(kForce3) / sizeof(kForce3[0]); ++i) {
+		sink ^= reinterpret_cast<unsigned long long>(kForce3[i]);
+	}
 	(void)sink;
 }

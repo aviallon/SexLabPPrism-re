@@ -146,6 +146,14 @@ const void* const kForceMissingGroup1[] = {
 }  // namespace
 
 extern "C" void ForceLink_MissingGroup1() {
-    volatile const void* sink = kForceMissingGroup1[0];
+    // Consume EVERY element. Observing only index 0 lets the optimiser
+    // constant-fold the rest of the table away, after which /OPT:REF strips those
+    // bodies from the DLL entirely and they can never be compared - verified with
+    // llvm-nm in the sibling group. This is a matching-decomp force-link, not
+    // behaviour: nothing in the plugin calls it except this one entry point.
+    volatile unsigned long long sink = 0;
+    for (unsigned i = 0; i < sizeof(kForceMissingGroup1) / sizeof(kForceMissingGroup1[0]); ++i) {
+        sink ^= reinterpret_cast<unsigned long long>(kForceMissingGroup1[i]);
+    }
     (void)sink;
 }

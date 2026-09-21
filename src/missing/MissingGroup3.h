@@ -10,3 +10,6 @@
 namespace MissingGroup3
 {
 }  // namespace MissingGroup3
+
+// Called once from src/main.cpp. Without it /Gy + /OPT:REF strip every body.
+extern "C" void ForceLink_MissingGroup3();
