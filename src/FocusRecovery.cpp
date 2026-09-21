@@ -31,6 +31,8 @@ namespace FocusRecovery
 		const std::atomic<bool>* g_uiMode      = nullptr;
 
 		void VerifyCleanup(std::uint64_t a_generation, int a_attempt, bool a_ownFocus);
+		void StartConsolePulse(std::uint64_t a_generation);
+		void CloseConsolePulse(std::uint64_t a_generation);
 
 		[[nodiscard]] bool IsCurrent(std::uint64_t a_generation)
 		{
@@ -63,6 +65,22 @@ namespace FocusRecovery
 				logger::info("FocusRecovery: closing recovery console");
 				Presentation::ApplyConsoleVisibility(true);
 			}
+		}
+
+		// 0x180016d20 (17 insns): FocusRecovery::`anonymous-namespace'::CloseConsolePulse.
+		// The original closes the recovery console immediately, then schedules a
+		// follow-up through the task interface with a 0x78 (120 ms) delay
+		// (FUN_180013f20(task, 0x78, fn)). The captured generation is carried into
+		// the delayed lambda; the delay argument is not reproduced here because
+		// the SKSE TaskInterface wrapper exposes no delayed AddTask (marked gap).
+		void CloseConsolePulse(std::uint64_t a_generation)
+		{
+			CloseOwnedConsole();
+			auto* const task = SKSE::GetTaskInterface();
+			if (!task) {
+				return;
+			}
+			task->AddTask([a_generation]() { VerifyCleanup(a_generation, kMaxUnfocusAttempts, false); });
 		}
 
 		// 0x180013760: re-read every focus slot and log the seven-slot final line;
@@ -105,11 +123,9 @@ namespace FocusRecovery
 				return;
 			}
 			logger::info("FocusRecovery: pulsing Console to rebuild Skyrim mouse/menu input state (anyPrismaFocus={})", PrismaUI::IsFocused());
-			Presentation::ApplyConsoleVisibility(true);
-			// The original schedules the actual CloseOwnedConsole/ForceHide via the
-			// task interface with a 0xb4 ms delay (FUN_180013f20); the delay is not
-			// reproduced here (marked gap).
-			CloseOwnedConsole();
+			// 0x180016d20: the original closes the console and schedules the
+			// follow-up with a 0xb4/0x78 ms delay via FUN_180013f20.
+			CloseConsolePulse(a_generation);
 		}
 
 		// 0x180013408: wait for the Prisma view to release focus, retrying the

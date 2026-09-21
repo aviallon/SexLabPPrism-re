@@ -54,6 +54,15 @@ namespace PrismaUI
 	// runs an arbitrary expression through the same slot. See
 	// PrismaUI_vtbl.h for the evidence; the retired 0x88 guess is gone.
 	void InvokeJs(const char* a_functionName, std::string_view a_argument);
+
+	// The original's `anonymous-namespace'::InvokeOn(void* view, const bool* connected,
+	// const std::string& code)` (0x180028190): the single guarded C++->JS entry.
+	// It bails unless the view exists, `*connected` is true and the interface is
+	// non-null, then guards on the view-usability query at vtable slot 0x60 and
+	// tail-calls ExecuteJs (slot 0x08) with the NUL-terminated script bytes. The
+	// fmt-formatted `window.slpp...(...)` script bodies call this directly.
+	void InvokeOn(const std::string& a_code);
+
 	void ExecuteJs(const char* a_code);
 
 	// --- focus helpers (used by FocusRecovery / Presentation) ------------------

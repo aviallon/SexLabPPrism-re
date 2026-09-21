@@ -192,6 +192,37 @@ namespace PrismaUI
 		return true;
 	}
 
+	void InvokeOn(const std::string& a_code)
+	{
+		// 0x180028190: the ORIGINAL's single guarded C++->JS entry.
+		//   if (!view || !*connected || !iface) log-skip
+		//   if (!slot60(iface, view))            log-skip
+		//   slot08(iface, view, code.c_str(), nullptr)
+		// `connected` is the view's DOM-ready latch; in our state it is
+		// g_domReady (the original's DAT_18009c1c8). IsAvailable() already
+		// covers view/iface, so only the latch and the usability query remain.
+		if (!IsAvailable() || !g_domReady) {
+			return;
+		}
+		static_assert(kLayoutConfirmed, "PrismaUI vtable layout not confirmed");
+
+		// The view-usability query at slot 0x60, logged with the recovered
+		// message (strings.txt:151/199) when it fails.
+		if (const auto query = Slot<QueryViewFn>(g_state.iface, V::kQueryView);
+			query && !query(g_state.iface, g_state.view)) {
+			logger::warn("Invoke skipped, view {} not usable ({} bytes)", "<script>", a_code.size());
+			return;
+		}
+
+		// C++ -> JS: slot 0x08 executes a JS expression. The original loads the
+		// RequestPluginAPI(1) handle (DAT_18009c1b0), guards with slot 0x60, then
+		// tail-jumps `*0x8(%rax)` with the std::string bytes as r8. Slot 0x10 is
+		// only cross-checked on RequestPluginAPI(0), so 0x08 is correct here.
+		if (const auto call = Slot<ExecuteJsFn>(g_state.iface, V::kExecuteJs)) {
+			call(g_state.iface, g_state.view, a_code.c_str(), nullptr);
+		}
+	}
+
 	void InvokeJs(const char* a_functionName, std::string_view a_argument)
 	{
 		if (!IsAvailable()) {
@@ -202,23 +233,7 @@ namespace PrismaUI
 			}
 			return;
 		}
-		static_assert(kLayoutConfirmed, "PrismaUI vtable layout not confirmed");
 
-		// The original's InvokeOn (0x180028190) guards every C++->JS call with
-		// the view-usability query at slot 0x60 and logs the recovered message
-		// when it fails (strings.txt:198). Mirror that guard here so the stream
-		// includes the same call.
-		if (const auto query = Slot<QueryViewFn>(g_state.iface, V::kQueryView);
-			query && !query(g_state.iface, g_state.view)) {
-			logger::warn("Invoke skipped, view {} not usable ({} bytes)", a_functionName, a_argument.size());
-			return;
-		}
-
-		// C++ -> JS: slot 0x08 executes a JS expression. This is the path the
-		// ORIGINAL uses: InvokeOn (0x180028190) loads the RequestPluginAPI(1)
-		// handle (DAT_18009c1b0), guards with slot 0x60, then tail-jumps
-		// `*0x8(%rax)` with the std::string bytes as r8. Slot 0x10 is only
-		// cross-checked on RequestPluginAPI(0), so 0x08 is the correct call here.
 		// Build `window.<name>(<arg>)`, quoting `arg` when it is not already a
 		// JSON/number/boolean literal (the only such caller is the raw search
 		// query). The controller page defines the receivers as window.slpp*.
@@ -246,9 +261,7 @@ namespace PrismaUI
 		}
 		code += ')';
 
-		if (const auto call = Slot<ExecuteJsFn>(g_state.iface, V::kExecuteJs)) {
-			call(g_state.iface, g_state.view, code.c_str(), nullptr);
-		}
+		InvokeOn(code);
 	}
 
 	void ExecuteJs(const char* a_code)
