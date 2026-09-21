@@ -38,7 +38,7 @@ on:
         required: false
         default: ""
       lto_scope:
-        description: "Parity sweep: LTCG scope - target (default: our TUs), clng (CLNG only), project (both), off"
+        description: "Parity sweep: LTCG scope - off (default: no /GL, matches the original's log/call shapes), target (our TUs /GL), clng (CLNG only), project (both)"
         required: false
         default: ""
       xmake_repo_ref:
@@ -194,8 +194,25 @@ jobs:
     env:
       # `ng` HEAD at the original binary's own timestamp (2026-07-19).
       COMMONLIB_PARITY_REV: 1cc6b3999eb92b4d86fe08be28011ba679980081
-      # target (default) | clng | project | off. See build/xmake.lua.
-      PRISM_LTO_SCOPE: ${{ github.event.inputs.lto_scope || '' }}
+      # target | clng | project | off. See build/xmake.lua.
+      #
+      # 2026-09-21 (grind/logshape): the parity job used to default to
+      # `target` (/GL on our TUs). Measured against `off` that is WRONG:
+      # every no-LTO parity artifact (ci-parity/SexLabPPrism-parity.dll,
+      # 933/1495 real BYTE) carries the original's call shapes, while every
+      # /GL artifact (parity-lto*, parity-r3..r7, 847/848) does not:
+      #   * spdlog `log_<Args>`: no-LTO = 19 generic bodies, 0 specialised;
+      #     /GL = 9 generic, 16-18 clones with the level constant folded
+      #     (`cmp ebx,0x2`) -- the original is 21 generic, 0 specialised.
+      #   * `_Mtx_lock`: no-LTO = 30/30 direct calls to the `jmp [IAT]`
+      #     thunk, 0 direct-IAT; /GL = 16 thunk + 21 direct-IAT; the original
+      #     is 37/37 thunk, 0 direct-IAT.
+      # So the link-shape differences are an LTCG regression, not a missing
+      # flag. The `target` scoreboard number was only ever compared against
+      # other /GL scopes; the no-LTO parity score (933) was never used as the
+      # oracle. Default the parity job to `off`; the other scopes stay
+      # selectable for the sweep.
+      PRISM_LTO_SCOPE: ${{ github.event.inputs.lto_scope || 'off' }}
     steps:
       - uses: actions/checkout@v4
 

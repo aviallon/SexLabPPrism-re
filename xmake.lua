@@ -78,7 +78,14 @@ prism_pin("rapidcsv", os.getenv("PRISM_RAPIDCSV_VERSION"))
 --                       author's InputSink still calls a standalone
 --                       FocusRecovery function (no cross-TU inlining)
 --   project           - project-wide policy: CLNG and this target both /GL
---   off               - no LTO at all
+--   off               - no LTO at all.  Measured 2026-09-21 (grind/logshape):
+--                       `off` (no /GL on our TUs) is the config that matches the
+--                       original's log/lock call shapes -- spdlog `log_` stays
+--                       generic (r8d = level) and `_Mtx_lock` goes through the
+--                       link-time `jmp [IAT]` thunk, exactly as in the original.
+--                       Every /GL scope folds the level into a specialised
+--                       `log_` clone and emits direct-IAT lock calls. The parity
+--                       job therefore defaults to `off`; see docs/logshape.md.
 -- PRISM_NO_LTO=1 is kept as an alias for off. The policy MUST be set before
 -- includes() so it reaches CLNG's target; setting it earlier is also what
 -- exposes the LNK2001 __std_regex_transform_primary_char question (see
