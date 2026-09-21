@@ -666,6 +666,12 @@ def main():
                     help="pair by identity anchors (tools/pair_identity.py) "
                          "instead of structural similarity; keeps every pair's "
                          "anchor/confidence")
+    ap.add_argument("--infolding", action="store_true",
+                    help="classify MISSING originals by WHY they are missing "
+                         "(PRESENT-INFOLDED / ABSENT / UNKNOWN).  Measurement "
+                         "only: it never adds, removes or changes a pair, and "
+                         "PRESENT-INFOLDED is reported as its own bucket, never "
+                         "as matched.")
     args = ap.parse_args()
 
     name_map = load_symbols()
@@ -689,7 +695,7 @@ def main():
         return 0 if passed == total else 1
 
     pe_o, fo, mo, ro = build_side(args.orig)
-    _, fn, mn, rn = build_side(args.new)
+    pe_n, fn, mn, rn = build_side(args.new)
     # Tier classifier: computed here from the original's exports / plugin
     # string+RTTI refs / registration table / call reachability, exactly as
     # tools/parity.py does.  Do not depend on a stale external report whose
@@ -708,6 +714,25 @@ def main():
     else:
         pairs, unmA, unmB = pair(fo, fn)
     verdicts(fo, fn, pairs)
+
+    infolding = None
+    if args.infolding:
+        import pair_identity as _pi
+        import parity_names as _N
+        import pairfix_infolding as _FI
+        o_side = _pi.Side(pe_o, fo, _N.recover_rtti(args.orig),
+                          _N.load_recon_names(pe_o))
+        n_side = _pi.Side(pe_n, fn, _N.recover_rtti(args.new), None)
+        vmap = {f["addr"]: MISSING for f in fo}
+        for p in pairs:
+            vmap[fo[p["i"]]["addr"]] = p["verdict"]
+        src = _FI.source_literals(
+            os.path.join(os.path.dirname(HERE), "src"))
+        infolding = _FI.classify_missing(fo, pairs, vmap, o_side, n_side, src)
+        lines, counts, insn = _FI.summarise("MISSING classified",
+                                            sorted(infolding.values(),
+                                                   key=lambda r: -r["orig_insn"]))
+        print("\n".join(lines))
 
     if args.focus:
         return focus(fo, fn, pairs, name_map, args.focus, args.context)
@@ -733,7 +758,7 @@ def main():
     }
     for i, f in enumerate(fo):
         p = pbyi.get(i)
-        jout["functions"].append({
+        row = {
             "orig_addr": hex(f["addr"]),
             "name": name_map.get(f["addr"]) or f.get("name") or "",
             "tier": tier_map.get(f["addr"]) or "library",
@@ -747,7 +772,12 @@ def main():
             "first_div": p["first_div"] if p else None,
             "anchor": p.get("anchor") if p else None,
             "confidence": p.get("confidence") if p else None,
-        })
+        }
+        if infolding is not None and f["addr"] in infolding:
+            r = infolding[f["addr"]]
+            row["missing_class"] = r["class"]
+            row["missing_evidence"] = r["evidence"]
+        jout["functions"].append(row)
     if id_meta:
         jout["identity"] = id_meta
     json.dump(jout, open(OUTJSON, "w"), indent=1)
