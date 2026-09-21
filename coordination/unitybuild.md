@@ -35,18 +35,21 @@ the old `?A0xd1b633de`/`?A0xf42b6800` are gone.
 
 ## BLOCKER / request to the owners of src/
 
-The unity TU currently still contains nested anonymous namespaces in
-`PrismaUI.cpp`, `ActionDispatch.cpp`, `UiBridge.cpp`, `InputSink.cpp` and
-`MenuVisibilitySink.cpp`. The original has only TWO unnamed namespaces, so
-FocusRecovery's cannot be the second one (its token `a6da2f39` stays wrong) and
-the extra `@PrismaUI`/`@InputSink`/`@MenuVisibilitySink` tokens are spurious.
-Fix is a source-shape change, outside my ownership: move those nested helpers
-into the **global** anonymous namespace (or make them `static` members of the
-named namespace), exactly as the original's `function@?A0xbb2e73b6@@` form
-requires. `bridgeparams` already does this for InputSink/MenuVisibilitySink
-(top-level classes). `ActionDispatch::anon` (ActionOf/ArgOf + DispatchAction),
-`UiBridge::anon` (QueueOnGameThread + PushState/PushCompatible) and
-`PrismaUI::anon` still need it.
+After rebasing on `main` @ `40227ab`, `bridgeparams` has landed and
+`InputSink`/`MenuVisibilitySink` are top-level, so their spurious
+`@InputSink`/`@MenuVisibilitySink` tokens are gone from the unity object. The
+unity object still has one spurious nested token, `@PrismaUI`, plus nested
+anonymous namespaces in `ActionDispatch.cpp` and `UiBridge.cpp` that emit no
+RTTI string but still count as extra unnamed namespaces. The original has only
+TWO unnamed namespaces, so FocusRecovery cannot be the second one until those
+are flattened. `grind/anonns` owns PrismaUI/ActionDispatch/UiBridge now.
+
+Separately, `src/Papyrus/CatalogNatives.cpp` (split out by `catalogbody`)
+cannot join the farm: its global anonymous namespace redefines `kClassName` and
+`QuoteJson`, which `Natives.cpp` also defines -> compile error. It stays a
+separate TU (its own `?A0x` token) until `catalogbody` shares those helpers via
+a header. This is a second, independent reason one catalog token will not match
+this round.
 
 ## CI prediction (do not queue until round-9 pair lands)
 
@@ -58,8 +61,11 @@ requires. `bridgeparams` already does this for InputSink/MenuVisibilitySink
   layout alone. This build decides it.
 - `_Func_impl_no_alloc` count: unity relabels existing wrappers; it does not
   add the 7 missing ones (that is source shape, tasklambda/bridgeparams).
-- Expect no regression below r8's 988/1495 real BYTE-MATCH (pairing is
-  structural, `tools/match.py::pair`).
+- No-regression baseline is the CORRECTED inventory (main 40227ab merges
+  contiguous .pdata fragments): r8 = 535/911 real BYTE (58.7%),
+  instruction-weighted 44.7%, MISSING 95; r9pair = 549/911 (60.3%), 46.0%,
+  MISSING 86. Expect no regression below those (pairing is structural,
+  `tools/match.py::pair`).
 
 Request: queue ONE parity build (`lto_scope=off`) after the round-9 pair is in
 `main`; I will rebase `grind/unitybuild` and ask again if the shapes moved.
