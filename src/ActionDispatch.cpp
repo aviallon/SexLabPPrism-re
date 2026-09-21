@@ -17,6 +17,21 @@
 // (DAT_18009c1cb) makes it idempotent.
 namespace
 {
+	// `action|arg` split of a JS action payload. The original's HandleAction uses
+	// these two helpers at file scope (they live in the unity TU's GLOBAL
+	// anonymous namespace, not in a nested `ActionDispatch::anonymous-namespace`).
+	std::string_view ActionOf(std::string_view a_payload)
+	{
+		const auto bar = a_payload.find('|');
+		return bar == std::string_view::npos ? a_payload : a_payload.substr(0, bar);
+	}
+
+	std::string_view ArgOf(std::string_view a_payload)
+	{
+		const auto bar = a_payload.find('|');
+		return bar == std::string_view::npos ? std::string_view{} : a_payload.substr(bar + 1);
+	}
+
 	void RequestSearchInput(const char* a_currentText)
 	{
 		if (!(SceneState::IsSceneActive() && !SceneState::IsUiMode() &&
@@ -40,21 +55,6 @@ namespace
 
 namespace ActionDispatch
 {
-	namespace
-	{
-		std::string_view ActionOf(std::string_view a_payload)
-		{
-			const auto bar = a_payload.find('|');
-			return bar == std::string_view::npos ? a_payload : a_payload.substr(0, bar);
-		}
-
-		std::string_view ArgOf(std::string_view a_payload)
-		{
-			const auto bar = a_payload.find('|');
-			return bar == std::string_view::npos ? std::string_view{} : a_payload.substr(bar + 1);
-		}
-	}  // namespace
-
 	void SendModEvent(const char* a_eventName, const char* a_strArg, float a_numArg)
 	{
 		auto* const source = SKSE::GetModCallbackEventSource();

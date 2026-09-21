@@ -7,12 +7,18 @@
 #include <cstring>
 #include <string>
 
-// 0x180029120, 48 instructions: the PRISMA_UI_API console-message sink installed
-// at vtable slot 0xa8 by CreateViews. It lives in the original's global
-// anonymous namespace (src\main.cpp), hence file scope here so the baked
-// __FUNCSIG__ recovers as ``anonymous-namespace'::OnConsoleMessage``.
+// The original keeps every PrismaUI helper in the unity TU's GLOBAL anonymous
+// namespace (`?A0xbb2e73b6`): the recovered __FUNCSIG__s read
+// ``anonymous-namespace'::OnConsoleMessage`` / ``anonymous-namespace'::Slot``,
+// never `PrismaUI::anonymous-namespace'::...`. Keep this block at file scope so
+// the unity TU has exactly one global unnamed namespace (plus FocusRecovery's
+// nested one).
 namespace
 {
+	// 0x180029120, 48 instructions: the PRISMA_UI_API console-message sink installed
+	// at vtable slot 0xa8 by CreateViews. It lives in the original's global
+	// anonymous namespace (src\main.cpp), hence file scope here so the baked
+	// __FUNCSIG__ recovers as ``anonymous-namespace'::OnConsoleMessage``.
 	// void OnConsoleMessage(unsigned __int64 view, ConsoleMessageLevel, const char*)
 	void OnConsoleMessage(std::uint64_t, int a_level, const char* a_message)
 	{
@@ -22,103 +28,100 @@ namespace
 		// the call shape and format string are preserved.
 		logger::info("[{}] {}", a_level, a_message ? a_message : "");
 	}
+
+	constexpr std::string_view kPluginDll  = "PrismaUI.dll"sv;
+	constexpr std::string_view kExportName = "RequestPluginAPI"sv;
+	constexpr std::string_view kViewPath   = "SexLabPPrism/controller-0.6.1.html"sv;
+	constexpr int              kApiVersion = 1;
+
+	// Recovered IVPrismaUI1 layout: see PrismaUI_vtbl.h for the evidence
+	// (offset, argument registers, cross-check call sites in
+	// PrismaUITeleportMenu.dll). Never infer an offset from a name here.
+	namespace V = PrismaUI::vtbl;
+
+	// The layout is confirmed for every slot the original itself calls
+	// (0x00/0x18/0x40/0x70/0xa8) and cross-checked for the JS invocation
+	// slots (0x08/0x10). InvokeJs may therefore call the interface now.
+	constexpr bool kLayoutConfirmed = true;
+
+	// void* __cdecl RequestPluginAPI(int version)
+	using RequestPluginApiFn = void* (*)(int);
+
+	using CreateViewFn = V::CreateViewFn;
+	using RegisterCallbackFn = V::RegisterCallbackFn;
+	using ViewFlagsFn = V::SetViewFlagsFn;
+	using ConsoleHandlerFn = V::SetConsoleSinkFn;
+	using DomReadyFn = V::ApplyViewFn;
+	using InvokeFunctionFn = V::InvokeFunctionFn;
+	using ExecuteJsFn = V::ExecuteJsFn;
+	using SetInteractiveFn = V::SetInteractiveFn;
+	using QueryFocusFn = V::QueryFocusFn;
+	using IsFocusedFn = V::IsFocusedFn;
+	using UnfocusFn = V::UnfocusFn;
+	using QueryViewFn = V::QueryViewFn;
+
+	struct State
+	{
+		void* iface = nullptr;
+		void* view  = nullptr;
+	};
+
+	State   g_state;
+	bool    g_created = false;
+	bool    g_domReady = false;
+
+	template <class Fn>
+	Fn Slot(void* a_iface, std::size_t a_byteOffset)
+	{
+		// The single legal dereference of the external interface vtable.
+		auto** const vtbl = *static_cast<void***>(a_iface);
+		void*        raw  = vtbl[a_byteOffset / sizeof(void*)];
+		Fn           fn{};
+		static_assert(sizeof(fn) == sizeof(raw));
+		std::memcpy(&fn, &raw, sizeof(fn));
+		return fn;
+	}
+
+	// --- JS trampolines (CreateViews::<lambda_N> in the original) ----------
+
+	// CreateViews::<lambda_1>::operator()(unsigned __int64) const
+	// (0x18001f5b0, recon/strings.txt:45). The view-ready completion: the
+	// original receives the CreateView result and logs; it is wired as the
+	// creation callback below. Kept as a named trampoline because a C++
+	// lambda cannot be referenced from the vtable-call helper without also
+	// changing the callback ABI.
+	void OnViewCreated(std::uint64_t a_view)
+	{
+		// Original (0x18001f5b0): set the "DOM ready" atomic DAT_18009c1c8 =
+		// 1, log, then queue PushState() and PushCompatible() on the task
+		// interface. UiBridge's push helpers need a JSON payload the lambda
+		// does not carry here, so only the latch + log are reproduced (the two
+		// queued pushes are a marked gap).
+		g_domReady = true;
+		logger::info("Controller view DOM ready");
+		(void)a_view;
+	}
+
+	void OnSlppReady(const char* a_arg)
+	{
+		ActionDispatch::HandleReady(a_arg);
+	}
+	void OnSlppLog(const char* a_arg)
+	{
+		ActionDispatch::HandleLog(a_arg);
+	}
+	void OnSlppCatalogRetry(const char* a_arg)
+	{
+		ActionDispatch::HandleCatalogRetry(a_arg);
+	}
+	void OnSlppCollapsed(const char* a_arg)
+	{
+		ActionDispatch::SetCollapsed(a_arg != nullptr && a_arg[0] != '0' && a_arg[0] != '\0', "slppCollapsed");
+	}
 }  // namespace
 
 namespace PrismaUI
 {
-	namespace
-	{
-		constexpr std::string_view kPluginDll  = "PrismaUI.dll"sv;
-		constexpr std::string_view kExportName = "RequestPluginAPI"sv;
-		constexpr std::string_view kViewPath   = "SexLabPPrism/controller-0.6.1.html"sv;
-		constexpr int              kApiVersion = 1;
-
-		// Recovered IVPrismaUI1 layout: see PrismaUI_vtbl.h for the evidence
-		// (offset, argument registers, cross-check call sites in
-		// PrismaUITeleportMenu.dll). Never infer an offset from a name here.
-		namespace V = vtbl;
-
-		// The layout is confirmed for every slot the original itself calls
-		// (0x00/0x18/0x40/0x70/0xa8) and cross-checked for the JS invocation
-		// slots (0x08/0x10). InvokeJs may therefore call the interface now.
-		constexpr bool kLayoutConfirmed = true;
-
-		// void* __cdecl RequestPluginAPI(int version)
-		using RequestPluginApiFn = void* (*)(int);
-
-		using CreateViewFn = V::CreateViewFn;
-		using RegisterCallbackFn = V::RegisterCallbackFn;
-		using ViewFlagsFn = V::SetViewFlagsFn;
-		using ConsoleHandlerFn = V::SetConsoleSinkFn;
-		using DomReadyFn = V::ApplyViewFn;
-		using InvokeFunctionFn = V::InvokeFunctionFn;
-		using ExecuteJsFn = V::ExecuteJsFn;
-		using SetInteractiveFn = V::SetInteractiveFn;
-		using QueryFocusFn = V::QueryFocusFn;
-		using IsFocusedFn = V::IsFocusedFn;
-		using UnfocusFn = V::UnfocusFn;
-		using QueryViewFn = V::QueryViewFn;
-
-		struct State
-		{
-			void* iface = nullptr;
-			void* view  = nullptr;
-		};
-
-		State   g_state;
-		bool    g_created = false;
-		bool    g_domReady = false;
-
-		template <class Fn>
-		Fn Slot(void* a_iface, std::size_t a_byteOffset)
-		{
-			// The single legal dereference of the external interface vtable.
-			auto** const vtbl = *static_cast<void***>(a_iface);
-			void*        raw  = vtbl[a_byteOffset / sizeof(void*)];
-			Fn           fn{};
-			static_assert(sizeof(fn) == sizeof(raw));
-			std::memcpy(&fn, &raw, sizeof(fn));
-			return fn;
-		}
-
-		// --- JS trampolines (CreateViews::<lambda_N> in the original) ----------
-
-		// CreateViews::<lambda_1>::operator()(unsigned __int64) const
-		// (0x18001f5b0, recon/strings.txt:45). The view-ready completion: the
-		// original receives the CreateView result and logs; it is wired as the
-		// creation callback below. Kept as a named trampoline because a C++
-		// lambda cannot be referenced from the vtable-call helper without also
-		// changing the callback ABI.
-		void OnViewCreated(std::uint64_t a_view)
-		{
-			// Original (0x18001f5b0): set the "DOM ready" atomic DAT_18009c1c8 =
-			// 1, log, then queue PushState() and PushCompatible() on the task
-			// interface. UiBridge's push helpers need a JSON payload the lambda
-			// does not carry here, so only the latch + log are reproduced (the two
-			// queued pushes are a marked gap).
-			g_domReady = true;
-			logger::info("Controller view DOM ready");
-			(void)a_view;
-		}
-
-		void OnSlppReady(const char* a_arg)
-		{
-			ActionDispatch::HandleReady(a_arg);
-		}
-		void OnSlppLog(const char* a_arg)
-		{
-			ActionDispatch::HandleLog(a_arg);
-		}
-		void OnSlppCatalogRetry(const char* a_arg)
-		{
-			ActionDispatch::HandleCatalogRetry(a_arg);
-		}
-		void OnSlppCollapsed(const char* a_arg)
-		{
-			ActionDispatch::SetCollapsed(a_arg != nullptr && a_arg[0] != '0' && a_arg[0] != '\0', "slppCollapsed");
-		}
-	}  // namespace
-
 	bool IsAvailable()
 	{
 		return g_state.iface != nullptr && g_state.view != nullptr;
