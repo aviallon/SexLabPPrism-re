@@ -1,0 +1,8 @@
+address,name,insn,file,status,total_lines
+0x1800250f0,Window_slppVitals,0,0x1800250f0_Window_slppVitals.c,clean,227
+0x180024450,Window_slppSetSearchQuery,0,0x180024450_Window_slppSetSearchQuery.c,clean,120
+0x1800246b0,PublishCatalogToUi_lambda1,0,0x1800246b0_PublishCatalogToUi_lambda1.c,clean,298
+0x18002a6e0,Papyrus_CatalogPublish,0,0x18002a6e0_Papyrus_CatalogPublish.c,clean,50
+0x18002a270,Papyrus_CatalogFinish,0,0x18002a270_Papyrus_CatalogFinish.c,clean,61
+0x18002d170,JsCatalogReset,0,0x18002d170_JsCatalogReset.c,clean,72
+0x18002d340,JsCatalogDone,0,0x18002d340_JsCatalogDone.c,clean,53

@@ -1,0 +1,12 @@
+=== r8 (run 35598736348) ===
+orig functions 2149, rebuild 2849
+BYTE-MATCH 1215  INSN-MATCH 47  RATIO 260  MISSING 627
+  plugin    399 funcs  BYTE= 216 INSN=   5 RATIO= 118 MISSING=  60  insn%=38.1
+  library  1750 funcs  BYTE= 999 INSN=  42 RATIO= 142 MISSING= 567  insn%=54.4
+--- real-function denominator ---
+REAL functions (unwind entry, the defensible denominator): 1,495 functions, 85,095 instructions
+  BYTE-MATCH    988 funcs ( 66.1%)   41,243 insn
+  INSN-MATCH     46 funcs (  3.1%)      561 insn
+  RATIO         249 funcs ( 16.7%)   34,997 insn
+  MISSING       212 funcs ( 14.2%)    8,294 insn
+  byte-match share: 66.09% of funcs, 48.47% of instructions

@@ -1,0 +1,54 @@
+// PrismExport addr=0x1800358a0 name=guess ghidra=FUN_1800358a0 status=clean lines=54
+
+basic_streambuf<char,std::char_traits<char>_> *
+FUN_1800358a0(basic_streambuf<char,std::char_traits<char>_> *param_1,char *param_2,int param_3,
+             int param_4)
+
+{
+  bool bVar1;
+  _iobuf *p_Var2;
+  locale *plVar3;
+  facet *this;
+  undefined8 *puVar4;
+  int *local_res8;
+  char **local_28;
+  char **local_20;
+  longlong *local_18;
+  
+  if (*(longlong *)(param_1 + 0x80) == 0) {
+    p_Var2 = std::_Fiopen(param_2,param_3,param_4);
+    if (p_Var2 != (_iobuf *)0x0) {
+      param_1[0x7c] = (basic_streambuf<char,std::char_traits<char>_>)0x1;
+      param_1[0x71] = (basic_streambuf<char,std::char_traits<char>_>)0x0;
+      std::basic_streambuf<char,std::char_traits<char>_>::_Init(param_1);
+      local_20 = (char **)0x0;
+      local_28 = (char **)0x0;
+      local_res8 = (int *)0x0;
+      _get_stream_buffer_pointers(p_Var2,&local_20,&local_28,&local_res8);
+      std::basic_streambuf<char,std::char_traits<char>_>::_Init
+                (param_1,local_20,local_28,local_res8,local_20,local_28,local_res8);
+      *(_iobuf **)(param_1 + 0x80) = p_Var2;
+      *(undefined8 *)(param_1 + 0x74) = DAT_18009c298;
+      *(undefined8 *)(param_1 + 0x68) = 0;
+      plVar3 = (locale *)std::basic_streambuf<char,std::char_traits<char>_>::getloc(param_1);
+      this = FUN_180030600(plVar3);
+      bVar1 = std::codecvt_base::always_noconv((codecvt_base *)this);
+      if (bVar1) {
+        *(undefined8 *)(param_1 + 0x68) = 0;
+      }
+      else {
+        *(facet **)(param_1 + 0x68) = this;
+        std::basic_streambuf<char,std::char_traits<char>_>::_Init(param_1);
+      }
+      if (local_18 != (longlong *)0x0) {
+        puVar4 = (undefined8 *)(**(code **)(*local_18 + 0x10))();
+        if (puVar4 != (undefined8 *)0x0) {
+          (**(code **)*puVar4)(puVar4,1);
+        }
+      }
+      return param_1;
+    }
+  }
+  return (basic_streambuf<char,std::char_traits<char>_> *)0x0;
+}
+

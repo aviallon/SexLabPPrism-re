@@ -1,0 +1,9 @@
+identity pairing: alias=1 callgraph=127 icf=606 name=32 rtti=268 string=33
+orig functions 1565, rebuild 2254
+BYTE-MATCH 776  INSN-MATCH 38  RATIO 253  MISSING 498
+function-weighted 49.58%  instruction-weighted 45.99%
+  plugin    469 funcs  BYTE= 284 INSN=   4 RATIO= 129 MISSING=  52  insn%=49.5
+  library  1096 funcs  BYTE= 492 INSN=  34 RATIO= 124 MISSING= 446  insn%=41.1
+address bytes masked in function windows: orig 71874 in 1501 insns / rebuild 87910 in 2034 insns
+base-relocation table entries: orig 1533 / rebuild 1562 (all in .rdata/.data, none in .text)
+wrote recon/matching.md, recon/matching.csv

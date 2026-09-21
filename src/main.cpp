@@ -77,6 +77,7 @@ SKSE_EXPORT bool SKSEPlugin_Query(SKSE::QueryInterface*, SKSE::PluginInfo* a_inf
 #include "missing/MissingRound2Group1.h"
 #include "missing/MissingRound2Group2.h"
 #include "missing/MissingRound2Group3.h"
+#include "missing/MissingRound3.h"
 
 SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
@@ -97,6 +98,7 @@ SKSE_EXPORT bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 	ForceLink_Missing4Group1();
 	ForceLink_Missing5Group2();
 	ForceLink_MissingRound2Group3();
+	ForceLink_Missing7();
 
 	logger::info("SexLab P+ Prism 0.6.1 loading (strict lifecycle + confirmed freecam + selective UI)");
 

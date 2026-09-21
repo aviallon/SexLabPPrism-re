@@ -1,0 +1,16 @@
+=== r17missing2 (run 35646714487) ===
+orig functions 1645, rebuild 2501
+BYTE-MATCH 861  INSN-MATCH 40  RATIO 271  MISSING 473
+  plugin    498 funcs  BYTE= 310 INSN=   5 RATIO= 142 MISSING=  41  insn%=53.2
+  library  1147 funcs  BYTE= 551 INSN=  35 RATIO= 129 MISSING= 432  insn%=43.2
+--- real-function denominator ---
+REAL functions (unwind entry, the defensible denominator): 991 functions, 85,119 instructions
+  BYTE-MATCH    631 funcs ( 63.7%)   41,456 insn
+  INSN-MATCH     39 funcs (  3.9%)      630 insn
+  RATIO         257 funcs ( 25.9%)   39,218 insn
+  MISSING        64 funcs (  6.5%)    3,815 insn
+  byte-match share: 63.67% of funcs, 48.70% of instructions
+--- layout signals ---
+  ?A0x tokens: ?A0x1d4b42bd ?A0x8dd52390 ?A0xc5353670 ?A0xc7335d72 ?A0xcfa10341 ?A0xd1b633de ?A0xf42b6800 ?A0xf6965dd5 
+  _Func_impl_no_alloc literals: 25
+

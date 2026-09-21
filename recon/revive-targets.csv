@@ -1,0 +1,8 @@
+orig_addr,name
+0x1800250f0,Window_slppVitals
+0x180024450,Window_slppSetSearchQuery
+0x1800246b0,PublishCatalogToUi_lambda1
+0x18002a6e0,Papyrus_CatalogPublish
+0x18002a270,Papyrus_CatalogFinish
+0x18002d170,JsCatalogReset
+0x18002d340,JsCatalogDone

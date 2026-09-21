@@ -1,0 +1,61 @@
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+Picked up JAVA_TOOL_OPTIONS: -Dawt.toolkit.name=WLToolkit
+openjdk version "21.0.12" 2026-07-21
+OpenJDK Runtime Environment (build 21.0.12+8-nixos)
+OpenJDK 64-Bit Server VM (build 21.0.12+8-nixos, mixed mode)
+INFO  Using log config file: jar:file:/nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Framework/Generic/lib/Generic.jar!/generic.log4j.xml (LoggingInitialization)  
+INFO  Using log file: /home/aviallon/.config/ghidra/ghidra_12.1.2_NIX/application.log (LoggingInitialization)  
+INFO  Loading user preferences: /home/aviallon/.config/ghidra/ghidra_12.1.2_NIX/preferences (Preferences)  
+INFO  Searching for classes... (ClassSearcher)  
+INFO  Class search complete (845 ms) (ClassSearcher)  
+INFO  Initializing SSL Context (DefaultSSLContextInitializer)  
+INFO  Initializing Random Number Generator... (SecureRandomFactory)  
+INFO  Random Number Generator initialization complete: NativePRNGNonBlocking (SecureRandomFactory)  
+INFO  Trust manager disabled, cacerts have not been set (DefaultTrustManagerFactory)  
+INFO  Headless startup complete (2063 ms) (AnalyzeHeadless)  
+INFO  Class searcher loaded 59 extension points (20 false positives) (ClassSearcher)  
+INFO  HEADLESS Script Paths:
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/GnuDemangler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/WildcardAssembler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/BytePatterns/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/8051/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/MicrosoftCodeAnalyzer/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/BSim/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/PDB/ghidra_scripts
+    /home/aviallon/Projects/SexLabPPrism-re/tools/ghidra
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/DecompilerDependent/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/SystemEmulation/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/PyGhidra/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Debug/Debugger/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Base/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/JVM/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/SwiftDemangler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/Atmel/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/PIC/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Debug/Debugger-rmi-trace/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/VersionTracking/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/FunctionID/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/FileFormats/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Features/Decompiler/ghidra_scripts
+    /nix/store/xrxnp2isnig2hfi7f8bjfq95qdby0jfc-ghidra-12.1.2/lib/ghidra/Ghidra/Processors/DATA/ghidra_scripts (HeadlessAnalyzer)  
+INFO  HEADLESS: execution starts (HeadlessAnalyzer)  
+INFO  Opening existing project: /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism (HeadlessAnalyzer)  
+INFO  Opening project: /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism (HeadlessProject)  
+ERROR Abort due to Headless analyzer error: ghidra.framework.store.LockException: Unable to lock project! /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism (HeadlessAnalyzer) java.io.IOException: ghidra.framework.store.LockException: Unable to lock project! /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism
+	at ghidra.app.util.headless.HeadlessAnalyzer.openProject(HeadlessAnalyzer.java:1823)
+	at ghidra.app.util.headless.HeadlessAnalyzer.processLocal(HeadlessAnalyzer.java:435)
+	at ghidra.app.util.headless.AnalyzeHeadless.launch(AnalyzeHeadless.java:199)
+	at ghidra.GhidraLauncher.launch(GhidraLauncher.java:81)
+	at ghidra.Ghidra.main(Ghidra.java:54)
+Caused by: ghidra.framework.store.LockException: Unable to lock project! /home/aviallon/Projects/SexLabPPrism-re/build/recon/ghidra-proj/Prism
+	at ghidra.framework.data.DefaultProjectData.getProjectLock(DefaultProjectData.java:353)
+	at ghidra.framework.data.DefaultProjectData.initLock(DefaultProjectData.java:323)
+	at ghidra.framework.data.DefaultProjectData.init(DefaultProjectData.java:315)
+	at ghidra.framework.data.DefaultProjectData.<init>(DefaultProjectData.java:120)
+	at ghidra.framework.project.DefaultProject.<init>(DefaultProject.java:119)
+	at ghidra.app.util.headless.HeadlessAnalyzer$HeadlessProject.<init>(HeadlessAnalyzer.java:1864)
+	at ghidra.app.util.headless.HeadlessAnalyzer.openProject(HeadlessAnalyzer.java:1820)
+	... 4 more
+ 

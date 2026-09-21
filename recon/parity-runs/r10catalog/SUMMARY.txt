@@ -1,0 +1,12 @@
+=== r10catalog (run 35602873253) ===
+orig functions 2149, rebuild 2858
+BYTE-MATCH 1230  INSN-MATCH 49  RATIO 257  MISSING 613
+  plugin    399 funcs  BYTE= 225 INSN=   5 RATIO= 117 MISSING=  52  insn%=40.6
+  library  1750 funcs  BYTE=1005 INSN=  44 RATIO= 140 MISSING= 561  insn%=54.7
+--- real-function denominator ---
+REAL functions (unwind entry, the defensible denominator): 1,495 functions, 85,095 instructions
+  BYTE-MATCH    999 funcs ( 66.8%)   42,108 insn
+  INSN-MATCH     48 funcs (  3.2%)      728 insn
+  RATIO         247 funcs ( 16.5%)   35,571 insn
+  MISSING       201 funcs ( 13.4%)    6,688 insn
+  byte-match share: 66.82% of funcs, 49.48% of instructions

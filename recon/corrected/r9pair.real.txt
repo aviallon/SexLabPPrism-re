@@ -1,0 +1,24 @@
+original .pdata function starts: 1,495
+
+REAL functions (unwind entry, the defensible denominator): 911 functions, 85,148 instructions
+  BYTE-MATCH    549 funcs ( 60.3%)   39,143 insn
+  INSN-MATCH     36 funcs (  4.0%)      458 insn
+  RATIO         240 funcs ( 26.3%)   38,958 insn
+  MISSING        86 funcs (  9.4%)    6,589 insn
+  byte-match share: 60.26% of funcs, 45.97% of instructions
+    plugin     411 funcs  BYTE   246 ( 59.9%)  insn  49.2%
+    library    500 funcs  BYTE   303 ( 60.6%)  insn  41.2%
+
+gap-scan pseudo-functions (no unwind record - measurement noise): 654 functions, 2,799 instructions
+  BYTE-MATCH    229 funcs ( 35.0%)    1,609 insn
+  INSN-MATCH      1 funcs (  0.2%)        3 insn
+  RATIO          11 funcs (  1.7%)      231 insn
+  MISSING       413 funcs ( 63.1%)      956 insn
+  byte-match share: 35.02% of funcs, 57.48% of instructions
+    plugin      58 funcs  BYTE    36 ( 62.1%)  insn  76.6%
+    library    596 funcs  BYTE   193 ( 32.4%)  insn  52.8%
+
+To reach the user's target on REAL functions (>98% byte-match, none below 90%):
+  currently not byte-matched: 362 of 911 (39.7%)
+  allowed failures at 98%: 18
+  their instruction volume: 46,005

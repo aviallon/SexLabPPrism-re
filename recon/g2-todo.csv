@@ -1,0 +1,31 @@
+orig_addr,name
+0x180013a20,anon
+0x1800261e0,void __cdecl `anonymous-namespace'::ApplyPresentation(void)
+0x180044740,anon
+0x18003d160,anon
+0x180014140,anon
+0x1800255c0,void __cdecl `anonymous-namespace'::RequestSearchInput::<lambda_1>::operator ()(void) const
+0x180044ca0,anon
+0x180022340,anon
+0x18003e400,anon
+0x18003cd70,anon
+0x18001e000,anon
+0x18003a500,anon
+0x1800358a0,anon
+0x18004e670,anon
+0x180010b20,anon
+0x18003e380,anon
+0x180006290,anon
+0x180040890,anon
+0x18003a370,anon
+0x180008a30,anon
+0x1800140c0,anon
+0x180023c10,anon
+0x180045d70,anon
+0x180037490,anon
+0x180039120,anon
+0x18002cb60,anon
+0x1800522c0,anon
+0x180053120,anon
+0x1800236f0,anon
+0x180010cb0,anon

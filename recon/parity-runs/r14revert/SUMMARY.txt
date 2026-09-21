@@ -1,0 +1,16 @@
+=== r14revert (run 35610215929) ===
+orig functions 1565, rebuild 2254
+BYTE-MATCH 776  INSN-MATCH 38  RATIO 253  MISSING 498
+  plugin    469 funcs  BYTE= 284 INSN=   4 RATIO= 129 MISSING=  52  insn%=49.5
+  library  1096 funcs  BYTE= 492 INSN=  34 RATIO= 124 MISSING= 446  insn%=41.1
+--- real-function denominator ---
+REAL functions (unwind entry, the defensible denominator): 911 functions, 85,148 instructions
+  BYTE-MATCH    546 funcs ( 59.9%)   38,828 insn
+  INSN-MATCH     37 funcs (  4.1%)      601 insn
+  RATIO         242 funcs ( 26.6%)   39,325 insn
+  MISSING        86 funcs (  9.4%)    6,394 insn
+  byte-match share: 59.93% of funcs, 45.60% of instructions
+--- layout signals ---
+  ?A0x tokens: ?A0x1d4b42bd ?A0x8dd52390 ?A0xc7335d72 ?A0xcfa10341 ?A0xd1b633de ?A0xf42b6800 ?A0xf6965dd5 
+  _Func_impl_no_alloc literals: 23
+
