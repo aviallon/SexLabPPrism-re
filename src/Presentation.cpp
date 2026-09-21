@@ -14,17 +14,17 @@
 // __FUNCSIG__ the matcher recovers.
 namespace
 {
-	void SetMenuVisible(std::string_view a_menuName, bool a_visible)
-	{
-		auto* const ui = RE::UI::GetSingleton();
-		if (!ui) {
-			return;
-		}
-		const auto menu = ui->GetMenu(a_menuName);
-		if (menu) {
-			menu->uiMovie->SetVisible(a_visible);
-		}
-	}
+	// 0x180026790, 167 instructions: `void `anonymous-namespace'::ApplyVanillaHUDVisibility(bool)`
+	// from src\main.cpp. Structurally the HUD twin of ApplyConsoleVisibility: it
+	// captures the HUD movie's visible bit in DAT_180095121 the first time the
+	// scene hides it (latch DAT_18009c1cc) and restores exactly that bit on the
+	// way out; DAT_18009c1cd is the "HUD Menu movie unavailable" latch that keeps
+	// the deferral log one-shot. The original log literals are
+	// recon/strings.txt; the call order is the decompilation at
+	// build/recon/decompiled-new/0x180026790__anonymous_namespace___ApplyVanillaHUDVisibility.c.
+	bool g_hudHiddenByScene       = false;
+	bool g_savedHudVisible        = false;
+	bool g_hudSyncDeferredLogged  = false;
 
 	// 0x180025fc0, 126 instructions. SINGLE bool argument (the original's
 	// __FUNCSIG__ is `void __cdecl `anonymous-namespace'::ApplyConsoleVisibility(bool)`;
@@ -68,11 +68,36 @@ namespace Presentation
 {
 	void ApplyVanillaHUDVisibility(bool a_sceneActive)
 	{
-		// The original hides the HUD while a scene is active and restores it
-		// afterwards, and re-applies the same rule whenever the HUD menu opens
-		// (recon/NATIVES-RECOVERED.md §4.3).
-		SetMenuVisible(RE::HUDMenu::MENU_NAME, !a_sceneActive);
-		logger::debug("Vanilla HUD movie visibility restored: {}", !a_sceneActive);
+		auto* const ui = RE::UI::GetSingleton();
+		if (!ui) {
+			return;
+		}
+		const auto menu = ui->GetMenu(RE::HUDMenu::MENU_NAME);
+		if (!menu || !menu->uiMovie) {
+			if (!g_hudSyncDeferredLogged) {
+				logger::info("Vanilla HUD visibility sync deferred: HUD Menu movie unavailable");
+				g_hudSyncDeferredLogged = true;
+			}
+			return;
+		}
+		g_hudSyncDeferredLogged = false;
+		if (!a_sceneActive) {
+			if (g_hudHiddenByScene) {
+				menu->uiMovie->SetVisible(g_savedHudVisible);
+				logger::info("Vanilla HUD movie restored: {}", g_savedHudVisible);
+				g_hudHiddenByScene = false;
+			}
+		} else {
+			if (!g_hudHiddenByScene) {
+				g_savedHudVisible   = menu->uiMovie->GetVisible();
+				g_hudHiddenByScene = true;
+				logger::info("Vanilla HUD visibility captured: {}", g_savedHudVisible);
+			}
+			if (menu->uiMovie->GetVisible()) {
+				menu->uiMovie->SetVisible(false);
+				logger::info("Vanilla HUD movie hidden (CustomMenu remains available)");
+			}
+		}
 	}
 
 	void ApplyConsoleVisibility(bool a_sceneActive)
