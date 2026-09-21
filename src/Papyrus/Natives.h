@@ -40,54 +40,8 @@ namespace Papyrus::Natives
 	};
 	static_assert(kNativeNames.size() == 13, "SexLabPrismNative must register exactly 13 natives");
 
-	// --- native implementations -------------------------------------------------
-	void Log(RE::StaticFunctionTag*, std::string a_message);
-
-	std::int32_t BeginSceneSession(RE::StaticFunctionTag*);
-
-	void PublishSceneState(
-		RE::StaticFunctionTag*,
-		std::int32_t aiSession,
-		bool         abActive,
-		std::int32_t aiThreadID,
-		std::int32_t aiStatus,
-		std::string  asSceneID,
-		std::string  asSceneName,
-		std::string  asStage,
-		std::int32_t aiStageIdx,
-		std::int32_t aiStageCount,
-		bool         abFreecam,
-		bool         abPaused,
-		bool         abMuted,
-		float        afSpeed,
-		std::vector<std::string>       asActorNames,
-		std::vector<std::int32_t>      aiEnjoyment,
-		std::int32_t                   aiPlayerIdx);
-
-	bool IsFreeCameraActive(RE::StaticFunctionTag*);
-
-	void PublishCompatible(RE::StaticFunctionTag*, std::vector<std::string> asSceneIDs);
-
-	void CatalogBegin(RE::StaticFunctionTag*, std::int32_t aiTotal);
-
-	void CatalogAppend(
-		RE::StaticFunctionTag*,
-		std::vector<std::string> asIDs,
-		std::vector<std::string> asNames,
-		std::vector<std::string> asTags);
-
-	void CatalogPackage(
-		RE::StaticFunctionTag*,
-		std::string              asPackage,
-		std::vector<std::string> asIDs);
-
-	void CatalogFinish(RE::StaticFunctionTag*);
-
-	bool IsCatalogReady(RE::StaticFunctionTag*);
-
-	std::int32_t GetCatalogCount(RE::StaticFunctionTag*);
-
-	void CatalogPublish(RE::StaticFunctionTag*);
-
-	void SetSearchQuery(RE::StaticFunctionTag*, std::string asQuery);
+	// The native bodies are free functions named Papyrus_<Name> in the GLOBAL
+	// anonymous namespace of src/Papyrus/Natives.cpp (the original's shape).
+	// Register() takes their addresses directly; no per-native declarations are
+	// needed here.
 }  // namespace Papyrus::Natives
