@@ -1,0 +1,1248 @@
+{
+ "orig": "/home/aviallon/Projects/SexLabPPrism-re/artifacts/SexLabPPrism.dll",
+ "new": "/home/aviallon/Projects/SexLabPPrism-re/artifacts/rebuild/parity-r14revert.dll",
+ "identity_anchors": {
+  "name": 23,
+  "rtti": 269,
+  "alias": 1,
+  "string": 41,
+  "icf": 606,
+  "callgraph": 125
+ },
+ "real_functions": 911,
+ "pairs": 1065,
+ "before": {
+  "BYTE-MATCH": 546,
+  "MISSING": 88,
+  "RATIO": 240,
+  "INSN-MATCH": 37
+ },
+ "before_insn": {
+  "BYTE-MATCH": 38828,
+  "MISSING": 6486,
+  "RATIO": 39233,
+  "INSN-MATCH": 601
+ },
+ "missing_classified": [
+  {
+   "orig_addr": 6442531360,
+   "orig_insn": 349,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 5,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442738896,
+   "orig_insn": 349,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442602736,
+   "orig_insn": 302,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "literal",
+    "value": "window.slppState(",
+    "owner": 6442617744,
+    "owner_paired_to": 6442599504,
+    "owner_name": ""
+   },
+   "anchors": {
+    "lits": 2,
+    "unique_lits": 2,
+    "callees": 7,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442691744,
+   "orig_insn": 215,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x180010f80",
+    "owner": 6442476912,
+    "owner_paired_to": 6442477376,
+    "owner_name": ""
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442742080,
+   "orig_insn": 207,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442744672,
+   "orig_insn": 194,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x18004fa40",
+    "owner": 6442811568,
+    "owner_paired_to": 6442615472,
+    "owner_name": ""
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 5,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442692480,
+   "orig_insn": 173,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 2,
+    "unique_lits": 0,
+    "callees": 4,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442605792,
+   "orig_insn": 169,
+   "name": "",
+   "class": "ABSENT",
+   "evidence": {
+    "anchor": "literal",
+    "value": "\\u{:04X}\\u{:04X}",
+    "owner": null,
+    "in_source": false
+   },
+   "anchors": {
+    "lits": 2,
+    "unique_lits": 1,
+    "callees": 5,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442701152,
+   "orig_insn": 163,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442745408,
+   "orig_insn": 158,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 4,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442632288,
+   "orig_insn": 153,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x180038b00",
+    "owner": 6442526800,
+    "owner_paired_to": 6442631376,
+    "owner_name": "`anonymous-namespace'::RequestSearchInput"
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 4,
+    "unique_callees": 4
+   }
+  },
+  {
+   "orig_addr": 6442765888,
+   "orig_insn": 146,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442707760,
+   "orig_insn": 134,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442638032,
+   "orig_insn": 129,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442732704,
+   "orig_insn": 126,
+   "name": ".?AVlogger@spdlog@@::vtable[0]",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442690608,
+   "orig_insn": 123,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 5,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442755152,
+   "orig_insn": 119,
+   "name": ".?AV?$elapsed_formatter@Vscoped_padder@details@spdlog@@V?$duration@_JU?$ratio@$00$0DOI@@std@@@chrono@std@@@details@spdlog@@::vfunc[1]",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "rtti",
+    "value": ".?AV?$elapsed_formatter@Vscoped_padder@details@spdlog@@V?$duration@_JU?$ratio@$00$0DOI@@std@@@chrono@std@@@details@spdlog@@::vfunc[1]",
+    "owner": 6442823312,
+    "owner_paired_to": 6442754800,
+    "owner_name": ".?AV?$elapsed_formatter@Vscoped_padder@details@spdlog@@V?$duration@_JU?$ratio@$00$0DLJKMKAA@@std@@@chrono@std@@@details@spdlog@@::vfunc[1]"
+   },
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442591600,
+   "orig_insn": 117,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 6,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442594864,
+   "orig_insn": 117,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442705920,
+   "orig_insn": 115,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442707024,
+   "orig_insn": 115,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442741648,
+   "orig_insn": 110,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442516208,
+   "orig_insn": 102,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442768432,
+   "orig_insn": 102,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442573824,
+   "orig_insn": 100,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442532640,
+   "orig_insn": 99,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 4,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442730768,
+   "orig_insn": 88,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442732208,
+   "orig_insn": 88,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442635216,
+   "orig_insn": 85,
+   "name": "`anonymous-namespace'::DispatchAction::<lambda_1>::operator()",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "literal",
+    "value": "SLPPPrism_Action",
+    "owner": 6442525696,
+    "owner_paired_to": 6442631776,
+    "owner_name": "ActionDispatch::HandleAction"
+   },
+   "anchors": {
+    "lits": 4,
+    "unique_lits": 3,
+    "callees": 7,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442741168,
+   "orig_insn": 84,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 4,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442483152,
+   "orig_insn": 82,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442670240,
+   "orig_insn": 82,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442737744,
+   "orig_insn": 76,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442784108,
+   "orig_insn": 72,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442731088,
+   "orig_insn": 68,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442636096,
+   "orig_insn": 67,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 0,
+    "callees": 5,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442770336,
+   "orig_insn": 67,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442518560,
+   "orig_insn": 66,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442772080,
+   "orig_insn": 57,
+   "name": ".?AV?$wincolor_sink@Uconsole_mutex@details@spdlog@@@sinks@spdlog@@::vtable[0]",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x180045bb0",
+    "owner": 6442841856,
+    "owner_paired_to": 6442771648,
+    "owner_name": ".?AV?$basic_file_sink@Vmutex@std@@@sinks@spdlog@@::vfunc[5]"
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442519328,
+   "orig_insn": 55,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442639520,
+   "orig_insn": 51,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442798448,
+   "orig_insn": 51,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442639360,
+   "orig_insn": 47,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x18002dd10",
+    "owner": 6442526800,
+    "owner_paired_to": 6442631376,
+    "owner_name": "`anonymous-namespace'::RequestSearchInput"
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442743040,
+   "orig_insn": 47,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442777452,
+   "orig_insn": 45,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442705792,
+   "orig_insn": 44,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442742896,
+   "orig_insn": 44,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442476176,
+   "orig_insn": 42,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442736000,
+   "orig_insn": 41,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442690096,
+   "orig_insn": 40,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x18003cd70",
+    "owner": 6442634944,
+    "owner_paired_to": 6442615184,
+    "owner_name": "PrismaUI::InvokeJs"
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442741504,
+   "orig_insn": 39,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442715280,
+   "orig_insn": 38,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442768896,
+   "orig_insn": 35,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442678848,
+   "orig_insn": 34,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442689392,
+   "orig_insn": 34,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442798672,
+   "orig_insn": 34,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442486320,
+   "orig_insn": 33,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442552512,
+   "orig_insn": 32,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442564528,
+   "orig_insn": 30,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x18001c970",
+    "owner": 6442563488,
+    "owner_paired_to": 6442571952,
+    "owner_name": "REL::IDDatabase::id2offset"
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442533056,
+   "orig_insn": 29,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442766576,
+   "orig_insn": 29,
+   "name": "",
+   "class": "PRESENT-INFOLDED",
+   "evidence": {
+    "anchor": "callee",
+    "value": "0x180045230",
+    "owner": 6442835680,
+    "owner_paired_to": 6442766432,
+    "owner_name": ""
+   },
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442597392,
+   "orig_insn": 25,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442638752,
+   "orig_insn": 25,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442737008,
+   "orig_insn": 24,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442518432,
+   "orig_insn": 22,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442541984,
+   "orig_insn": 22,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442677392,
+   "orig_insn": 21,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442679008,
+   "orig_insn": 21,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442684592,
+   "orig_insn": 21,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442684704,
+   "orig_insn": 21,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442632976,
+   "orig_insn": 20,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442799248,
+   "orig_insn": 20,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442544416,
+   "orig_insn": 17,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 3,
+    "unique_callees": 1
+   }
+  },
+  {
+   "orig_addr": 6442543136,
+   "orig_insn": 16,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442633680,
+   "orig_insn": 16,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442634080,
+   "orig_insn": 16,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442519200,
+   "orig_insn": 14,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442790704,
+   "orig_insn": 13,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442790768,
+   "orig_insn": 13,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442791200,
+   "orig_insn": 13,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442791968,
+   "orig_insn": 13,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442455296,
+   "orig_insn": 12,
+   "name": "",
+   "class": "ABSENT",
+   "evidence": {
+    "anchor": "literal",
+    "value": "{\"active\":false}",
+    "owner": null,
+    "in_source": false
+   },
+   "anchors": {
+    "lits": 1,
+    "unique_lits": 1,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442596080,
+   "orig_insn": 12,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442630816,
+   "orig_insn": 11,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442681008,
+   "orig_insn": 10,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442798384,
+   "orig_insn": 10,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 2,
+    "unique_callees": 2
+   }
+  },
+  {
+   "orig_addr": 6442597216,
+   "orig_insn": 9,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 1,
+    "unique_callees": 0
+   }
+  },
+  {
+   "orig_addr": 6442519728,
+   "orig_insn": 7,
+   "name": "",
+   "class": "UNKNOWN",
+   "evidence": null,
+   "anchors": {
+    "lits": 0,
+    "unique_lits": 0,
+    "callees": 0,
+    "unique_callees": 0
+   }
+  }
+ ]
+}
