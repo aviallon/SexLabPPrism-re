@@ -97,6 +97,20 @@ def ins_mask_offsets(ins, image_base, image_end):
     if re.search(r"\[rip([+-]0x[0-9a-fA-F]+)?\]", ops):
         for k in range(max(0, n - 4), n):
             offs.add(k)
+    # A SIB/base+index operand whose displacement lands inside the image RVA
+    # range encodes a link-time symbol difference (same reason as the
+    # RIP-relative case): the constant differs between the original and our
+    # rebuild although the instruction is identical, so the 4 displacement
+    # bytes must be masked too. Small displacements (struct field offsets) stay
+    # in the comparison because they carry meaning.
+    for mm in re.finditer(r"\[[^\]]*[+-](0x[0-9a-fA-F]+)\]", ops):
+        v = int(mm.group(1), 16)
+        if not (0 < v < (image_end - image_base)):
+            continue
+        le = v.to_bytes(4, "little")
+        for start in range(0, max(0, n - 3)):
+            if raw[start:start + 4] == le:
+                offs.update(range(start, start + 4))
     if ins["mn"] in parity.BRANCH_MNEMS and ins.get("branch") is not None:
         for k in range(max(0, n - 4), n):
             offs.add(k)

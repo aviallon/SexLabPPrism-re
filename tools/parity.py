@@ -532,6 +532,21 @@ def _norm_operand(p, ins, fstart, fend, image_base, image_end, collect_refs):
             collect_refs.add(tgt)
         loc = f"L+0x{tgt - fstart:x}" if fstart <= tgt < fend else "EXT"
         return p[:m.start()] + f"[rip+{loc}]" + p[m.end():]
+    # SIB / base+index memory operand carrying a displacement, e.g.
+    # [rcx+rdx*4+0x5bab0]. A displacement that lands inside the image's RVA
+    # range is a LINK-TIME SYMBOL DIFFERENCE - the original and our rebuild
+    # place the same data at different RVAs, so the constant differs while the
+    # code is identical (measured: 0x18000d194 vs our analogue differ only in
+    # such displacements, ratio 0.941 -> 1.0 once canonicalised). Small
+    # displacements stay literal: a struct field offset is part of the code's
+    # meaning and must not be normalised away.
+    m = re.search(r"\[[^\]]*[+-](0x[0-9a-fA-F]+)\]", p)
+    if m:
+        v = int(m.group(1), 16)
+        if 0 < v < (image_end - image_base):
+            if collect_refs is not None:
+                collect_refs.add(image_base + v)
+            return p[:m.start(1)] + "DISP_RVA" + p[m.end(1):]
     # absolute memory operand [0x...]
     m = re.search(r"\[(0x[0-9a-fA-F]+)\]", p)
     if m:
