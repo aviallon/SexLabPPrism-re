@@ -2,72 +2,83 @@ orig_addr,name,tier,orig_insn,declared_symbol,evidence,round,kind,binding,new_ad
 0x1800261e0,void __cdecl `anonymous-namespace'::ApplyPresentation(void),plugin,326,src/Presentation.cpp:143,src/missing/MissingRound2Group1.cpp:11 claims `anonymous-namespace'::ApplyPresentation -> src/Presentation.cpp:143,round2,PRESENT-UNPAIRED,best-ratio,,,0,0,0.0,MISSING,1
 0x180047b60,,plugin,194,CreateDirectories,src/missing/MissingGroup3.cpp:80,round1,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x180047140,,library,167,RehashStringMap,src/missing/MissingRound2Group3.cpp:135,round2,RECONSTRUCTED,best-ratio,,,0,0,0.340176,MISSING,1
-0x1800464d0,,library,166,WriteSignedField,src/missing/MissingGroup3.cpp:240,round1,RECONSTRUCTED,existing-pair,0x18005dc90,172,0,0,0.668639,RATIO,1
+0x1800464d0,,library,166,WriteSignedField,src/missing/MissingGroup3.cpp:240,round1,RECONSTRUCTED,existing-pair,0x18005d9b0,158,0,0,0.777778,RATIO,1
 0x180047e40,,plugin,158,ParentPath,src/missing/MissingRound2Group3.cpp:53,round2,RECONSTRUCTED,best-ratio,,,0,0,0.374269,MISSING,1
 0x180014140,,plugin,146,SendMenuMessage,src/missing/MissingGroup2.cpp:379,round1,RECONSTRUCTED,existing-pair,0x180021030,149,0,0,0.847458,RATIO,1
 0x18004ce40,,library,146,WriteAlignedRange,src/missing/MissingGroup3.cpp:255,round1,RECONSTRUCTED,best-ratio,,,0,0,0.470948,MISSING,1
-0x18003eb30,,library,134,WriteAlignedField,src/missing/MissingRound2Group3.cpp:147,round2,RECONSTRUCTED,best-ratio,0x180055750,134,0,0,0.61194,DECLARED-DIVERGENT,1
-0x18002dad0,,library,129,EraseUnorderedRange,src/missing/MissingGroup3.cpp:272,round1,RECONSTRUCTED,existing-pair,0x180025880,88,0,0,0.0553,RATIO,1
-0x180022be0,,plugin,127,FormatIntoSceneField,src/missing/MissingGroup3.cpp:110,round1,RECONSTRUCTED,existing-pair,0x180050e00,144,0,0,0.789668,RATIO,1
-0x18004a450,,library,119,FormatElapsed,src/missing/MissingGroup3.cpp:292,round1,RECONSTRUCTED,existing-pair,0x180061d70,152,0,0,0.464945,RATIO,1
-0x180022340,,plugin,117,PublishUiStatePacked,src/missing/MissingGroup2.cpp:434,round1,RECONSTRUCTED,existing-pair,0x180028970,140,0,0,0.817121,RATIO,1
-0x180023230,,plugin,117,ConcatStrings,src/missing/MissingRound2Group1.cpp:86,round2,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
+0x18003eb30,,library,134,WriteAlignedField,src/missing/MissingRound2Group3.cpp:147,round2,RECONSTRUCTED,best-ratio,0x1800558a0,134,0,0,0.61194,DECLARED-DIVERGENT,1
+0x18002dad0,,library,129,EraseUnorderedRange,src/missing/MissingGroup3.cpp:272,round1,RECONSTRUCTED,existing-pair,0x18002d220,52,0,0,0.044199,RATIO,1
+0x180022be0,,plugin,127,FormatIntoSceneField,src/missing/MissingGroup3.cpp:110,round1,RECONSTRUCTED,best-ratio,0x180050f50,144,0,0,0.789668,DECLARED-DIVERGENT,1
+0x18004a450,,library,119,FormatElapsed,src/missing/MissingGroup3.cpp:292,round1,RECONSTRUCTED,existing-pair,0x180061ec0,152,0,0,0.464945,RATIO,1
+0x180022340,,plugin,117,PublishUiStatePacked,src/missing/MissingGroup2.cpp:434,round1,RECONSTRUCTED,existing-pair,0x180028ac0,140,0,0,0.817121,RATIO,1
+0x180023230,,plugin,117,ConcatStrings,src/missing/MissingRound2Group1.cpp:86,round2,RECONSTRUCTED,existing-pair,0x180025210,57,0,0,0.126437,RATIO,1
 0x18003e400,,library,115,mg5_WriteAlignedFormat,src/missing/MissingRound2Group2.cpp:259,round2,RECONSTRUCTED,best-ratio,0x1800095b0,116,0,0,0.683983,DECLARED-DIVERGENT,1
-0x18003e6e0,,library,115,FormatAlignedField,src/missing/MissingRound2Group1.cpp:251,round2,RECONSTRUCTED,best-ratio,0x180009720,116,0,0,0.683983,DECLARED-DIVERGENT,1
-0x18003e850,,library,115,WriteAlignedValue,src/missing/MissingGroup3.cpp:306,round1,RECONSTRUCTED,existing-pair,0x180055470,116,0,0,0.683983,RATIO,1
+0x18003e6e0,,library,115,FormatAlignedField,src/missing/MissingRound2Group1.cpp:251,round2,RECONSTRUCTED,existing-pair,0x180055450,116,0,0,0.683983,RATIO,1
+0x18003e850,,library,115,WriteAlignedValue,src/missing/MissingGroup3.cpp:306,round1,RECONSTRUCTED,best-ratio,0x180009720,116,0,0,0.683983,DECLARED-DIVERGENT,1
 0x180022e60,,plugin,112,mg5_PublishActiveState,src/missing/MissingRound2Group2.cpp:311,round2,RECONSTRUCTED,best-ratio,0x18000dca0,140,0,0,0.793651,DECLARED-DIVERGENT,1
-0x180046f90,,library,110,RehashByteKeyedMap,src/missing/MissingRound2Group3.cpp:187,round2,RECONSTRUCTED,best-ratio,0x18005e1d0,109,0,0,0.648402,DECLARED-DIVERGENT,1
+0x180046f90,,library,110,RehashByteKeyedMap,src/missing/MissingRound2Group3.cpp:187,round2,RECONSTRUCTED,best-ratio,0x18005e320,109,0,0,0.648402,DECLARED-DIVERGENT,1
 0x18000fef0,,plugin,102,StartGameThread,src/missing/MissingGroup3.cpp:122,round1,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
-0x18004d830,,plugin,102,mg5_DispatchPendingTasks,src/missing/MissingRound2Group2.cpp:351,round2,RECONSTRUCTED,best-ratio,0x1800653f0,106,0,0,0.740385,DECLARED-DIVERGENT,1
+0x18004d830,,plugin,102,mg5_DispatchPendingTasks,src/missing/MissingRound2Group2.cpp:351,round2,RECONSTRUCTED,best-ratio,0x180065540,106,0,0,0.740385,DECLARED-DIVERGENT,1
 0x18003a6c0,,plugin,101,StringAssign,src/missing/MissingGroup3.cpp:321,round1,RECONSTRUCTED,existing-pair,0x18001cab0,97,0,0,0.161616,RATIO,1
 0x18001e000,,library,100,ThreadJoin,src/missing/MissingRound2Group3.cpp:198,round2,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x180013f20,,plugin,99,ScheduleDelayedTask,src/missing/MissingRound2Group1.cpp:148,round2,RECONSTRUCTED,best-ratio,,,0,0,0.363636,MISSING,1
 0x180044510,,library,88,mg5_AppendTripleDigit,src/missing/MissingRound2Group2.cpp:190,round2,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x18002cfd0,auto __cdecl `anonymous-namespace'::DispatchAction::<lambda_1>::operator ()(void) const,plugin,85,DispatchActionLambda,src/missing/MissingGroup3.cpp:98,round1,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
-0x180046db0,,plugin,84,VectorAssignVoidPtr_180046db0,src/missing/MissingGroup1.cpp:126,round1,RECONSTRUCTED,existing-pair,0x180053a80,164,0,0,0.072581,RATIO,1
-0x180007dd0,,plugin,82,StringAppendChar,src/missing/MissingGroup3.cpp:329,round1,RECONSTRUCTED,existing-pair,0x18005b380,128,0,0,0.152381,RATIO,1
+0x180046db0,,plugin,84,VectorAssignVoidPtr_180046db0,src/missing/MissingGroup1.cpp:126,round1,RECONSTRUCTED,existing-pair,0x180053bd0,164,0,0,0.072581,RATIO,1
+0x180007dd0,,plugin,82,StringAppendChar,src/missing/MissingGroup3.cpp:329,round1,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x1800358a0,,library,82,FileBufOpen,src/missing/MissingRound2Group3.cpp:207,round2,RECONSTRUCTED,best-ratio,,,0,0,0.355556,MISSING,1
-0x180046050,,library,76,mg5_WritePrefixedInt,src/missing/MissingRound2Group2.cpp:234,round2,RECONSTRUCTED,best-ratio,0x18005d3e0,76,0,0,0.723684,DECLARED-DIVERGENT,1
+0x180046050,,library,76,mg5_WritePrefixedInt,src/missing/MissingRound2Group2.cpp:234,round2,RECONSTRUCTED,best-ratio,0x18005d530,76,0,0,0.723684,DECLARED-DIVERGENT,1
+0x18003d600,,library,70,mg7_RehomeStringViews,src/missing/MissingRound3.cpp:118,pre-worklist,RECONSTRUCTED,best-ratio,0x180054300,70,0,0,0.857143,DECLARED-DIVERGENT,1
 0x180044650,,library,68,WriteZeroPaddedDecimal,src/missing/MissingGroup3.cpp:337,round1,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
-0x18002d340,,library,67,src/UiBridge.cpp:51,src/missing/MissingRound2Group1.cpp:12 claims `anonymous-namespace'::JsCatalogDone -> src/UiBridge.cpp:51,round2,PRESENT-UNPAIRED,best-ratio,0x18002cc30,52,0,0,0.621849,DECLARED-DIVERGENT,1
-0x18004dfa0,,plugin,67,InitFormatArgStore,src/missing/MissingGroup3.cpp:143,round1,RECONSTRUCTED,best-ratio,0x180065de0,67,0,0,0.776119,DECLARED-DIVERGENT,1
+0x18002d340,,library,67,src/UiBridge.cpp:51,src/missing/MissingRound2Group1.cpp:12 claims `anonymous-namespace'::JsCatalogDone -> src/UiBridge.cpp:51,round2,PRESENT-UNPAIRED,best-ratio,0x18002cd80,52,0,0,0.621849,DECLARED-DIVERGENT,1
+0x18004dfa0,,plugin,67,InitFormatArgStore,src/missing/MissingGroup3.cpp:143,round1,RECONSTRUCTED,best-ratio,0x180065f30,67,0,0,0.776119,DECLARED-DIVERGENT,1
 0x180010820,,library,66,DestroyFunctionVector,src/missing/MissingRound2Group3.cpp:222,round2,RECONSTRUCTED,best-ratio,,,0,0,0.446043,MISSING,1
-0x180044ab0,,plugin,58,MoveBlockStore,src/missing/MissingRound2Group1.cpp:277,round2,RECONSTRUCTED,existing-pair,0x18005b8b0,78,0,0,0.191176,RATIO,1
+0x180044ab0,,plugin,58,MoveBlockStore,src/missing/MissingRound2Group1.cpp:277,round2,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x180010b20,,library,55,mg5_ThreadDtor,src/missing/MissingRound2Group2.cpp:148,round2,RECONSTRUCTED,best-ratio,,,0,0,0.488372,MISSING,1
-0x18002e0a0,,library,51,LookupAndCallIdFunction2,src/missing/MissingRound2Group3.cpp:232,round2,RECONSTRUCTED,best-ratio,,,0,0,0.208696,MISSING,1
-0x180054d70,,library,51,ShutdownCaptionStore,src/missing/MissingRound2Group1.cpp:66,round2,RECONSTRUCTED,best-ratio,0x18006db00,28,0,0,0.506329,DECLARED-DIVERGENT,1
+0x18002e0a0,,library,51,LookupAndCallIdFunction2,src/missing/MissingRound2Group3.cpp:232,round2,RECONSTRUCTED,best-ratio,,,0,0,0.213592,MISSING,1
+0x180054d70,,library,51,ShutdownCaptionStore,src/missing/MissingRound2Group1.cpp:66,round2,RECONSTRUCTED,best-ratio,0x18006dc50,28,0,0,0.506329,DECLARED-DIVERGENT,1
 0x18002e000,,plugin,47,GrowBSTArray,src/missing/MissingRound2Group3.cpp:87,round2,RECONSTRUCTED,best-ratio,,,0,0,0.388889,MISSING,1
-0x180047500,,plugin,47,GrowPatternBuffer,src/missing/MissingGroup3.cpp:154,round1,RECONSTRUCTED,existing-pair,0x18005e770,48,0,0,0.884211,RATIO,1
-0x18004fb6c,,library,45,CondVarTimedWait,src/missing/MissingGroup3.cpp:350,round1,RECONSTRUCTED,existing-pair,0x1800682fc,45,1,1,1.0,BYTE-MATCH,1
-0x180047470,,library,44,AppendRangeToIterator,src/missing/MissingRound2Group3.cpp:242,round2,RECONSTRUCTED,best-ratio,0x18005e6e0,38,0,0,0.560976,DECLARED-DIVERGENT,1
+0x180047500,,plugin,47,GrowPatternBuffer,src/missing/MissingGroup3.cpp:154,round1,RECONSTRUCTED,existing-pair,0x18005e8c0,48,0,0,0.884211,RATIO,1
+0x180037fe0,"bool __cdecl SKSE::MessagingInterface::RegisterListener(const char *,void (__cdecl *)(struct SKSE::MessagingInterface::Message *)) const",library,45,src/Lifecycle.cpp:64,src/missing/MissingRound3.cpp:26 claims SKSE::MessagingInterface::RegisterListener -> src/Lifecycle.cpp:64,pre-worklist,PRESENT-UNPAIRED,best-ratio,0x180040c00,45,0,0,0.977778,DECLARED-DIVERGENT,1
+0x18004fb6c,,library,45,CondVarTimedWait,src/missing/MissingGroup3.cpp:350,round1,RECONSTRUCTED,existing-pair,0x18006844c,45,1,1,1.0,BYTE-MATCH,1
+0x18003e380,,library,44,src/missing/MissingGroup2.cpp:75,src/missing/MissingRound3.cpp:25 claims mg2_CopyToBackInserter -> src/missing/MissingGroup2.cpp:75,pre-worklist,PRESENT-UNPAIRED,best-ratio,0x1800550e0,39,0,0,0.578313,DECLARED-DIVERGENT,1
+0x180047470,,library,44,AppendRangeToIterator,src/missing/MissingRound2Group3.cpp:242,round2,RECONSTRUCTED,best-ratio,0x18005e830,38,0,0,0.560976,DECLARED-DIVERGENT,1
 0x180006290,,library,42,ReleaseThreadControlBlock,src/missing/MissingRound2Group1.cpp:108,round2,RECONSTRUCTED,best-ratio,,,0,0,0.434783,MISSING,1
-0x180045980,,library,41,ReleaseSharedPtrControl,src/missing/MissingGroup3.cpp:365,round1,RECONSTRUCTED,best-ratio,0x18005cb80,40,0,0,0.641975,DECLARED-DIVERGENT,1
+0x180045980,,library,41,ReleaseSharedPtrControl,src/missing/MissingGroup3.cpp:365,round1,RECONSTRUCTED,best-ratio,0x18005ccd0,40,0,0,0.641975,DECLARED-DIVERGENT,1
 0x18003a630,,plugin,40,StringAppendRange,src/missing/MissingRound2Group3.cpp:77,round2,RECONSTRUCTED,best-ratio,0x1800241f0,40,0,0,0.7,DECLARED-DIVERGENT,1
 0x180046f00,,library,39,AllocateVector128,src/missing/MissingGroup3.cpp:373,round1,RECONSTRUCTED,existing-pair,0x180020880,185,0,0,0.089286,RATIO,1
-0x180040890,,plugin,38,src/missing/MissingGroup2.cpp:41,src/missing/MissingRound2Group1.cpp:20 claims mg2_FillWords -> src/missing/MissingGroup2.cpp:41,round2,PRESENT-UNPAIRED,best-ratio,0x180057640,39,0,0,0.753247,DECLARED-DIVERGENT,1
+0x180040890,,plugin,38,src/missing/MissingGroup2.cpp:41,src/missing/MissingRound2Group1.cpp:20 claims mg2_FillWords -> src/missing/MissingGroup2.cpp:41,round2,PRESENT-UNPAIRED,best-ratio,0x180057790,39,0,0,0.753247,DECLARED-DIVERGENT,1
+0x1800483b0,,plugin,35,mg7_SetSuspendFlag,src/missing/MissingRound3.cpp:197,pre-worklist,RECONSTRUCTED,best-ratio,,,0,0,0.41791,MISSING,1
 0x18004da00,,plugin,35,SetRegistryLevel,src/missing/MissingRound2Group3.cpp:107,round2,RECONSTRUCTED,best-ratio,,,0,0,0.41791,MISSING,1
+0x18003a370,,library,34,src/missing/MissingGroup2.cpp:303,src/missing/MissingRound3.cpp:24 claims mg2_IdJump -> src/missing/MissingGroup2.cpp:303,pre-worklist,PRESENT-UNPAIRED,best-ratio,,,0,0,0.357143,MISSING,1
 0x18003ac10,,library,34,DestroyTreeNodes,src/missing/MissingGroup3.cpp:382,round1,RECONSTRUCTED,existing-pair,0x180021c80,34,1,1,1.0,BYTE-MATCH,1
+0x180008a30,,plugin,33,src/missing/MissingGroup2.cpp:152,src/missing/MissingRound3.cpp:20 claims mg2_CopyElems72 -> src/missing/MissingGroup2.cpp:152,pre-worklist,PRESENT-UNPAIRED,best-ratio,,,0,0,0.375,MISSING,1
 0x180018cc0,,plugin,32,FunctionMoveSbo,src/missing/MissingGroup3.cpp:390,round1,RECONSTRUCTED,existing-pair,0x180024170,32,1,1,1.0,BYTE-MATCH,1
-0x18001bbb0,,library,30,IdDatabaseInstance,src/missing/MissingGroup3.cpp:172,round1,RECONSTRUCTED,existing-pair,0x18003ff00,30,1,1,1.0,BYTE-MATCH,1
-0x180023c10,,library,25,DestroyArray16,src/missing/MissingRound2Group3.cpp:253,round2,RECONSTRUCTED,best-ratio,0x18004b5a0,31,0,0,0.75,DECLARED-DIVERGENT,1
-0x18002dda0,,plugin,25,DestroyFunctionArray,src/missing/MissingGroup3.cpp:397,round1,RECONSTRUCTED,best-ratio,0x18002c990,20,0,0,0.533333,DECLARED-DIVERGENT,1
+0x18001bbb0,,library,30,IdDatabaseInstance,src/missing/MissingGroup3.cpp:172,round1,RECONSTRUCTED,existing-pair,0x180040050,30,1,1,1.0,BYTE-MATCH,1
+0x180044b80,,plugin,30,mg7_InitRateState,src/missing/MissingRound3.cpp:161,pre-worklist,RECONSTRUCTED,existing-pair,0x18005bb30,65,0,0,0.505263,RATIO,1
+0x180023c10,,library,25,DestroyArray16,src/missing/MissingRound2Group3.cpp:253,round2,RECONSTRUCTED,best-ratio,0x18004b6f0,31,0,0,0.75,DECLARED-DIVERGENT,1
+0x18002dda0,,plugin,25,DestroyFunctionArray,src/missing/MissingGroup3.cpp:397,round1,RECONSTRUCTED,best-ratio,0x18002cae0,20,0,0,0.533333,DECLARED-DIVERGENT,1
 0x180045d70,,library,24,FlushBufferToTarget,src/missing/MissingRound2Group3.cpp:264,round2,RECONSTRUCTED,best-ratio,,,0,0,0.0,MISSING,1
 0x1800107a0,,library,22,ReleaseRefBlock_1800107a0,src/missing/MissingGroup1.cpp:64,round1,RECONSTRUCTED,existing-pair,0x180020ca0,22,1,1,1.0,BYTE-MATCH,1
 0x180037490,,plugin,21,src/missing/MissingGroup2.cpp:284,src/missing/MissingRound2Group1.cpp:21 claims mg2_IdLookupA -> src/missing/MissingGroup2.cpp:284,round2,PRESENT-UNPAIRED,best-ratio,,,0,0,0.45,MISSING,1
 0x180037ae0,,plugin,21,mg5_RelIdLookup,src/missing/MissingRound2Group2.cpp:399,round2,RECONSTRUCTED,best-ratio,,,0,0,0.45,MISSING,1
+0x1800390b0,,plugin,21,src/missing/MissingRound2Group1.cpp:231,src/missing/MissingRound3.cpp:23 claims IdLookup_615a0 -> src/missing/MissingRound2Group1.cpp:231,pre-worklist,PRESENT-UNPAIRED,best-ratio,,,0,0,0.45,MISSING,1
 0x180039120,,plugin,21,LookupIdGlobal,src/missing/MissingRound2Group3.cpp:120,round2,RECONSTRUCTED,best-ratio,,,0,0,0.45,MISSING,1
-0x18002c710,,library,20,AllocateVector16,src/missing/MissingGroup3.cpp:134,round1,RECONSTRUCTED,best-ratio,0x180048270,14,0,0,0.647059,DECLARED-DIVERGENT,1
+0x18002c710,,library,20,AllocateVector16,src/missing/MissingGroup3.cpp:134,round1,RECONSTRUCTED,best-ratio,0x1800483c0,14,0,0,0.647059,DECLARED-DIVERGENT,1
 0x1800374f0,,plugin,20,Id2Offset,src/missing/MissingRound2Group1.cpp:207,round2,RECONSTRUCTED,best-ratio,,,0,0,0.461538,MISSING,1
 0x180055090,,library,20,LookupAndCallIdFunction,src/missing/MissingRound2Group3.cpp:276,round2,RECONSTRUCTED,best-ratio,,,0,0,0.37037,MISSING,1
+0x180016d20,,library,17,src/FocusRecovery.cpp:76,src/missing/MissingRound3.cpp:21 claims CloseConsolePulse -> src/FocusRecovery.cpp:76,pre-worklist,PRESENT-UNPAIRED,best-ratio,0x18001df50,18,0,0,0.8,DECLARED-DIVERGENT,1
 0x180016820,,library,16,DeletingDtor_180016820,src/missing/MissingGroup1.cpp:113,round1,RECONSTRUCTED,existing-pair,0x1800212c0,16,1,1,1.0,BYTE-MATCH,1
+0x18002c9d0,,library,16,src/missing/MissingRound2Group1.cpp:186,src/missing/MissingRound3.cpp:22 claims CopyCatalogAppendFunction -> src/missing/MissingRound2Group1.cpp:186,pre-worklist,PRESENT-UNPAIRED,best-ratio,0x180048980,10,0,0,0.615385,DECLARED-DIVERGENT,1
 0x180010aa0,,library,14,DestroyOneFunction,src/missing/MissingRound2Group3.cpp:284,round2,RECONSTRUCTED,best-ratio,0x1800224f0,21,0,0,0.628571,DECLARED-DIVERGENT,1
-0x180052f30,,library,13,ClearStateFlag8,src/missing/MissingGroup3.cpp:422,round1,RECONSTRUCTED,best-ratio,0x18006c480,13,0,0,0.846154,DECLARED-DIVERGENT,1
-0x180052f70,,library,13,CleanupFlaggedString_180052f70,src/missing/MissingGroup1.cpp:91,round1,RECONSTRUCTED,best-ratio,0x18006c530,13,0,0,0.923077,DECLARED-DIVERGENT,1
-0x180053120,,library,13,ClearFlag1DestroyString,src/missing/MissingRound2Group3.cpp:292,round2,RECONSTRUCTED,best-ratio,0x18006a190,13,0,0,0.923077,DECLARED-DIVERGENT,1
-0x180053420,,library,13,ClearStateFlag2,src/missing/MissingGroup3.cpp:433,round1,RECONSTRUCTED,best-ratio,0x18006c5ec,13,0,0,0.923077,DECLARED-DIVERGENT,1
-0x180001100,,library,12,mg5_InitActiveFalseGlobal,src/missing/MissingRound2Group2.cpp:127,round2,RECONSTRUCTED,best-ratio,0x18006db80,6,0,0,0.555556,DECLARED-DIVERGENT,1
+0x180052f30,,library,13,ClearStateFlag8,src/missing/MissingGroup3.cpp:422,round1,RECONSTRUCTED,best-ratio,0x18006c5d0,13,0,0,0.846154,DECLARED-DIVERGENT,1
+0x180052f70,,library,13,CleanupFlaggedString_180052f70,src/missing/MissingGroup1.cpp:91,round1,RECONSTRUCTED,best-ratio,0x18006c680,13,0,0,0.923077,DECLARED-DIVERGENT,1
+0x180053120,,library,13,ClearFlag1DestroyString,src/missing/MissingRound2Group3.cpp:292,round2,RECONSTRUCTED,best-ratio,0x18006a2e0,13,0,0,0.923077,DECLARED-DIVERGENT,1
+0x180053420,,library,13,ClearStateFlag2,src/missing/MissingGroup3.cpp:433,round1,RECONSTRUCTED,best-ratio,0x18006c73c,13,0,0,0.923077,DECLARED-DIVERGENT,1
+0x180001100,,library,12,mg5_InitActiveFalseGlobal,src/missing/MissingRound2Group2.cpp:127,round2,RECONSTRUCTED,best-ratio,0x18006dcd0,6,0,0,0.555556,DECLARED-DIVERGENT,1
 0x1800236f0,,library,12,ReleaseInterface,src/missing/MissingRound2Group3.cpp:304,round2,RECONSTRUCTED,best-ratio,0x180021820,12,0,0,0.833333,DECLARED-DIVERGENT,1
-0x18002bea0,,plugin,11,src/Presentation.cpp:115,src/missing/MissingRound2Group1.cpp:13 claims `anonymous-namespace'::QueuePresentation -> src/Presentation.cpp:115,round2,PRESENT-UNPAIRED,best-ratio,0x180032b70,15,0,0,0.846154,DECLARED-DIVERGENT,1
-0x180054d30,,library,10,ShutdownUiGlobals,src/missing/MissingGroup3.cpp:217,round1,RECONSTRUCTED,best-ratio,0x18006c300,8,0,0,0.555556,DECLARED-DIVERGENT,1
-0x180023b60,,library,9,DestroyFunctionPair,src/missing/MissingRound2Group3.cpp:314,round2,RECONSTRUCTED,best-ratio,0x180028c40,9,0,0,0.888889,DECLARED-DIVERGENT,1
-0x1800382b0,,library,5,GetGameSettingDword,src/missing/MissingGroup3.cpp:208,round1,RECONSTRUCTED,best-ratio,0x1800416c0,5,0,0,0.8,DECLARED-DIVERGENT,1
+0x18002bea0,,plugin,11,src/Presentation.cpp:115,src/missing/MissingRound2Group1.cpp:13 claims `anonymous-namespace'::QueuePresentation -> src/Presentation.cpp:115,round2,PRESENT-UNPAIRED,best-ratio,0x180032cc0,15,0,0,0.846154,DECLARED-DIVERGENT,1
+0x180054d30,,library,10,ShutdownUiGlobals,src/missing/MissingGroup3.cpp:217,round1,RECONSTRUCTED,best-ratio,0x18006c450,8,0,0,0.555556,DECLARED-DIVERGENT,1
+0x180023b60,,library,9,DestroyFunctionPair,src/missing/MissingRound2Group3.cpp:314,round2,RECONSTRUCTED,best-ratio,0x180028d90,9,0,0,0.888889,DECLARED-DIVERGENT,1
+0x1800257d0,,plugin,8,mg7_StringAppendCharThunk,src/missing/MissingRound3.cpp:94,pre-worklist,RECONSTRUCTED,best-ratio,0x180048350,9,0,0,0.941176,DECLARED-DIVERGENT,1
+0x1800382b0,,library,5,GetGameSettingDword,src/missing/MissingGroup3.cpp:208,round1,RECONSTRUCTED,best-ratio,0x180041810,5,0,0,0.8,DECLARED-DIVERGENT,1
