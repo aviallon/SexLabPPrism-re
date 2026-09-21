@@ -86,7 +86,41 @@ namespace
 		}
 		task->AddTask(std::function<void()>(std::forward<F>(a_callable)));
 	}
+
+	// -----------------------------------------------------------------------
+	// 0x18002d170 JsCatalogReset / 0x18002d340 JsCatalogDone (the Class-1
+	// "declared bodies in no force table" residue). In the original these two
+	// are reachable only through the catalogue publish path; our reconstruction
+	// of that path (Catalog::RetryPublish / CatalogNatives) calls
+	// UiBridge::InvokeJs directly, so nothing references these bodies and
+	// /Gy + /OPT:REF strips them before any symbol exists for the linker map to
+	// bind. Force-link them with the mandated whole-table XOR sink below.
+	// Matching-decomp artefact, NOT behaviour: no live runtime path calls them.
+	const void* const kForceUnfoldUiBridge[] = {
+		reinterpret_cast<const void*>(&JsCatalogReset),
+		reinterpret_cast<const void*>(&JsCatalogDone),
+	};
 }  // namespace
+
+extern "C" void ForceLink_UnfoldUiBridge()
+{
+	// Observe every element: seeing only element 0 lets the optimiser fold the
+	// rest of the table away and the linker then strips those bodies.
+	volatile std::uintptr_t sink = 0;
+	for (const void* p : kForceUnfoldUiBridge) {
+		sink ^= reinterpret_cast<std::uintptr_t>(p);
+	}
+	(void)sink;
+}
+
+// Keep the force-link entry point itself alive. /OPT:REF strips it (and, with
+// it, the table's address-taken callees) unless something references it;
+// src/main.cpp is single-owned, so instead of a call there we ask the linker
+// directly. MSVC and clang-cl both emit this as a /INCLUDE directive, which
+// lld-link honours, so zero hook lines are needed in src/main.cpp.
+#ifdef _MSC_VER
+#	pragma comment(linker, "/include:ForceLink_UnfoldUiBridge")
+#endif
 
 namespace UiBridge
 {

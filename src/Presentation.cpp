@@ -140,6 +140,13 @@ namespace Presentation
 		::ApplyConsoleVisibility(a_sceneActive);
 	}
 
+	// 0x1800261e0 (326 insns): the original keeps this as its own function.
+	// It has several live callers (InputSink F3/F4, UiBridge::PushStateBody,
+	// the SetSearchQuery task lambda), so it is NOT stripped — but without
+	// noinline the optimiser folds the small body into every caller and no
+	// standalone boundary is emitted for the matcher to bind. Force it
+	// out-of-line: this is the inlining boundary the original has.
+	__declspec(noinline)
 	void ApplyPresentation()
 	{
 		const bool sceneActive = SceneState::IsSceneActive();
@@ -153,6 +160,9 @@ namespace Presentation
 		PrismaUI::InvokeJs("slppSetInteractive", interactive ? "1" : "0");
 	}
 
+	// The cross-TU shim for the anchored anon-namespace `QueuePresentation`
+	// (0x18002bea0). noinline so the shim does not swallow the anchored body.
+	__declspec(noinline)
 	void QueuePresentation()
 	{
 		::QueuePresentation();
