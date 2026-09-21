@@ -23,13 +23,17 @@ namespace Catalog
 		std::size_t operator()(std::string_view a_key) const noexcept;
 	};
 
+	// The original's record is four MSVC std::strings, nothing else. The tags
+	// field is ONE comma-separated string (the formatter FUN_1800273a0 splits it
+	// inline); it is not a std::vector. Verified against FUN_180029740 and
+	// FUN_1800273a0: record+0x40 size/cap at +0x50/+0x58 (std::string SBO), and
+	// record+0x60 is the package (defaulted to "Unsorted" by the formatter).
 	struct Record
 	{
-		std::string              id;               // +0x00
-		std::string              name;             // +0x20
-		std::vector<std::string> tags;             // +0x40
-		std::uint64_t            reserved = 0;     // +0x58 (unidentified; padding to +0x60)
-		std::string              package;          // +0x60
+		std::string id;       // +0x00
+		std::string name;     // +0x20
+		std::string tags;     // +0x40 one comma-separated tag list
+		std::string package;  // +0x60
 	};
 	static_assert(sizeof(Record) == 0x80, "catalogue record stride must be 128 bytes");
 
