@@ -749,15 +749,16 @@ def write_report(path, fo, fn, pairs, unmA, name_map, tier_map, masked):
     A(f"- matching, instruction-weighted: **{pct_i:.2f}%** "
       f"({allt['byte_insn']}/{allt['orig_insn']} orig instructions)\n")
     A("## Per tier\n")
-    A("| tier | funcs | BYTE | INSN | RATIO | MISSING | byte% | insn% |")
-    A("|---|---|---|---|---|---|---|---|")
+    A("| tier | funcs | BYTE | INSN | RATIO | MISSING | DECLARED-DIVERGENT | byte% | insn% |")
+    A("|---|---|---|---|---|---|---|---|---|")
     for tier in ("plugin", "library", "all"):
         t = tiers[tier]
         c = t["counts"]
         bf = 100.0 * c.get(BYTE, 0) / max(t["orig_funcs"], 1)
         bi = 100.0 * t["byte_insn"] / max(t["orig_insn"], 1)
         A(f"| {tier} | {t['orig_funcs']} | {c.get(BYTE,0)} | {c.get(INSN,0)} | "
-          f"{c.get(RATIO,0)} | {c.get(MISSING,0)} | {bf:.1f} | {bi:.1f} |")
+          f"{c.get(RATIO,0)} | {c.get(MISSING,0)} | {c.get(DECLARED,0)} | "
+          f"{bf:.1f} | {bi:.1f} |")
     A("")
     close = sorted((p for p in pairs if not p["bytematch"]),
                    key=lambda p: -p["ratio"])[:15]
@@ -1174,14 +1175,33 @@ def main():
             "anchor": p.get("anchor") if p else None,
             "confidence": p.get("confidence") if p else None,
         }
-        if p and p.get("declared"):
-            r = dec_by_addr.get(hex(f["addr"]))
+        # A declaration is a first-class thing in the model, not a printer-side
+        # annotation: EVERY declared original carries its symbol, evidence and
+        # binding here (including one that could not be bound and stays MISSING),
+        # so every consumer sees the same population.
+        dec_row = dec_by_addr.get(hex(f["addr"]))
+        if dec_row is not None:
             row["declared"] = True
-            row["declared_symbol"] = r["declared_symbol"] if r else ""
-            row["declared_evidence"] = r["evidence"] if r else ""
-            row["declared_binding"] = r["binding"] if r else ""
-            row["declared_map_symbol"] = r.get("map_symbol", "") if r else ""
-            row["declared_map_reason"] = r.get("map_reason", "") if r else ""
+            row["declared_symbol"] = dec_row["declared_symbol"]
+            row["declared_evidence"] = dec_row["evidence"]
+            row["declared_round"] = dec_row.get("round", "")
+            row["declared_binding"] = dec_row["binding"]
+            row["declared_map_symbol"] = dec_row.get("map_symbol", "")
+            row["declared_map_reason"] = dec_row.get("map_reason", "")
+            row["declared_verdict"] = dec_row["verdict"]
+            if p is None:
+                # an UNBOUND declaration: it stays MISSING, with its reason
+                # retained here; it is never silently folded into the
+                # undeclared MISSING mass.
+                row["declared_class"] = "UNBOUND"
+            elif p.get("declared"):
+                row["declared_class"] = (DECLARED if p["verdict"] == DECLARED
+                                         else "BOUND")
+            else:
+                # declaration agrees with an independently found pair; the
+                # pair's own verdict stands (a declaration never changes it).
+                row["declared_class"] = "BOUND"
+                row["declared_existing_pair"] = True
         if infolding is not None and f["addr"] in infolding:
             r = infolding[f["addr"]]
             row["missing_class"] = r["class"]
